@@ -14,6 +14,8 @@
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 30, 86, 0.2); border-radius: 10px; }
+        input[type="month"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: 0.2s; }
+        input[type="month"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
     </style>
 </head>
 <body class="min-h-screen p-4 pb-20 relative overflow-x-hidden">
@@ -53,7 +55,7 @@
                 <div class="glass p-8 rounded-[3rem] text-center relative border-2 border-white">
                     <p id="current-booth-name" class="inline-block bg-rose-100 text-[10px] font-black uppercase tracking-[0.3em] text-rose-600 px-4 py-1 rounded-full mb-6"></p>
                     <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Now Posing 📸</h2>
-                    <div id="active-no" class="text-8xl font-black text-rose-500 my-4 drop-shadow-sm transition-transform">---</div>
+                    <div id="active-no" class="text-8xl font-black text-rose-500 my-4 drop-shadow-sm transition-transform duration-300">---</div>
                     <div class="grid grid-cols-2 gap-4 mt-8 bg-white/50 rounded-3xl p-6 shadow-inner">
                         <div class="text-left border-r border-slate-200">
                             <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Get Number</p>
@@ -89,35 +91,44 @@
                 <div class="flex justify-between items-center px-2">
                     <h2 class="text-2xl font-black tracking-tight text-slate-900">Admin<span class="text-rose-500">Ops</span></h2>
                     <div class="px-4 py-2 bg-emerald-100 border border-emerald-200 rounded-full">
-                        <p class="text-emerald-600 text-[10px] font-bold uppercase tracking-widest">Total Selesai: <span id="admin-total-done" class="text-sm font-black">0</span></p>
+                        <p class="text-emerald-600 text-[10px] font-bold uppercase tracking-widest">Total Selesai Keseluruhan: <span id="admin-total-done" class="text-sm font-black">0</span></p>
                     </div>
                 </div>
 
                 <div id="admin-booths" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
                 <div class="glass p-6 rounded-[2rem] border border-white">
-                    <h3 class="font-bold text-sm uppercase tracking-widest mb-4 text-slate-800 border-b border-slate-200 pb-3 flex items-center gap-2">
-                        📊 Statistik Pengunjung Selesai
-                    </h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead>
-                                <tr class="text-[10px] text-slate-400 uppercase tracking-widest border-b border-slate-200">
-                                    <th class="pb-3 font-bold">Booth</th>
-                                    <th class="pb-3 text-center font-bold">Hari Ini</th>
-                                    <th class="pb-3 text-center font-bold">Bln Ini</th>
-                                    <th class="pb-3 text-center font-bold">Thn Ini</th>
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                        <h3 class="font-bold text-sm uppercase tracking-widest text-slate-800 flex items-center gap-2">
+                            📊 Laporan Pengunjung Harian
+                        </h3>
+                        <div class="flex items-center gap-2 bg-white/80 px-3 py-2 rounded-xl border border-slate-200 shadow-sm">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Pilih Periode:</span>
+                            <input type="month" id="monthFilter" class="bg-transparent font-bold text-sm text-rose-600 outline-none cursor-pointer" onchange="loadMonthlyStats()">
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white/40">
+                        <table class="w-full text-left text-xs min-w-[500px]">
+                            <thead class="bg-slate-100/50">
+                                <tr class="text-[9px] text-slate-500 uppercase tracking-widest border-b border-slate-200">
+                                    <th class="py-3 px-2 text-center font-bold">TGL</th>
+                                    <th class="py-3 px-2 text-center font-bold">Elevator</th>
+                                    <th class="py-3 px-2 text-center font-bold text-blue-500">MRT</th>
+                                    <th class="py-3 px-2 text-center font-bold text-amber-500">Vintage</th>
+                                    <th class="py-3 px-2 text-center font-bold text-purple-500">Tirai</th>
+                                    <th class="py-3 px-2 text-center font-black text-rose-500">TOTAL</th>
                                 </tr>
                             </thead>
-                            <tbody id="admin-stats-table" class="text-sm">
+                            <tbody id="admin-monthly-table">
                                 </tbody>
                         </table>
                     </div>
                 </div>
 
                 <div class="glass p-6 rounded-[2rem] border border-white">
-                    <h3 class="font-bold text-sm uppercase tracking-widest mb-4 text-slate-800 border-b border-slate-200 pb-2">Recent Activity Log</h3>
-                    <div id="admin-recap" class="text-xs max-h-60 overflow-y-auto pr-2 flex flex-col gap-2"></div>
+                    <h3 class="font-bold text-sm uppercase tracking-widest mb-4 text-slate-800 border-b border-slate-200 pb-2">Log Real-time 50 Terakhir</h3>
+                    <div id="admin-recap" class="text-xs max-h-48 overflow-y-auto pr-2 flex flex-col gap-2"></div>
                 </div>
                 
                 <button onclick="logoutAdmin()" class="w-full bg-slate-200 text-slate-500 py-4 rounded-2xl font-bold hover:bg-rose-100 hover:text-rose-600 transition">LOGOUT SESSION</button>
@@ -126,7 +137,7 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwUYDBZAYI4IsnZ9-P5tX8Owp35fqyiAqyQ3ujcoxU3DLEW3yFA2ywOQk3Xw9iZd6_RMw/exec"; // Masukkan URL Google Script-mu
+        const API_URL = "https://script.google.com/macros/s/AKfycbzs5Ba4gpSe2KsWUstrswkbsMErc1X1PDaylRg5H6-RNn5XMmB2Or5B_kljXdtb5E7ZGw/exec"; // GANTI INI
         let currentBooth = "";
         let lastActiveTrack = {};
 
@@ -134,6 +145,12 @@
             const savedTicket = localStorage.getItem('klikka_my_ticket');
             const savedBooth = localStorage.getItem('klikka_my_booth');
             
+            // Set Default Pemilih Bulan ke Bulan Ini
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            document.getElementById('monthFilter').value = `${yyyy}-${mm}`;
+
             if (savedTicket && savedBooth) {
                 currentBooth = savedBooth;
                 document.getElementById('my-number').innerText = savedTicket;
@@ -172,10 +189,10 @@
                     if(lastActiveTrack[currentBooth] && lastActiveTrack[currentBooth] !== s.active_number && s.active_number !== "---") {
                         document.getElementById('notif-sound').play().catch(()=>{});
                         activeEl.style.transform = "scale(1.2)";
-                        activeEl.style.color = "#10b981"; // Hijau saat dipanggil
+                        activeEl.style.color = "#10b981"; 
                         setTimeout(() => {
                             activeEl.style.transform = "scale(1)";
-                            activeEl.style.color = "#f43f5e"; // Kembali ke Rose
+                            activeEl.style.color = "#f43f5e"; 
                         }, 1000);
                     }
                     lastActiveTrack[currentBooth] = s.active_number;
@@ -187,7 +204,6 @@
                 if (document.getElementById('admin-total-done')) {
                     document.getElementById('admin-total-done').innerText = data.total_done;
                     updateAdminPanel(data.stats);
-                    updateAdminStatsTable(data.stats); // Fungsi tabel baru
                     updateRecap(data.recap);
                 }
             } catch (e) { console.error("Sync Error", e); }
@@ -218,7 +234,7 @@
             container.innerHTML = "";
             for (const [name, s] of Object.entries(stats)) {
                 container.innerHTML += `
-                    <div class="glass p-5 rounded-[2rem] border-t-4 border-rose-400 bg-white/80 shadow-sm flex flex-col justify-between">
+                    <div class="glass p-5 rounded-[2rem] border-t-4 ${s.total_waiting > 0 ? 'border-rose-400 bg-white/80' : 'border-slate-200 bg-white/50'} shadow-sm flex flex-col justify-between">
                         <h4 class="font-black uppercase text-rose-600 text-[10px] tracking-[0.2em] mb-4">${name.replace('_',' ')}</h4>
                         <div class="flex justify-between items-center mb-6 px-2">
                             <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Active</p><p class="text-2xl font-black text-slate-800">${s.active_number}</p></div>
@@ -226,24 +242,6 @@
                         </div>
                         <button onclick="callNext('${name}')" class="w-full ${s.total_waiting > 0 ? 'red-gradient text-white shadow-md hover:-translate-y-1' : 'bg-slate-200 text-slate-400'} py-4 rounded-xl font-black text-xs transition-all">CALL NEXT →</button>
                     </div>`;
-            }
-        }
-
-        // FUNGSI BARU: Tabel Statistik Histori
-        function updateAdminStatsTable(stats) {
-            const tbody = document.getElementById('admin-stats-table');
-            if (!tbody) return;
-            tbody.innerHTML = "";
-            
-            for (const [name, s] of Object.entries(stats)) {
-                tbody.innerHTML += `
-                    <tr class="border-b border-slate-100 hover:bg-white/50 transition">
-                        <td class="py-3 font-bold text-slate-700 uppercase text-[10px] tracking-widest">${name.replace('_', ' ')}</td>
-                        <td class="py-3 text-center font-black text-rose-500">${s.summary.daily}</td>
-                        <td class="py-3 text-center font-bold text-slate-700">${s.summary.monthly}</td>
-                        <td class="py-3 text-center font-bold text-slate-700">${s.summary.yearly}</td>
-                    </tr>
-                `;
             }
         }
 
@@ -264,9 +262,86 @@
                 </div>`).join('');
         }
 
+        // --- FUNGSI BARU UNTUK TABEL LAPORAN BULANAN ---
+        async function loadMonthlyStats() {
+            const filterVal = document.getElementById('monthFilter').value;
+            if(!filterVal) return;
+            
+            const [year, month] = filterVal.split('-');
+            const tbody = document.getElementById('admin-monthly-table');
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400 font-bold animate-pulse">Menarik data dari database... ⏳</td></tr>';
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'get_monthly_stats', month: parseInt(month), year: parseInt(year) })
+                });
+                const result = await res.json();
+                if(result.success) {
+                    renderMonthlyTable(result.data, result.days);
+                }
+            } catch(e) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-rose-500 font-bold">Gagal memuat data. Periksa koneksi internet.</td></tr>';
+            }
+        }
+
+        function renderMonthlyTable(data, days) {
+            const tbody = document.getElementById('admin-monthly-table');
+            let html = '';
+            let tElv = 0, tMrt = 0, tVnt = 0, tTr = 0, tAll = 0;
+
+            for(let i=1; i<=days; i++) {
+                const d = data[i];
+                if(d.total > 0) {
+                    // Jika ada pengunjung di hari itu
+                    html += `
+                    <tr class="border-b border-slate-200/50 hover:bg-white/70 transition">
+                        <td class="py-2 px-2 text-center font-bold text-slate-700">${i}</td>
+                        <td class="py-2 px-2 text-center text-slate-600 font-semibold">${d.elevator}</td>
+                        <td class="py-2 px-2 text-center text-blue-500 font-semibold">${d.mrt}</td>
+                        <td class="py-2 px-2 text-center text-amber-500 font-semibold">${d.elevator_vintage}</td>
+                        <td class="py-2 px-2 text-center text-purple-500 font-semibold">${d.tirai_vintage}</td>
+                        <td class="py-2 px-2 text-center font-black text-rose-600 bg-rose-50/50">${d.total}</td>
+                    </tr>`;
+                } else {
+                    // Jika hari itu kosong
+                     html += `
+                    <tr class="border-b border-slate-100 opacity-40">
+                        <td class="py-1 px-2 text-center font-bold text-slate-400">${i}</td>
+                        <td class="py-1 px-2 text-center">-</td><td class="py-1 px-2 text-center">-</td>
+                        <td class="py-1 px-2 text-center">-</td><td class="py-1 px-2 text-center">-</td>
+                        <td class="py-1 px-2 text-center font-bold">-</td>
+                    </tr>`;
+                }
+                tElv += d.elevator; tMrt += d.mrt; tVnt += d.elevator_vintage; tTr += d.tirai_vintage; tAll += d.total;
+            }
+
+            // Tambahkan Baris Grand Total di Bawah Tabel
+            html += `
+                <tr class="bg-rose-100 font-black text-rose-600 border-t-2 border-rose-200">
+                    <td class="py-4 px-2 text-center">TOTAL</td>
+                    <td class="py-4 px-2 text-center">${tElv}</td>
+                    <td class="py-4 px-2 text-center">${tMrt}</td>
+                    <td class="py-4 px-2 text-center">${tVnt}</td>
+                    <td class="py-4 px-2 text-center">${tTr}</td>
+                    <td class="py-4 px-2 text-center bg-rose-200">${tAll}</td>
+                </tr>
+            `;
+            tbody.innerHTML = html;
+        }
+
         function toggleAdmin() { document.getElementById('view-customer').classList.toggle('hidden'); document.getElementById('view-admin').classList.toggle('hidden'); }
         function loginAdmin() { if(document.getElementById('admin-code').value === "1234") { localStorage.setItem('klikka_admin_logged_in', 'true'); showAdminPanel(); } else { alert("Passcode Incorrect!"); } }
-        function showAdminPanel() { document.getElementById('view-customer').classList.add('hidden'); document.getElementById('view-admin').classList.remove('hidden'); document.getElementById('admin-login').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); refreshData(); }
+        
+        function showAdminPanel() { 
+            document.getElementById('view-customer').classList.add('hidden'); 
+            document.getElementById('view-admin').classList.remove('hidden'); 
+            document.getElementById('admin-login').classList.add('hidden'); 
+            document.getElementById('admin-panel').classList.remove('hidden'); 
+            refreshData(); 
+            loadMonthlyStats(); // Panggil data kalender saat admin buka panel
+        }
+        
         function logoutAdmin() { localStorage.removeItem('klikka_admin_logged_in'); location.reload(); }
 
         setInterval(refreshData, 5000); 
