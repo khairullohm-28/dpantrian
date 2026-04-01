@@ -70,15 +70,13 @@
                     <p class="text-emerald-400 font-bold">Total Selesai: <span id="admin-total-done">0</span></p>
                 </div>
 
-                <div id="admin-booths" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    </div>
+                <div id="admin-booths" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
                 <div class="glass p-6 rounded-3xl">
                     <h3 class="font-bold mb-4 border-b border-white/10 pb-2">Rekap Pengunjung Selesai</h3>
-                    <div id="admin-recap" class="text-sm space-y-2 max-h-48 overflow-y-auto">
-                        </div>
+                    <div id="admin-recap" class="text-sm space-y-2 max-h-48 overflow-y-auto"></div>
                 </div>
-                <button onclick="location.reload()" class="w-full bg-red-500/20 text-red-400 py-3 rounded-xl">Logout</button>
+                <button onclick="logoutAdmin()" class="w-full bg-red-500/20 text-red-400 py-3 rounded-xl font-bold">LOGOUT & RESET SESSION</button>
             </div>
         </div>
     </div>
@@ -86,6 +84,14 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbyHIMyiyA1OtY7o2RMA7BGjJnQqCkSw6mVVHK_TQc3jDLqB35BmLlxq9cvAYvFdzaDG6Q/exec";
         let currentBooth = "";
+
+        // CEK STATUS LOGIN SAAT HALAMAN DIBUKA
+        window.onload = () => {
+            if (localStorage.getItem('klikka_admin_logged_in') === 'true') {
+                showAdminPanel();
+            }
+            refreshData();
+        };
 
         function selectBooth(b) {
             currentBooth = b;
@@ -100,7 +106,6 @@
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'get_status' })});
                 const data = await res.json();
                 
-                // Update Customer View
                 if(currentBooth) {
                     const s = data.stats[currentBooth];
                     document.getElementById('active-no').innerText = s.active_number;
@@ -108,17 +113,38 @@
                     document.getElementById('queue-count').innerText = s.total_waiting;
                 }
 
-                // Update Admin View
-                document.getElementById('admin-total-done').innerText = data.total_done;
-                updateAdminPanel(data.stats);
-                updateRecap(data.recap);
+                if (document.getElementById('admin-total-done')) {
+                    document.getElementById('admin-total-done').innerText = data.total_done;
+                    updateAdminPanel(data.stats);
+                    updateRecap(data.recap);
+                }
+            } catch (e) { console.error("Refresh gagal", e); }
+        }
 
-            } catch (e) { console.error("Refresh fail", e); }
+        function loginAdmin() {
+            const inputCode = document.getElementById('admin-code').value;
+            if(inputCode === "1234") { 
+                localStorage.setItem('klikka_admin_logged_in', 'true');
+                showAdminPanel();
+            } else { alert("Kode Salah!"); }
+        }
+
+        function showAdminPanel() {
+            document.getElementById('view-customer').classList.add('hidden');
+            document.getElementById('view-admin').classList.remove('hidden');
+            document.getElementById('admin-login').classList.add('hidden');
+            document.getElementById('admin-panel').classList.remove('hidden');
+            refreshData();
+        }
+
+        function logoutAdmin() {
+            localStorage.removeItem('klikka_admin_logged_in');
+            location.reload();
         }
 
         async function takeQueue() {
             const btn = document.getElementById('btn-ambil');
-            btn.disabled = true; btn.innerText = "MEMPROSES...";
+            btn.disabled = true; btn.innerText = "SEDANG MENGAMBIL...";
             try {
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'add_ticket', booth_type: currentBooth })});
                 const result = await res.json();
@@ -131,168 +157,44 @@
             } catch(e) { alert("Gagal ambil antrian"); btn.disabled = false; btn.innerText = "AMBIL ANTRIAN"; }
         }
 
-        function toggleAdmin() {
-            document.getElementById('view-customer').classList.toggle('hidden');
-            document.getElementById('view-admin').classList.toggle('hidden');
-        }
-
-        function loginAdmin() {
-            if(document.getElementById('admin-code').value === "1234") { // GANTI KODE DISINI
-                document.getElementById('admin-login').classList.add('hidden');
-                document.getElementById('admin-panel').classList.remove('hidden');
-                refreshData();
-            } else { alert("Kode Salah!"); }
-        }
-
         async function callNext(booth) {
+            const targetBtn = event.target;
+            targetBtn.disabled = true;
+            targetBtn.innerText = "MEMANGGIL...";
             await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_next', booth_type: booth })});
-            refreshData();
+            await refreshData();
         }
 
         function updateAdminPanel(stats) {
             const container = document.getElementById('admin-booths');
+            if (!container) return;
             container.innerHTML = "";
             for (const [name, s] of Object.entries(stats)) {
                 container.innerHTML += `
-                    <div class="glass p-5 rounded-2xl">
+                    <div class="glass p-5 rounded-2xl border-l-4 ${s.total_waiting > 0 ? 'border-emerald-500' : 'border-white/10'}">
                         <h4 class="font-black uppercase text-amber-400 text-xs">${name.replace('_',' ')}</h4>
                         <div class="flex justify-between items-center my-3">
-                            <div class="text-center"><p class="text-[10px] text-slate-500">AKTIF</p><p class="text-2xl font-bold">${s.active_number}</p></div>
-                            <div class="text-center"><p class="text-[10px] text-slate-500">BERIKUTNYA</p><p class="text-2xl font-bold">${s.next_number}</p></div>
-                            <div class="text-center"><p class="text-[10px] text-slate-500">ANTRIAN</p><p class="text-2xl font-bold text-blue-400">${s.total_waiting}</p></div>
+                            <div class="text-center"><p class="text-[10px] text-slate-500 uppercase">Aktif</p><p class="text-2xl font-bold">${s.active_number}</p></div>
+                            <div class="text-center"><p class="text-[10px] text-slate-500 uppercase">Next</p><p class="text-2xl font-bold">${s.next_number}</p></div>
+                            <div class="text-center"><p class="text-[10px] text-slate-500 uppercase text-blue-400">Antrian</p><p class="text-2xl font-bold">${s.total_waiting}</p></div>
                         </div>
-                        <button onclick="callNext('${name}')" class="w-full bg-white/10 hover:bg-emerald-500 hover:text-white py-2 rounded-lg font-bold transition">PELANGGAN BERIKUTNYA →</button>
+                        <button onclick="callNext('${name}')" class="w-full ${s.total_waiting > 0 ? 'bg-emerald-500 text-white' : 'bg-white/10 text-slate-400'} py-2 rounded-lg font-bold transition">PELANGGAN BERIKUTNYA →</button>
                     </div>`;
             }
         }
 
         function updateRecap(recap) {
             const list = document.getElementById('admin-recap');
-            list.innerHTML = recap.map(r => `<div class="flex justify-between border-b border-white/5 pb-1"><span>${r.number} - ${r.booth_type}</span><span class="text-slate-500">${new Date(r.created_at).toLocaleTimeString()}</span></div>`).join('');
+            if (!list) return;
+            list.innerHTML = recap.map(r => `<div class="flex justify-between border-b border-white/5 pb-1"><span>${r.number} - ${r.booth_type.replace('_',' ')}</span><span class="text-slate-500">${new Date(r.created_at).toLocaleTimeString()}</span></div>`).join('');
         }
 
-        setInterval(refreshData, 10000);
-
-<script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyHIMyiyA1OtY7o2RMA7BGjJnQqCkSw6mVVHK_TQc3jDLqB35BmLlxq9cvAYvFdzaDG6Q/exec";
-    let currentBooth = "";
-
-    // CEK STATUS LOGIN SAAT HALAMAN DIBUKA
-    window.onload = () => {
-        if (localStorage.getItem('klikka_admin_logged_in') === 'true') {
-            showAdminPanel();
+        function toggleAdmin() {
+            document.getElementById('view-customer').classList.toggle('hidden');
+            document.getElementById('view-admin').classList.toggle('hidden');
         }
-        refreshData();
-    };
 
-    function selectBooth(b) {
-        currentBooth = b;
-        document.getElementById('view-customer').querySelector('#booth-selection').classList.add('hidden');
-        document.getElementById('customer-dashboard').classList.remove('hidden');
-        document.getElementById('current-booth-name').innerText = "BOOTH: " + b.replace('_', ' ');
-        refreshData();
-    }
-
-    // REFRESH DATA DENGAN FEEDBACK VISUAL
-    async function refreshData() {
-        try {
-            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'get_status' })});
-            const data = await res.json();
-            
-            // Update Dashboard Pelanggan
-            if(currentBooth) {
-                const s = data.stats[currentBooth];
-                document.getElementById('active-no').innerText = s.active_number;
-                document.getElementById('next-no').innerText = s.next_number;
-                document.getElementById('queue-count').innerText = s.total_waiting;
-            }
-
-            // Update Dashboard Admin
-            document.getElementById('admin-total-done').innerText = data.total_done;
-            updateAdminPanel(data.stats);
-            updateRecap(data.recap);
-
-        } catch (e) { console.error("Refresh gagal", e); }
-    }
-
-    // LOGIN DENGAN PERSISTENCE (localStorage)
-    function loginAdmin() {
-        const inputCode = document.getElementById('admin-code').value;
-        if(inputCode === "1234") { 
-            localStorage.setItem('klikka_admin_logged_in', 'true'); // Simpan status login
-            showAdminPanel();
-        } else { 
-            alert("Kode Salah!"); 
-        }
-    }
-
-    function showAdminPanel() {
-        document.getElementById('view-customer').classList.add('hidden');
-        document.getElementById('view-admin').classList.remove('hidden');
-        document.getElementById('admin-login').classList.add('hidden');
-        document.getElementById('admin-panel').classList.remove('hidden');
-        refreshData();
-    }
-
-    function logoutAdmin() {
-        localStorage.removeItem('klikka_admin_logged_in'); // Hapus status login
-        location.reload();
-    }
-
-    async function takeQueue() {
-        const btn = document.getElementById('btn-ambil');
-        btn.disabled = true; btn.innerText = "SEDANG MENGAMBIL...";
-        try {
-            const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'add_ticket', booth_type: currentBooth })});
-            const result = await res.json();
-            if(result.success) {
-                document.getElementById('my-number').innerText = result.number;
-                document.getElementById('ticket-result').classList.remove('hidden');
-                btn.classList.add('hidden');
-                refreshData();
-            }
-        } catch(e) { alert("Gagal ambil antrian"); btn.disabled = false; btn.innerText = "AMBIL ANTRIAN"; }
-    }
-
-    async function callNext(booth) {
-        // Beri feedback instan agar tidak terasa lemot
-        const targetBtn = event.target;
-        const originalText = targetBtn.innerText;
-        targetBtn.disabled = true;
-        targetBtn.innerText = "MEMANGGIL...";
-
-        await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_next', booth_type: booth })});
-        await refreshData();
-        
-        targetBtn.disabled = false;
-        targetBtn.innerText = originalText;
-    }
-
-    function updateAdminPanel(stats) {
-        const container = document.getElementById('admin-booths');
-        if (!container) return;
-        container.innerHTML = "";
-        for (const [name, s] of Object.entries(stats)) {
-            container.innerHTML += `
-                <div class="glass p-5 rounded-2xl border-l-4 ${s.total_waiting > 0 ? 'border-emerald-500' : 'border-white/10'}">
-                    <h4 class="font-black uppercase text-amber-400 text-xs">${name.replace('_',' ')}</h4>
-                    <div class="flex justify-between items-center my-3">
-                        <div class="text-center"><p class="text-[10px] text-slate-500">AKTIF</p><p class="text-2xl font-bold">${s.active_number}</p></div>
-                        <div class="text-center"><p class="text-[10px] text-slate-500">BERIKUTNYA</p><p class="text-2xl font-bold">${s.next_number}</p></div>
-                        <div class="text-center"><p class="text-[10px] text-slate-500">SISA</p><p class="text-2xl font-bold text-blue-400">${s.total_waiting}</p></div>
-                    </div>
-                    <button onclick="callNext('${name}')" class="w-full ${s.total_waiting > 0 ? 'bg-emerald-500 text-white' : 'bg-white/10 text-slate-400'} py-2 rounded-lg font-bold transition">PANGGIL BERIKUTNYA →</button>
-                </div>`;
-        }
-    }
-
-    function updateRecap(recap) {
-        const list = document.getElementById('admin-recap');
-        if (!list) return;
-        list.innerHTML = recap.map(r => `<div class="flex justify-between border-b border-white/5 pb-1"><span>${r.number} - ${r.booth_type}</span><span class="text-slate-500">${new Date(r.created_at).toLocaleTimeString()}</span></div>`).join('');
-    }
-
-    // INTERVAL SINKRONISASI DIPERCEPAT KE 5 DETIK
-    setInterval(refreshData, 5000); 
-
-</script>
+        setInterval(refreshData, 5000); 
+    </script>
+</body>
+</html>
