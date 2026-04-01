@@ -7,10 +7,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Manrope', sans-serif; background-color: #fff1f2; background-image: radial-gradient(at 0% 0%, #ffe4e6 0px, transparent 50%), radial-gradient(at 100% 100%, #fbcfe8 0px, transparent 50%); color: #0f172a; background-attachment: fixed; }
-        .glass { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 10px 40px -10px rgba(255, 30, 86, 0.08); }
+        body { font-family: 'Manrope', sans-serif; background-color: #fff1f2; background-image: radial-gradient(at 0% 0%, #ffe4e6 0px, transparent 50%), radial-gradient(at 100% 100%, #fbcfe8 0px, transparent 50%); color: #0f172a; background-attachment: fixed; transition: background-color 0.5s ease; }
+        .glass { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 10px 40px -10px rgba(255, 30, 86, 0.08); transition: all 0.5s ease; }
         .red-gradient { background: linear-gradient(135deg, #ff1e56 0%, #ff4b72 100%); }
         .active-pulse { animation: pulse 2s infinite; }
+        
+        /* Animasi saat giliran user tiba */
+        .my-turn-bg { background-color: #ecfdf5 !important; background-image: none !important; }
+        .my-turn-glass { border-color: #10b981 !important; box-shadow: 0 0 50px rgba(16, 185, 129, 0.4) !important; background: rgba(255,255,255,0.9) !important; }
+
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 30, 86, 0.2); border-radius: 10px; }
@@ -18,9 +23,10 @@
         input[type="month"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
     </style>
 </head>
-<body class="min-h-screen p-4 pb-20 relative overflow-x-hidden">
+<body id="main-body" class="min-h-screen p-4 pb-20 relative overflow-x-hidden">
 
     <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+    <audio id="my-turn-sound" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3" preload="auto"></audio>
 
     <div class="max-w-4xl mx-auto">
         <div class="flex justify-between items-center py-6">
@@ -70,10 +76,10 @@
 
                 <button id="btn-ambil" onclick="takeQueue()" class="w-full red-gradient text-white font-black py-6 rounded-[2rem] text-xl shadow-lg active:scale-95 transition-all">TAKE A TICKET 🎟️</button>
                 
-                <div id="ticket-result" class="hidden glass p-10 rounded-[2rem] border-2 border-dashed border-rose-400 text-center bg-white/80">
-                    <p class="text-xs text-slate-500 font-bold mb-2 uppercase tracking-widest">Have fun! Your number is:</p>
-                    <p id="my-number" class="text-7xl font-black text-rose-600 active-pulse">---</p>
-                    <p class="text-[10px] text-slate-400 mt-4 font-semibold">Screenshot tiket ini agar tidak hilang!</p>
+                <div id="ticket-result" class="hidden glass p-10 rounded-[2rem] border-2 border-dashed border-rose-400 text-center bg-white/80 transition-all">
+                    <p id="ticket-msg" class="text-xs text-slate-500 font-bold mb-2 uppercase tracking-widest">Have fun! Your number is:</p>
+                    <p id="my-number" class="text-7xl font-black text-rose-600">---</p>
+                    <p id="ticket-submsg" class="text-[10px] text-slate-400 mt-4 font-semibold">Screenshot tiket ini agar tidak hilang!</p>
                 </div>
                 
                 <button onclick="clearMyTicket()" class="w-full text-slate-400 text-xs py-4 font-bold uppercase tracking-widest hover:text-rose-500 transition">← Change Booth / Reset Ticket</button>
@@ -120,14 +126,13 @@
                                     <th class="py-3 px-2 text-center font-black text-rose-500">TOTAL</th>
                                 </tr>
                             </thead>
-                            <tbody id="admin-monthly-table">
-                                </tbody>
+                            <tbody id="admin-monthly-table"></tbody>
                         </table>
                     </div>
                 </div>
 
                 <div class="glass p-6 rounded-[2rem] border border-white">
-                    <h3 class="font-bold text-sm uppercase tracking-widest mb-4 text-slate-800 border-b border-slate-200 pb-2">Log Real-time 50 Terakhir</h3>
+                    <h3 class="font-bold text-sm uppercase tracking-widest mb-4 text-slate-800 border-b border-slate-200 pb-2">Log Real-time Terakhir</h3>
                     <div id="admin-recap" class="text-xs max-h-48 overflow-y-auto pr-2 flex flex-col gap-2"></div>
                 </div>
                 
@@ -137,7 +142,7 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzs5Ba4gpSe2KsWUstrswkbsMErc1X1PDaylRg5H6-RNn5XMmB2Or5B_kljXdtb5E7ZGw/exec"; // GANTI INI
+        const API_URL = "https://script.google.com/macros/s/AKfycbzs5Ba4gpSe2KsWUstrswkbsMErc1X1PDaylRg5H6-RNn5XMmB2Or5B_kljXdtb5E7ZGw/exec"; // PASTIKAN GANTI INI
         let currentBooth = "";
         let lastActiveTrack = {};
 
@@ -145,7 +150,6 @@
             const savedTicket = localStorage.getItem('klikka_my_ticket');
             const savedBooth = localStorage.getItem('klikka_my_booth');
             
-            // Set Default Pemilih Bulan ke Bulan Ini
             const today = new Date();
             const yyyy = today.getFullYear();
             const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -185,16 +189,38 @@
                 if(currentBooth) {
                     const s = data.stats[currentBooth];
                     const activeEl = document.getElementById('active-no');
+                    const myTicket = localStorage.getItem('klikka_my_ticket');
 
+                    // CEK JIKA ADA NOMOR BARU YANG DIPANGGIL
                     if(lastActiveTrack[currentBooth] && lastActiveTrack[currentBooth] !== s.active_number && s.active_number !== "---") {
-                        document.getElementById('notif-sound').play().catch(()=>{});
-                        activeEl.style.transform = "scale(1.2)";
-                        activeEl.style.color = "#10b981"; 
-                        setTimeout(() => {
-                            activeEl.style.transform = "scale(1)";
-                            activeEl.style.color = "#f43f5e"; 
-                        }, 1000);
+                        
+                        // JIKA NOMOR YANG DIPANGGIL ADALAH MILIK PENGUNJUNG INI
+                        if (myTicket && s.active_number === myTicket) {
+                            document.getElementById('my-turn-sound').play().catch(()=>{});
+                            
+                            // Visual Alert: Layar jadi hijau cerah
+                            document.getElementById('main-body').classList.add('my-turn-bg');
+                            document.getElementById('ticket-result').classList.add('my-turn-glass');
+                            document.getElementById('my-number').classList.add('active-pulse');
+                            document.getElementById('my-number').style.color = '#10b981';
+                            document.getElementById('ticket-msg').innerText = "IT'S YOUR TURN! SILAKAN MASUK";
+                            document.getElementById('ticket-msg').style.color = '#10b981';
+                            document.getElementById('ticket-submsg').innerText = "Have a great photo session!";
+                            
+                        } else {
+                            // JIKA NOMOR ORANG LAIN
+                            document.getElementById('notif-sound').play().catch(()=>{});
+                            
+                            // Visual biasa (hanya angka yg membesar)
+                            activeEl.style.transform = "scale(1.2)";
+                            activeEl.style.color = "#10b981"; 
+                            setTimeout(() => {
+                                activeEl.style.transform = "scale(1)";
+                                activeEl.style.color = "#f43f5e"; 
+                            }, 1000);
+                        }
                     }
+                    
                     lastActiveTrack[currentBooth] = s.active_number;
                     activeEl.innerText = s.active_number;
                     document.getElementById('next-no').innerText = s.next_number;
@@ -212,7 +238,10 @@
         async function takeQueue() {
             const btn = document.getElementById('btn-ambil');
             btn.disabled = true; btn.innerText = "GENERATING...";
+            
+            // Pancing audio agar browser memberi izin play
             document.getElementById('notif-sound').play().catch(()=>{}); 
+            document.getElementById('my-turn-sound').play().catch(()=>{});
 
             try {
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'add_ticket', booth_type: currentBooth })});
@@ -262,7 +291,6 @@
                 </div>`).join('');
         }
 
-        // --- FUNGSI BARU UNTUK TABEL LAPORAN BULANAN ---
         async function loadMonthlyStats() {
             const filterVal = document.getElementById('monthFilter').value;
             if(!filterVal) return;
@@ -277,9 +305,7 @@
                     body: JSON.stringify({ action: 'get_monthly_stats', month: parseInt(month), year: parseInt(year) })
                 });
                 const result = await res.json();
-                if(result.success) {
-                    renderMonthlyTable(result.data, result.days);
-                }
+                if(result.success) { renderMonthlyTable(result.data, result.days); }
             } catch(e) {
                 tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-rose-500 font-bold">Gagal memuat data. Periksa koneksi internet.</td></tr>';
             }
@@ -293,7 +319,6 @@
             for(let i=1; i<=days; i++) {
                 const d = data[i];
                 if(d.total > 0) {
-                    // Jika ada pengunjung di hari itu
                     html += `
                     <tr class="border-b border-slate-200/50 hover:bg-white/70 transition">
                         <td class="py-2 px-2 text-center font-bold text-slate-700">${i}</td>
@@ -304,7 +329,6 @@
                         <td class="py-2 px-2 text-center font-black text-rose-600 bg-rose-50/50">${d.total}</td>
                     </tr>`;
                 } else {
-                    // Jika hari itu kosong
                      html += `
                     <tr class="border-b border-slate-100 opacity-40">
                         <td class="py-1 px-2 text-center font-bold text-slate-400">${i}</td>
@@ -316,7 +340,6 @@
                 tElv += d.elevator; tMrt += d.mrt; tVnt += d.elevator_vintage; tTr += d.tirai_vintage; tAll += d.total;
             }
 
-            // Tambahkan Baris Grand Total di Bawah Tabel
             html += `
                 <tr class="bg-rose-100 font-black text-rose-600 border-t-2 border-rose-200">
                     <td class="py-4 px-2 text-center">TOTAL</td>
@@ -332,16 +355,7 @@
 
         function toggleAdmin() { document.getElementById('view-customer').classList.toggle('hidden'); document.getElementById('view-admin').classList.toggle('hidden'); }
         function loginAdmin() { if(document.getElementById('admin-code').value === "1234") { localStorage.setItem('klikka_admin_logged_in', 'true'); showAdminPanel(); } else { alert("Passcode Incorrect!"); } }
-        
-        function showAdminPanel() { 
-            document.getElementById('view-customer').classList.add('hidden'); 
-            document.getElementById('view-admin').classList.remove('hidden'); 
-            document.getElementById('admin-login').classList.add('hidden'); 
-            document.getElementById('admin-panel').classList.remove('hidden'); 
-            refreshData(); 
-            loadMonthlyStats(); // Panggil data kalender saat admin buka panel
-        }
-        
+        function showAdminPanel() { document.getElementById('view-customer').classList.add('hidden'); document.getElementById('view-admin').classList.remove('hidden'); document.getElementById('admin-login').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); refreshData(); loadMonthlyStats(); }
         function logoutAdmin() { localStorage.removeItem('klikka_admin_logged_in'); location.reload(); }
 
         setInterval(refreshData, 5000); 
