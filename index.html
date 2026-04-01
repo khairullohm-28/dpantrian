@@ -3,93 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Klikka Photobooth</title>
+    <title>Klikka - Catch Every Moment</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Manrope', sans-serif; background: #09111f; color: white; }
-        .glass { background: rgba(15, 26, 46, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        body { font-family: 'Manrope', sans-serif; background: #0c0e12; color: #f8fafc; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .red-gradient { background: linear-gradient(135deg, #ff1e56 0%, #d32f2f 100%); }
+        .active-pulse { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen p-4">
+<body class="min-h-screen p-4 pb-20">
 
     <div class="max-w-4xl mx-auto">
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="text-2xl font-black text-amber-400">KLIKKA</h1>
-            <button onclick="toggleAdmin()" class="opacity-30 hover:opacity-100 transition">🔐 Admin</button>
+        <div class="flex justify-between items-center py-6">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 red-gradient rounded-lg rotate-12 flex items-center justify-center font-black">K</div>
+                <h1 class="text-xl font-extrabold tracking-tighter">KLIKKA<span class="text-rose-500">.</span></h1>
+            </div>
+            <button onclick="toggleAdmin()" class="text-[10px] uppercase tracking-widest opacity-40 hover:opacity-100 transition border border-white/20 px-3 py-1 rounded-full">🔐 Auth Admin</button>
         </div>
 
-        <div id="view-customer">
+        <div id="view-customer" class="space-y-6">
             <div id="booth-selection" class="grid grid-cols-2 gap-4">
-                <button onclick="selectBooth('elevator')" class="glass p-6 rounded-3xl text-center hover:border-amber-400 transition">
-                    <span class="text-4xl">🛗</span><p class="mt-2 font-bold">Elevator</p>
+                <button onclick="selectBooth('elevator')" class="glass p-8 rounded-[2rem] text-center hover:scale-[1.02] transition-all group">
+                    <span class="text-5xl group-hover:drop-shadow-[0_0_15px_#ff1e56]">🛗</span>
+                    <p class="mt-4 font-bold tracking-wide">Elevator</p>
                 </button>
-                <button onclick="selectBooth('mrt')" class="glass p-6 rounded-3xl text-center hover:border-blue-400 transition">
-                    <span class="text-4xl">🚇</span><p class="mt-2 font-bold">MRT</p>
+                <button onclick="selectBooth('mrt')" class="glass p-8 rounded-[2rem] text-center hover:scale-[1.02] transition-all group">
+                    <span class="text-5xl group-hover:drop-shadow-[0_0_15px_#3b82f6]">🚇</span>
+                    <p class="mt-4 font-bold tracking-wide">MRT</p>
                 </button>
-                <button onclick="selectBooth('elevator_vintage')" class="glass p-6 rounded-3xl text-center hover:border-orange-400 transition">
-                    <span class="text-4xl">🎬</span><p class="mt-2 font-bold">Vintage</p>
+                <button onclick="selectBooth('elevator_vintage')" class="glass p-8 rounded-[2rem] text-center hover:scale-[1.02] transition-all group">
+                    <span class="text-5xl group-hover:drop-shadow-[0_0_15px_#fbbf24]">🎬</span>
+                    <p class="mt-4 font-bold tracking-wide">Elevator Vintage</p>
                 </button>
-                <button onclick="selectBooth('tirai_vintage')" class="glass p-6 rounded-3xl text-center hover:border-purple-400 transition">
-                    <span class="text-4xl">🎪</span><p class="mt-2 font-bold">Tirai</p>
+                <button onclick="selectBooth('tirai_vintage')" class="glass p-8 rounded-[2rem] text-center hover:scale-[1.02] transition-all group">
+                    <span class="text-5xl group-hover:drop-shadow-[0_0_15px_#a855f7]">🎪</span>
+                    <p class="mt-4 font-bold tracking-wide">Tirai Vintage</p>
                 </button>
             </div>
 
-            <div id="customer-dashboard" class="hidden space-y-4 mt-4">
-                <div class="glass p-8 rounded-[2.5rem] text-center border-t-4 border-amber-400">
-                    <p id="current-booth-name" class="text-xs uppercase tracking-widest text-slate-400 mb-2"></p>
-                    <h2 class="text-sm font-bold text-slate-500 uppercase">Nomor Aktif</h2>
-                    <div id="active-no" class="text-8xl font-black text-amber-400 my-4">---</div>
-                    <div class="grid grid-cols-2 gap-4 border-t border-white/10 pt-6">
-                        <div><p class="text-[10px] text-slate-500 uppercase">Berikutnya</p><p id="next-no" class="text-2xl font-bold">---</p></div>
-                        <div><p class="text-[10px] text-slate-500 uppercase">Sisa Antrian</p><p id="queue-count" class="text-2xl font-bold">0</p></div>
+            <div id="customer-dashboard" class="hidden space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div class="glass p-8 rounded-[3rem] text-center relative overflow-hidden">
+                    <div id="glow-accent" class="absolute -top-10 -left-10 w-32 h-32 bg-rose-600/20 blur-[60px]"></div>
+                    <p id="current-booth-name" class="text-[10px] font-black uppercase tracking-[0.3em] text-rose-500 mb-6"></p>
+                    
+                    <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Now Posing 📸</h2>
+                    <div id="active-no" class="text-9xl font-black tracking-tighter my-4 drop-shadow-2xl">---</div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mt-8 bg-white/5 rounded-3xl p-6 border border-white/5">
+                        <div class="text-left border-r border-white/10">
+                            <p class="text-[10px] text-slate-500 uppercase font-bold mb-1">Next Up</p>
+                            <p id="next-no" class="text-3xl font-black">---</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] text-slate-500 uppercase font-bold mb-1">Waiting</p>
+                            <p id="queue-count" class="text-3xl font-black text-rose-500">0</p>
+                        </div>
                     </div>
                 </div>
 
-                <button id="btn-ambil" onclick="takeQueue()" class="w-full bg-amber-400 text-slate-900 font-black py-5 rounded-2xl text-xl shadow-xl hover:bg-amber-300 transition">AMBIL ANTRIAN</button>
+                <button id="btn-ambil" onclick="takeQueue()" class="w-full red-gradient text-white font-black py-6 rounded-[2rem] text-xl shadow-[0_20px_50px_rgba(255,30,86,0.3)] active:scale-95 transition-all">TAKE A TICKET</button>
                 
-                <div id="ticket-result" class="hidden glass p-6 rounded-2xl border-2 border-dashed border-amber-400/50 text-center animate-bounce">
-                    <p class="text-sm text-slate-400">ANTRIAN ANDA:</p>
-                    <p id="my-number" class="text-6xl font-black text-white">---</p>
+                <div id="ticket-result" class="hidden glass p-10 rounded-[2rem] border-2 border-dashed border-rose-500/40 text-center animate-bounce">
+                    <p class="text-xs text-rose-400 font-bold mb-2">HAVE FUN! YOUR NUMBER IS:</p>
+                    <p id="my-number" class="text-7xl font-black">---</p>
                 </div>
                 
-                <button onclick="location.reload()" class="w-full text-slate-500 text-sm py-4 italic">← Ganti Booth</button>
+                <button onclick="location.reload()" class="w-full text-slate-500 text-xs py-4 font-bold uppercase tracking-widest hover:text-white transition">← Choose Another Booth</button>
             </div>
         </div>
 
         <div id="view-admin" class="hidden space-y-6">
-            <div id="admin-login" class="glass p-8 rounded-3xl max-w-sm mx-auto text-center">
-                <h3 class="text-xl font-bold mb-4">Akses Admin</h3>
-                <input id="admin-code" type="password" placeholder="Kode Akses" class="w-full p-3 rounded-xl bg-white/10 border border-white/20 mb-4 text-center">
-                <button onclick="loginAdmin()" class="w-full bg-blue-500 py-3 rounded-xl font-bold">MASUK</button>
+            <div id="admin-login" class="glass p-10 rounded-[2.5rem] max-w-sm mx-auto text-center">
+                <div class="mb-6">🔐</div>
+                <h3 class="text-xl font-bold mb-6">Staff Access Only</h3>
+                <input id="admin-code" type="password" placeholder="Passcode" class="w-full p-4 rounded-2xl bg-white/5 border border-white/10 mb-4 text-center focus:border-rose-500 outline-none transition">
+                <button onclick="loginAdmin()" class="w-full red-gradient py-4 rounded-2xl font-bold shadow-lg shadow-rose-900/20">ACCESS DASHBOARD</button>
             </div>
 
             <div id="admin-panel" class="hidden space-y-6">
-                <div class="flex justify-between items-end">
-                    <h2 class="text-2xl font-black">Panel Operator</h2>
-                    <p class="text-emerald-400 font-bold">Total Selesai: <span id="admin-total-done">0</span></p>
+                <div class="flex justify-between items-center px-2">
+                    <h2 class="text-2xl font-black tracking-tight">Admin<span class="text-rose-500">Ops</span></h2>
+                    <div class="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                        <p class="text-emerald-400 text-[10px] font-bold uppercase tracking-widest">Total Done: <span id="admin-total-done" class="text-sm ml-1">0</span></p>
+                    </div>
                 </div>
 
                 <div id="admin-booths" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
-                <div class="glass p-6 rounded-3xl">
-                    <h3 class="font-bold mb-4 border-b border-white/10 pb-2">Rekap Pengunjung Selesai</h3>
-                    <div id="admin-recap" class="text-sm space-y-2 max-h-48 overflow-y-auto"></div>
+                <div class="glass p-6 rounded-[2rem]">
+                    <h3 class="font-bold text-sm uppercase tracking-widest mb-4 flex justify-between items-center">
+                        Recent Activity <span class="text-[10px] opacity-40 italic">Scroll for more</span>
+                    </h3>
+                    <div id="admin-recap" class="text-xs space-y-3 max-h-60 overflow-y-auto pr-2">
+                        </div>
                 </div>
-                <button onclick="logoutAdmin()" class="w-full bg-red-500/20 text-red-400 py-3 rounded-xl font-bold">LOGOUT & RESET SESSION</button>
+                
+                <button onclick="logoutAdmin()" class="w-full bg-white/5 text-slate-500 py-4 rounded-2xl font-bold hover:bg-rose-500/10 hover:text-rose-500 transition">LOGOUT SESSION</button>
             </div>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbyHIMyiyA1OtY7o2RMA7BGjJnQqCkSw6mVVHK_TQc3jDLqB35BmLlxq9cvAYvFdzaDG6Q/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxeIn_ay7dx9WzMwE-jMrOMqj1MyP-rH0xd9Nln9tkJRF0LL1WQPyNkUa1KZmgzh8H13Q/exec"; // GANTI INI!
         let currentBooth = "";
 
-        // CEK STATUS LOGIN SAAT HALAMAN DIBUKA
         window.onload = () => {
-            if (localStorage.getItem('klikka_admin_logged_in') === 'true') {
-                showAdminPanel();
-            }
+            if (localStorage.getItem('klikka_admin_logged_in') === 'true') { showAdminPanel(); }
             refreshData();
         };
 
@@ -118,15 +143,14 @@
                     updateAdminPanel(data.stats);
                     updateRecap(data.recap);
                 }
-            } catch (e) { console.error("Refresh gagal", e); }
+            } catch (e) { console.error("Sync Error", e); }
         }
 
         function loginAdmin() {
-            const inputCode = document.getElementById('admin-code').value;
-            if(inputCode === "1234") { 
+            if(document.getElementById('admin-code').value === "1234") { 
                 localStorage.setItem('klikka_admin_logged_in', 'true');
                 showAdminPanel();
-            } else { alert("Kode Salah!"); }
+            } else { alert("Passcode Incorrect!"); }
         }
 
         function showAdminPanel() {
@@ -137,14 +161,11 @@
             refreshData();
         }
 
-        function logoutAdmin() {
-            localStorage.removeItem('klikka_admin_logged_in');
-            location.reload();
-        }
+        function logoutAdmin() { localStorage.removeItem('klikka_admin_logged_in'); location.reload(); }
 
         async function takeQueue() {
             const btn = document.getElementById('btn-ambil');
-            btn.disabled = true; btn.innerText = "SEDANG MENGAMBIL...";
+            btn.disabled = true; btn.innerText = "GENERATING...";
             try {
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'add_ticket', booth_type: currentBooth })});
                 const result = await res.json();
@@ -154,13 +175,12 @@
                     btn.classList.add('hidden');
                     refreshData();
                 }
-            } catch(e) { alert("Gagal ambil antrian"); btn.disabled = false; btn.innerText = "AMBIL ANTRIAN"; }
+            } catch(e) { alert("Network Error"); btn.disabled = false; btn.innerText = "TAKE A TICKET"; }
         }
 
         async function callNext(booth) {
             const targetBtn = event.target;
-            targetBtn.disabled = true;
-            targetBtn.innerText = "MEMANGGIL...";
+            targetBtn.disabled = true; targetBtn.innerText = "CALLING...";
             await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_next', booth_type: booth })});
             await refreshData();
         }
@@ -171,14 +191,20 @@
             container.innerHTML = "";
             for (const [name, s] of Object.entries(stats)) {
                 container.innerHTML += `
-                    <div class="glass p-5 rounded-2xl border-l-4 ${s.total_waiting > 0 ? 'border-emerald-500' : 'border-white/10'}">
-                        <h4 class="font-black uppercase text-amber-400 text-xs">${name.replace('_',' ')}</h4>
-                        <div class="flex justify-between items-center my-3">
-                            <div class="text-center"><p class="text-[10px] text-slate-500 uppercase">Aktif</p><p class="text-2xl font-bold">${s.active_number}</p></div>
-                            <div class="text-center"><p class="text-[10px] text-slate-500 uppercase">Next</p><p class="text-2xl font-bold">${s.next_number}</p></div>
-                            <div class="text-center"><p class="text-[10px] text-slate-500 uppercase text-blue-400">Antrian</p><p class="text-2xl font-bold">${s.total_waiting}</p></div>
+                    <div class="glass p-6 rounded-[2rem] border-t-2 ${s.total_waiting > 0 ? 'border-rose-500 shadow-[0_0_20px_rgba(255,30,86,0.1)]' : 'border-white/5'}">
+                        <h4 class="font-black uppercase text-rose-500 text-[10px] tracking-[0.2em] mb-4">${name.replace('_',' ')}</h4>
+                        <div class="grid grid-cols-3 gap-2 text-center mb-6">
+                            <div><p class="text-[8px] text-slate-500 uppercase font-bold">Active</p><p class="text-xl font-black">${s.active_number}</p></div>
+                            <div><p class="text-[8px] text-slate-500 uppercase font-bold">Next</p><p class="text-xl font-black">${s.next_number}</p></div>
+                            <div class="bg-emerald-500/10 rounded-xl py-1"><p class="text-[8px] text-emerald-500 uppercase font-bold">Done</p><p class="text-xl font-black text-emerald-400">${s.total_done}</p></div>
                         </div>
-                        <button onclick="callNext('${name}')" class="w-full ${s.total_waiting > 0 ? 'bg-emerald-500 text-white' : 'bg-white/10 text-slate-400'} py-2 rounded-lg font-bold transition">PELANGGAN BERIKUTNYA →</button>
+                        <div class="flex justify-between items-center gap-2">
+                             <div class="px-3 py-2 bg-white/5 rounded-lg flex-1 text-center">
+                                <p class="text-[8px] text-slate-500 uppercase">Wait</p>
+                                <p class="font-bold text-rose-500">${s.total_waiting}</p>
+                             </div>
+                             <button onclick="callNext('${name}')" class="flex-[2] ${s.total_waiting > 0 ? 'red-gradient' : 'bg-white/10 text-slate-600'} py-3 rounded-xl font-black text-xs transition">CALL NEXT →</button>
+                        </div>
                     </div>`;
             }
         }
@@ -186,12 +212,7 @@
         function updateRecap(recap) {
             const list = document.getElementById('admin-recap');
             if (!list) return;
-            list.innerHTML = recap.map(r => `<div class="flex justify-between border-b border-white/5 pb-1"><span>${r.number} - ${r.booth_type.replace('_',' ')}</span><span class="text-slate-500">${new Date(r.created_at).toLocaleTimeString()}</span></div>`).join('');
-        }
-
-        function toggleAdmin() {
-            document.getElementById('view-customer').classList.toggle('hidden');
-            document.getElementById('view-admin').classList.toggle('hidden');
+            list.innerHTML = recap.map(r => `<div class="flex justify-between bg-white/5 p-3 rounded-xl border border-white/5"><span><b class="text-rose-500">${r.number}</b> - ${r.booth_type.replace('_',' ')}</span><span class="opacity-40 font-mono">${new Date(r.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span></div>`).join('');
         }
 
         setInterval(refreshData, 5000); 
