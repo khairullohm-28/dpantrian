@@ -3,88 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Klikka - Catch Every Moment</title>
+    <title>Klikka - Smart Queue</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Manrope', sans-serif; 
-            background-color: #fff1f2; 
-            background-image: 
-                radial-gradient(at 0% 0%, #ffe4e6 0px, transparent 50%), 
-                radial-gradient(at 100% 100%, #fbcfe8 0px, transparent 50%);
-            color: #0f172a; 
-            background-attachment: fixed;
-        }
-        .glass { 
-            background: rgba(255, 255, 255, 0.65); 
-            backdrop-filter: blur(20px); 
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.9); 
-            box-shadow: 0 10px 40px -10px rgba(255, 30, 86, 0.08);
-        }
+        body { font-family: 'Manrope', sans-serif; background-color: #fff1f2; background-image: radial-gradient(at 0% 0%, #ffe4e6 0px, transparent 50%), radial-gradient(at 100% 100%, #fbcfe8 0px, transparent 50%); color: #0f172a; background-attachment: fixed; }
+        .glass { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 10px 40px -10px rgba(255, 30, 86, 0.08); }
         .red-gradient { background: linear-gradient(135deg, #ff1e56 0%, #ff4b72 100%); }
         .active-pulse { animation: pulse 2s infinite; }
-        
-        /* Animasi saat dipanggil */
-        .called-animation {
-            animation: highlightPop 1.5s ease-out;
-        }
-
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        @keyframes highlightPop { 
-            0% { transform: scale(1); color: #ff1e56; } 
-            20% { transform: scale(1.2); color: #10b981; text-shadow: 0 0 30px rgba(16, 185, 129, 0.6); } 
-            100% { transform: scale(1); color: #ff1e56; } 
-        }
-
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 30, 86, 0.2); border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen p-4 pb-20 overflow-x-hidden relative">
+<body class="min-h-screen p-4 pb-20">
 
     <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
-    <div class="absolute top-20 right-10 w-64 h-64 bg-rose-300/30 rounded-full blur-3xl -z-10"></div>
-    <div class="absolute bottom-20 left-10 w-72 h-72 bg-pink-300/30 rounded-full blur-3xl -z-10"></div>
-
-    <div class="max-w-4xl mx-auto relative z-10">
+    <div class="max-w-4xl mx-auto">
         <div class="flex justify-between items-center py-6">
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 red-gradient rounded-lg rotate-12 flex items-center justify-center font-black text-white shadow-lg shadow-rose-500/30">K</div>
                 <h1 class="text-xl font-extrabold tracking-tighter text-slate-900">KLIKKA<span class="text-rose-500">.</span></h1>
             </div>
-            <button onclick="toggleAdmin()" class="text-[10px] text-slate-500 uppercase tracking-widest hover:text-rose-500 transition border border-slate-300 bg-white/50 px-4 py-2 rounded-full shadow-sm hover:shadow-md">🔐 Admin</button>
+            <button onclick="toggleAdmin()" class="text-[10px] text-slate-500 uppercase tracking-widest border border-slate-300 bg-white/50 px-4 py-2 rounded-full">🔐 Admin</button>
         </div>
 
-        <div id="view-customer" class="space-y-6">
+        <div id="view-customer">
             <div id="booth-selection" class="grid grid-cols-2 gap-4">
                 <button onclick="selectBooth('elevator')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group">
-                    <span class="text-5xl group-hover:scale-110 inline-block transition-transform drop-shadow-md">🛗</span>
-                    <p class="mt-4 font-bold tracking-wide text-slate-800">Elevator</p>
+                    <span class="text-5xl drop-shadow-md">🛗</span>
+                    <p class="mt-4 font-bold text-slate-800">Elevator</p>
                 </button>
                 <button onclick="selectBooth('mrt')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group">
-                    <span class="text-5xl group-hover:scale-110 inline-block transition-transform drop-shadow-md">🚇</span>
-                    <p class="mt-4 font-bold tracking-wide text-slate-800">MRT</p>
+                    <span class="text-5xl drop-shadow-md">🚇</span>
+                    <p class="mt-4 font-bold text-slate-800">MRT</p>
                 </button>
                 <button onclick="selectBooth('elevator_vintage')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group">
-                    <span class="text-5xl group-hover:scale-110 inline-block transition-transform drop-shadow-md">🎬</span>
-                    <p class="mt-4 font-bold tracking-wide text-slate-800">Elevator Vintage</p>
+                    <span class="text-5xl drop-shadow-md">🎬</span>
+                    <p class="mt-4 font-bold text-slate-800">Elevator Vintage</p>
                 </button>
                 <button onclick="selectBooth('tirai_vintage')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group">
-                    <span class="text-5xl group-hover:scale-110 inline-block transition-transform drop-shadow-md">🎪</span>
-                    <p class="mt-4 font-bold tracking-wide text-slate-800">Tirai Vintage</p>
+                    <span class="text-5xl drop-shadow-md">🎪</span>
+                    <p class="mt-4 font-bold text-slate-800">Tirai Vintage</p>
                 </button>
             </div>
 
-            <div id="customer-dashboard" class="hidden space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div class="glass p-8 rounded-[3rem] text-center relative overflow-hidden border-2 border-white">
+            <div id="customer-dashboard" class="hidden space-y-6">
+                <div class="glass p-8 rounded-[3rem] text-center relative border-2 border-white">
                     <p id="current-booth-name" class="inline-block bg-rose-100 text-[10px] font-black uppercase tracking-[0.3em] text-rose-600 px-4 py-1 rounded-full mb-6"></p>
-                    
                     <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Now Posing 📸</h2>
-                    <div id="active-no" class="text-8xl md:text-9xl font-black tracking-tighter my-4 text-rose-500 drop-shadow-sm transition-transform">---</div>
-                    
+                    <div id="active-no" class="text-8xl font-black text-rose-500 my-4 drop-shadow-sm">---</div>
                     <div class="grid grid-cols-2 gap-4 mt-8 bg-white/50 rounded-3xl p-6 shadow-inner">
                         <div class="text-left border-r border-slate-200">
                             <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Get Number</p>
@@ -97,63 +66,64 @@
                     </div>
                 </div>
 
-                <button id="btn-ambil" onclick="takeQueue()" class="w-full red-gradient text-white font-black py-6 rounded-[2rem] text-xl shadow-[0_15px_30px_rgba(255,30,86,0.25)] active:scale-95 transition-all">TAKE A TICKET 🎟️</button>
+                <button id="btn-ambil" onclick="takeQueue()" class="w-full red-gradient text-white font-black py-6 rounded-[2rem] text-xl shadow-lg active:scale-95 transition-all">TAKE A TICKET 🎟️</button>
                 
                 <div id="ticket-result" class="hidden glass p-10 rounded-[2rem] border-2 border-dashed border-rose-400 text-center bg-white/80">
                     <p class="text-xs text-slate-500 font-bold mb-2 uppercase tracking-widest">Have fun! Your number is:</p>
-                    <p id="my-number" class="text-7xl font-black text-rose-600 active-pulse drop-shadow-md">---</p>
-                    <p class="text-[10px] text-slate-400 mt-4 font-semibold">Screenshot this so you don't lose it!</p>
+                    <p id="my-number" class="text-7xl font-black text-rose-600 active-pulse">---</p>
                 </div>
                 
-                <button onclick="location.reload()" class="w-full text-slate-400 text-xs py-4 font-bold uppercase tracking-widest hover:text-rose-500 transition">← Choose Another Booth</button>
+                <button onclick="clearMyTicket()" class="w-full text-slate-400 text-xs py-4 font-bold uppercase tracking-widest">← Change Booth / Reset Ticket</button>
             </div>
         </div>
 
         <div id="view-admin" class="hidden space-y-6">
             <div id="admin-login" class="glass p-10 rounded-[2.5rem] max-w-sm mx-auto text-center border-2 border-white">
-                <div class="mb-6 text-4xl drop-shadow-md">🔐</div>
                 <h3 class="text-xl font-bold mb-6 text-slate-800">Staff Access Only</h3>
-                <input id="admin-code" type="password" placeholder="Passcode" class="w-full p-4 rounded-2xl bg-white/80 border border-slate-200 mb-4 text-center text-slate-800 font-bold focus:border-rose-500 focus:ring-2 focus:ring-rose-200 outline-none transition shadow-inner">
-                <button onclick="loginAdmin()" class="w-full red-gradient text-white py-4 rounded-2xl font-bold shadow-[0_10px_20px_rgba(255,30,86,0.2)] hover:shadow-[0_15px_25px_rgba(255,30,86,0.3)] transition-all">ACCESS DASHBOARD</button>
+                <input id="admin-code" type="password" placeholder="Passcode" class="w-full p-4 rounded-2xl bg-white/80 border border-slate-200 mb-4 text-center focus:border-rose-500 outline-none transition">
+                <button onclick="loginAdmin()" class="w-full red-gradient text-white py-4 rounded-2xl font-bold">ACCESS DASHBOARD</button>
             </div>
 
             <div id="admin-panel" class="hidden space-y-6">
                 <div class="flex justify-between items-center px-2">
                     <h2 class="text-2xl font-black tracking-tight text-slate-900">Admin<span class="text-rose-500">Ops</span></h2>
-                    <div class="px-4 py-2 bg-emerald-100 border border-emerald-200 rounded-full shadow-sm">
-                        <p class="text-emerald-600 text-[10px] font-bold uppercase tracking-widest">Total Done: <span id="admin-total-done" class="text-sm ml-1 font-black">0</span></p>
+                    <div class="px-4 py-2 bg-emerald-100 border border-emerald-200 rounded-full">
+                        <p class="text-emerald-600 text-[10px] font-bold uppercase tracking-widest">Total Selesai: <span id="admin-total-done" class="text-sm font-black">0</span></p>
                     </div>
                 </div>
 
                 <div id="admin-booths" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
                 <div class="glass p-6 rounded-[2rem] border border-white">
-                    <h3 class="font-bold text-sm uppercase tracking-widest mb-4 text-slate-800 text-center border-b border-slate-200 pb-2">
-                        Recap Selesai Per Booth
-                    </h3>
-                    <div id="admin-recap" class="text-xs max-h-60 overflow-y-auto pr-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        </div>
+                    <h3 class="font-bold text-sm uppercase tracking-widest mb-4 text-slate-800 text-center border-b border-slate-200 pb-2">Recent Activity Log</h3>
+                    <div id="admin-recap" class="text-xs max-h-60 overflow-y-auto pr-2 flex flex-col gap-3"></div>
                 </div>
-                
-                <button onclick="logoutAdmin()" class="w-full bg-slate-200 text-slate-500 py-4 rounded-2xl font-bold hover:bg-rose-100 hover:text-rose-600 transition shadow-sm">LOGOUT SESSION</button>
+                <button onclick="logoutAdmin()" class="w-full bg-slate-200 text-slate-500 py-4 rounded-2xl font-bold">LOGOUT SESSION</button>
             </div>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxkoh8lAkOZwEyv_4R910BrOOjIfCfVav9mSbGWS3njibef3cdHlkOEGeh-vz2q-vSJQw/exec"; // JANGAN LUPA DIGANTI
+        const API_URL = "https://script.google.com/macros/s/AKfycbwUYDBZAYI4IsnZ9-P5tX8Owp35fqyiAqyQ3ujcoxU3DLEW3yFA2ywOQk3Xw9iZd6_RMw/exec";
         let currentBooth = "";
-        let lastActiveTrack = {}; // Menyimpan histori nomor agar notif tidak berbunyi dua kali
+        let lastActiveTrack = {};
 
         window.onload = () => {
+            // Cek jika pelanggan sudah punya tiket sebelumnya
+            const savedTicket = localStorage.getItem('klikka_my_ticket');
+            const savedBooth = localStorage.getItem('klikka_my_booth');
+            
+            if (savedTicket && savedBooth) {
+                currentBooth = savedBooth;
+                document.getElementById('my-number').innerText = savedTicket;
+                document.getElementById('ticket-result').classList.remove('hidden');
+                document.getElementById('btn-ambil').classList.add('hidden');
+                selectBooth(savedBooth);
+            }
+
             if (localStorage.getItem('klikka_admin_logged_in') === 'true') { showAdminPanel(); }
             refreshData();
         };
-
-        function toggleAdmin() {
-            document.getElementById('view-customer').classList.toggle('hidden');
-            document.getElementById('view-admin').classList.toggle('hidden');
-        }
 
         function selectBooth(b) {
             currentBooth = b;
@@ -163,6 +133,12 @@
             refreshData();
         }
 
+        function clearMyTicket() {
+            localStorage.removeItem('klikka_my_ticket');
+            localStorage.removeItem('klikka_my_booth');
+            location.reload();
+        }
+
         async function refreshData() {
             try {
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'get_status' })});
@@ -170,18 +146,11 @@
                 
                 if(currentBooth) {
                     const s = data.stats[currentBooth];
-                    const activeEl = document.getElementById('active-no');
-                    
-                    // Logic Notifikasi jika ada panggilan baru
                     if(lastActiveTrack[currentBooth] && lastActiveTrack[currentBooth] !== s.active_number && s.active_number !== "---") {
-                        document.getElementById('notif-sound').play().catch(e => console.log("User must interact first for audio"));
-                        activeEl.classList.remove('called-animation');
-                        void activeEl.offsetWidth; // Trigger reflow
-                        activeEl.classList.add('called-animation');
+                        document.getElementById('notif-sound').play().catch(()=>{});
                     }
                     lastActiveTrack[currentBooth] = s.active_number;
-
-                    activeEl.innerText = s.active_number;
+                    document.getElementById('active-no').innerText = s.active_number;
                     document.getElementById('next-no').innerText = s.next_number;
                     document.getElementById('queue-count').innerText = s.total_waiting;
                 }
@@ -194,39 +163,47 @@
             } catch (e) { console.error("Sync Error", e); }
         }
 
-        function loginAdmin() {
-            if(document.getElementById('admin-code').value === "1234") { 
-                localStorage.setItem('klikka_admin_logged_in', 'true');
-                showAdminPanel();
-            } else { alert("Passcode Incorrect!"); }
-        }
-
-        function showAdminPanel() {
-            document.getElementById('view-customer').classList.add('hidden');
-            document.getElementById('view-admin').classList.remove('hidden');
-            document.getElementById('admin-login').classList.add('hidden');
-            document.getElementById('admin-panel').classList.remove('hidden');
-            refreshData();
-        }
-
-        function logoutAdmin() { localStorage.removeItem('klikka_admin_logged_in'); location.reload(); }
-
         async function takeQueue() {
             const btn = document.getElementById('btn-ambil');
-            btn.disabled = true; btn.innerText = "GENERATING TICKET...";
-            // Mainkan suara agar browser memberikan izin audio notifikasi selanjutnya
-            document.getElementById('notif-sound').play().catch(e=>{}); 
-
+            btn.disabled = true; btn.innerText = "GENERATING...";
             try {
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'add_ticket', booth_type: currentBooth })});
                 const result = await res.json();
                 if(result.success) {
+                    // SIMPAN TIKET KE STORAGE
+                    localStorage.setItem('klikka_my_ticket', result.number);
+                    localStorage.setItem('klikka_my_booth', currentBooth);
+                    
                     document.getElementById('my-number').innerText = result.number;
                     document.getElementById('ticket-result').classList.remove('hidden');
                     btn.classList.add('hidden');
                     refreshData();
                 }
             } catch(e) { alert("Network Error"); btn.disabled = false; btn.innerText = "TAKE A TICKET 🎟️"; }
+        }
+
+        function updateAdminPanel(stats) {
+            const container = document.getElementById('admin-booths');
+            if (!container) return;
+            container.innerHTML = "";
+            for (const [name, s] of Object.entries(stats)) {
+                container.innerHTML += `
+                    <div class="glass p-6 rounded-[2rem] border-t-4 border-rose-400 bg-white/80 shadow-sm">
+                        <h4 class="font-black uppercase text-rose-600 text-[10px] tracking-[0.2em] mb-4">${name.replace('_',' ')}</h4>
+                        <div class="grid grid-cols-3 gap-2 text-center mb-4 pb-4 border-b border-slate-100">
+                            <div><p class="text-[8px] text-slate-400 font-bold">HARI INI</p><p class="text-xl font-black text-rose-500">${s.summary.daily}</p></div>
+                            <div><p class="text-[8px] text-slate-400 font-bold">BULAN INI</p><p class="text-xl font-black text-slate-700">${s.summary.monthly}</p></div>
+                            <div><p class="text-[8px] text-slate-400 font-bold">TAHUN INI</p><p class="text-xl font-black text-slate-700">${s.summary.yearly}</p></div>
+                        </div>
+                        <div class="flex justify-between items-center gap-2">
+                             <div class="px-3 py-2 bg-slate-100 rounded-xl flex-1 text-center border border-slate-200">
+                                <p class="text-[8px] text-slate-400 uppercase font-bold">Wait</p>
+                                <p class="font-black text-rose-500">${s.total_waiting}</p>
+                             </div>
+                             <button onclick="callNext('${name}')" class="flex-[2] red-gradient text-white py-3 rounded-xl font-black text-xs transition-all shadow-md">CALL NEXT →</button>
+                        </div>
+                    </div>`;
+            }
         }
 
         async function callNext(booth) {
@@ -236,55 +213,20 @@
             await refreshData();
         }
 
-        function updateAdminPanel(stats) {
-            const container = document.getElementById('admin-booths');
-            if (!container) return;
-            container.innerHTML = "";
-            for (const [name, s] of Object.entries(stats)) {
-                container.innerHTML += `
-                    <div class="glass p-6 rounded-[2rem] border-t-4 ${s.total_waiting > 0 ? 'border-rose-400 bg-white/80' : 'border-slate-200 bg-white/50'} shadow-sm">
-                        <h4 class="font-black uppercase text-rose-600 text-[10px] tracking-[0.2em] mb-4">${name.replace('_',' ')}</h4>
-                        <div class="grid grid-cols-3 gap-2 text-center mb-6">
-                            <div><p class="text-[8px] text-slate-400 uppercase font-bold">Active</p><p class="text-xl font-black text-slate-800">${s.active_number}</p></div>
-                            <div><p class="text-[8px] text-slate-400 uppercase font-bold">Next</p><p class="text-xl font-black text-slate-800">${s.next_number}</p></div>
-                            <div class="bg-emerald-50 rounded-xl py-1 border border-emerald-100"><p class="text-[8px] text-emerald-500 uppercase font-bold">Done</p><p class="text-xl font-black text-emerald-600">${s.total_done}</p></div>
-                        </div>
-                        <div class="flex justify-between items-center gap-2">
-                             <div class="px-3 py-2 bg-slate-100 rounded-xl flex-1 text-center border border-slate-200">
-                                <p class="text-[8px] text-slate-400 uppercase font-bold">Wait</p>
-                                <p class="font-black text-rose-500">${s.total_waiting}</p>
-                             </div>
-                             <button onclick="callNext('${name}')" class="flex-[2] ${s.total_waiting > 0 ? 'red-gradient text-white shadow-md' : 'bg-slate-200 text-slate-400'} py-3 rounded-xl font-black text-xs transition-all hover:scale-[1.02] active:scale-95">CALL NEXT →</button>
-                        </div>
-                    </div>`;
-            }
-        }
-
-        // FUNGSI BARU: Mengelompokkan Rekap per Booth
         function updateRecap(recap) {
             const list = document.getElementById('admin-recap');
             if (!list) return;
-
-            const grouped = { elevator: [], mrt: [], elevator_vintage: [], tirai_vintage: [] };
-            recap.forEach(r => { if(grouped[r.booth_type]) grouped[r.booth_type].push(r); });
-
-            let html = '';
-            for(const [booth, items] of Object.entries(grouped)) {
-                if(items.length > 0) {
-                    html += `<div class="bg-white/40 p-3 rounded-2xl border border-slate-200">
-                                <h4 class="text-[10px] font-black uppercase tracking-widest text-rose-500 mb-2 pb-1 border-b border-rose-500/20">${booth.replace('_', ' ')}</h4>
-                                <div class="space-y-1">`;
-                    html += items.map(r => `
-                                <div class="flex justify-between items-center bg-white/70 px-2 py-1 rounded border border-slate-100">
-                                    <span class="font-black text-slate-700 text-xs">${r.number}</span>
-                                    <span class="text-[8px] text-slate-400 font-bold bg-slate-100 px-1 rounded">${new Date(r.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                                </div>`).join('');
-                    html += `   </div>
-                             </div>`;
-                }
-            }
-            list.innerHTML = html || '<p class="text-xs text-slate-400 text-center col-span-2 py-4">Belum ada data pelanggan selesai.</p>';
+            list.innerHTML = recap.map(r => `
+                <div class="flex justify-between bg-white/70 p-3 rounded-xl border border-slate-100 shadow-sm items-center">
+                    <span class="text-slate-700 font-semibold"><b class="text-rose-500 font-black">${r.number}</b> <span class="text-[10px] uppercase tracking-wider">| ${r.booth_type.replace('_',' ')}</span></span>
+                    <span class="text-slate-400 text-[10px] font-bold bg-slate-100 px-2 py-1 rounded-md">${new Date(r.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                </div>`).join('');
         }
+
+        function toggleAdmin() { document.getElementById('view-customer').classList.toggle('hidden'); document.getElementById('view-admin').classList.toggle('hidden'); }
+        function loginAdmin() { if(document.getElementById('admin-code').value === "1234") { localStorage.setItem('klikka_admin_logged_in', 'true'); showAdminPanel(); } else { alert("Passcode Incorrect!"); } }
+        function showAdminPanel() { document.getElementById('view-customer').classList.add('hidden'); document.getElementById('view-admin').classList.remove('hidden'); document.getElementById('admin-login').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); refreshData(); }
+        function logoutAdmin() { localStorage.removeItem('klikka_admin_logged_in'); location.reload(); }
 
         setInterval(refreshData, 5000); 
     </script>
