@@ -11,11 +11,8 @@
         .glass { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 10px 40px -10px rgba(255, 30, 86, 0.08); transition: all 0.5s ease; }
         .red-gradient { background: linear-gradient(135deg, #ff1e56 0%, #ff4b72 100%); }
         .active-pulse { animation: pulse 2s infinite; }
-        
-        /* Animasi saat giliran user tiba */
         .my-turn-bg { background-color: #ecfdf5 !important; background-image: none !important; }
         .my-turn-glass { border-color: #10b981 !important; box-shadow: 0 0 50px rgba(16, 185, 129, 0.4) !important; background: rgba(255,255,255,0.9) !important; }
-
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 30, 86, 0.2); border-radius: 10px; }
@@ -34,7 +31,7 @@
                 <div class="w-8 h-8 red-gradient rounded-lg rotate-12 flex items-center justify-center font-black text-white shadow-lg shadow-rose-500/30">K</div>
                 <h1 class="text-xl font-extrabold tracking-tighter text-slate-900">KLIKKA<span class="text-rose-500">.</span></h1>
             </div>
-            <button onclick="toggleAdmin()" class="text-[10px] text-slate-500 uppercase tracking-widest border border-slate-300 bg-white/50 px-4 py-2 rounded-full hover:text-rose-500 transition">🔐 Admin</button>
+            <button onclick="toggleAdmin()" class="text-[10px] text-slate-500 uppercase tracking-widest border border-slate-300 bg-white/50 px-4 py-2 rounded-full hover:text-rose-500 transition shadow-sm">🔐 Admin</button>
         </div>
 
         <div id="view-customer">
@@ -78,7 +75,7 @@
                 
                 <div id="ticket-result" class="hidden glass p-10 rounded-[2rem] border-2 border-dashed border-rose-400 text-center bg-white/80 transition-all">
                     <p id="ticket-msg" class="text-xs text-slate-500 font-bold mb-2 uppercase tracking-widest">Have fun! Your number is:</p>
-                    <p id="my-number" class="text-7xl font-black text-rose-600">---</p>
+                    <p id="my-number" class="text-7xl font-black text-rose-600 active-pulse">---</p>
                     <p id="ticket-submsg" class="text-[10px] text-slate-400 mt-4 font-semibold">Screenshot tiket ini agar tidak hilang!</p>
                 </div>
                 
@@ -97,7 +94,7 @@
                 <div class="flex justify-between items-center px-2">
                     <h2 class="text-2xl font-black tracking-tight text-slate-900">Admin<span class="text-rose-500">Ops</span></h2>
                     <div class="px-4 py-2 bg-emerald-100 border border-emerald-200 rounded-full">
-                        <p class="text-emerald-600 text-[10px] font-bold uppercase tracking-widest">Total Selesai Keseluruhan: <span id="admin-total-done" class="text-sm font-black">0</span></p>
+                        <p class="text-emerald-600 text-[10px] font-bold uppercase tracking-widest">Total Selesai All Time: <span id="admin-total-done" class="text-sm font-black">0</span></p>
                     </div>
                 </div>
 
@@ -135,14 +132,17 @@
                     <h3 class="font-bold text-sm uppercase tracking-widest mb-4 text-slate-800 border-b border-slate-200 pb-2">Log Real-time Terakhir</h3>
                     <div id="admin-recap" class="text-xs max-h-48 overflow-y-auto pr-2 flex flex-col gap-2"></div>
                 </div>
-                
-                <button onclick="logoutAdmin()" class="w-full bg-slate-200 text-slate-500 py-4 rounded-2xl font-bold hover:bg-rose-100 hover:text-rose-600 transition">LOGOUT SESSION</button>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="resetToko()" class="w-full bg-rose-50 border border-rose-200 text-rose-600 py-4 rounded-2xl font-black hover:bg-rose-500 hover:text-white transition shadow-sm text-xs tracking-widest uppercase">🛑 Tutup Toko</button>
+                    <button onclick="logoutAdmin()" class="w-full bg-slate-200 text-slate-500 py-4 rounded-2xl font-bold hover:bg-slate-300 transition shadow-sm text-xs tracking-widest uppercase">Keluar</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzs5Ba4gpSe2KsWUstrswkbsMErc1X1PDaylRg5H6-RNn5XMmB2Or5B_kljXdtb5E7ZGw/exec"; // PASTIKAN GANTI INI
+        const API_URL = "https://script.google.com/macros/s/AKfycbw-3GhPvQHl2unv0dH36JdYb3U8FIqv9OtWb7xJatuKf7PyeHp7vQbzS6y4I-mqSfdS/exec"; // GANTI DENGAN URL DEPLOYMENT BARU
         let currentBooth = "";
         let lastActiveTrack = {};
 
@@ -191,14 +191,9 @@
                     const activeEl = document.getElementById('active-no');
                     const myTicket = localStorage.getItem('klikka_my_ticket');
 
-                    // CEK JIKA ADA NOMOR BARU YANG DIPANGGIL
                     if(lastActiveTrack[currentBooth] && lastActiveTrack[currentBooth] !== s.active_number && s.active_number !== "---") {
-                        
-                        // JIKA NOMOR YANG DIPANGGIL ADALAH MILIK PENGUNJUNG INI
                         if (myTicket && s.active_number === myTicket) {
                             document.getElementById('my-turn-sound').play().catch(()=>{});
-                            
-                            // Visual Alert: Layar jadi hijau cerah
                             document.getElementById('main-body').classList.add('my-turn-bg');
                             document.getElementById('ticket-result').classList.add('my-turn-glass');
                             document.getElementById('my-number').classList.add('active-pulse');
@@ -206,12 +201,8 @@
                             document.getElementById('ticket-msg').innerText = "IT'S YOUR TURN! SILAKAN MASUK";
                             document.getElementById('ticket-msg').style.color = '#10b981';
                             document.getElementById('ticket-submsg').innerText = "Have a great photo session!";
-                            
                         } else {
-                            // JIKA NOMOR ORANG LAIN
                             document.getElementById('notif-sound').play().catch(()=>{});
-                            
-                            // Visual biasa (hanya angka yg membesar)
                             activeEl.style.transform = "scale(1.2)";
                             activeEl.style.color = "#10b981"; 
                             setTimeout(() => {
@@ -238,8 +229,6 @@
         async function takeQueue() {
             const btn = document.getElementById('btn-ambil');
             btn.disabled = true; btn.innerText = "GENERATING...";
-            
-            // Pancing audio agar browser memberi izin play
             document.getElementById('notif-sound').play().catch(()=>{}); 
             document.getElementById('my-turn-sound').play().catch(()=>{});
 
@@ -281,6 +270,15 @@
             await refreshData();
         }
 
+        // FUNGSI RESET / TUTUP TOKO
+        async function resetToko() {
+            if(confirm("TUTUP TOKO: Yakin ingin mereset antrian? Semua nomor yang belum dipanggil akan dibersihkan. (Data statistik Harian/Bulanan yang sudah selesai TETAP AMAN).")) {
+                await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'reset_queue' })});
+                alert("Antrian berhasil dibersihkan! Selamat beristirahat.");
+                refreshData();
+            }
+        }
+
         function updateRecap(recap) {
             const list = document.getElementById('admin-recap');
             if (!list) return;
@@ -294,7 +292,6 @@
         async function loadMonthlyStats() {
             const filterVal = document.getElementById('monthFilter').value;
             if(!filterVal) return;
-            
             const [year, month] = filterVal.split('-');
             const tbody = document.getElementById('admin-monthly-table');
             tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400 font-bold animate-pulse">Menarik data dari database... ⏳</td></tr>';
@@ -306,9 +303,7 @@
                 });
                 const result = await res.json();
                 if(result.success) { renderMonthlyTable(result.data, result.days); }
-            } catch(e) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-rose-500 font-bold">Gagal memuat data. Periksa koneksi internet.</td></tr>';
-            }
+            } catch(e) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-rose-500 font-bold">Gagal memuat data. Periksa koneksi internet.</td></tr>'; }
         }
 
         function renderMonthlyTable(data, days) {
@@ -319,37 +314,14 @@
             for(let i=1; i<=days; i++) {
                 const d = data[i];
                 if(d.total > 0) {
-                    html += `
-                    <tr class="border-b border-slate-200/50 hover:bg-white/70 transition">
-                        <td class="py-2 px-2 text-center font-bold text-slate-700">${i}</td>
-                        <td class="py-2 px-2 text-center text-slate-600 font-semibold">${d.elevator}</td>
-                        <td class="py-2 px-2 text-center text-blue-500 font-semibold">${d.mrt}</td>
-                        <td class="py-2 px-2 text-center text-amber-500 font-semibold">${d.elevator_vintage}</td>
-                        <td class="py-2 px-2 text-center text-purple-500 font-semibold">${d.tirai_vintage}</td>
-                        <td class="py-2 px-2 text-center font-black text-rose-600 bg-rose-50/50">${d.total}</td>
-                    </tr>`;
+                    html += `<tr class="border-b border-slate-200/50 hover:bg-white/70 transition"><td class="py-2 px-2 text-center font-bold text-slate-700">${i}</td><td class="py-2 px-2 text-center text-slate-600 font-semibold">${d.elevator}</td><td class="py-2 px-2 text-center text-blue-500 font-semibold">${d.mrt}</td><td class="py-2 px-2 text-center text-amber-500 font-semibold">${d.elevator_vintage}</td><td class="py-2 px-2 text-center text-purple-500 font-semibold">${d.tirai_vintage}</td><td class="py-2 px-2 text-center font-black text-rose-600 bg-rose-50/50">${d.total}</td></tr>`;
                 } else {
-                     html += `
-                    <tr class="border-b border-slate-100 opacity-40">
-                        <td class="py-1 px-2 text-center font-bold text-slate-400">${i}</td>
-                        <td class="py-1 px-2 text-center">-</td><td class="py-1 px-2 text-center">-</td>
-                        <td class="py-1 px-2 text-center">-</td><td class="py-1 px-2 text-center">-</td>
-                        <td class="py-1 px-2 text-center font-bold">-</td>
-                    </tr>`;
+                     html += `<tr class="border-b border-slate-100 opacity-40"><td class="py-1 px-2 text-center font-bold text-slate-400">${i}</td><td class="py-1 px-2 text-center">-</td><td class="py-1 px-2 text-center">-</td><td class="py-1 px-2 text-center">-</td><td class="py-1 px-2 text-center">-</td><td class="py-1 px-2 text-center font-bold">-</td></tr>`;
                 }
                 tElv += d.elevator; tMrt += d.mrt; tVnt += d.elevator_vintage; tTr += d.tirai_vintage; tAll += d.total;
             }
 
-            html += `
-                <tr class="bg-rose-100 font-black text-rose-600 border-t-2 border-rose-200">
-                    <td class="py-4 px-2 text-center">TOTAL</td>
-                    <td class="py-4 px-2 text-center">${tElv}</td>
-                    <td class="py-4 px-2 text-center">${tMrt}</td>
-                    <td class="py-4 px-2 text-center">${tVnt}</td>
-                    <td class="py-4 px-2 text-center">${tTr}</td>
-                    <td class="py-4 px-2 text-center bg-rose-200">${tAll}</td>
-                </tr>
-            `;
+            html += `<tr class="bg-rose-100 font-black text-rose-600 border-t-2 border-rose-200"><td class="py-4 px-2 text-center">TOTAL</td><td class="py-4 px-2 text-center">${tElv}</td><td class="py-4 px-2 text-center">${tMrt}</td><td class="py-4 px-2 text-center">${tVnt}</td><td class="py-4 px-2 text-center">${tTr}</td><td class="py-4 px-2 text-center bg-rose-200">${tAll}</td></tr>`;
             tbody.innerHTML = html;
         }
 
