@@ -147,11 +147,14 @@
         }
 
         function loginAdmin() {
-            if(document.getElementById('admin-code').value === "1234") { 
-                localStorage.setItem('klikka_admin_logged_in', 'true');
-                showAdminPanel();
-            } else { alert("Passcode Incorrect!"); }
+        // Pastikan ini angkanya 1234 (atau sesuai keinginanmu)
+        if(document.getElementById('admin-code').value === "1234") { 
+        localStorage.setItem('klikka_admin_logged_in', 'true');
+        showAdminPanel();
+        } else { 
+        alert("Passcode Incorrect!"); 
         }
+       }
 
         function showAdminPanel() {
             document.getElementById('view-customer').classList.add('hidden');
