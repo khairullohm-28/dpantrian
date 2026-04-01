@@ -110,13 +110,19 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxeIn_ay7dx9WzMwE-jMrOMqj1MyP-rH0xd9Nln9tkJRF0LL1WQPyNkUa1KZmgzh8H13Q/exec"; // GANTI INI!
+        const API_URL = "https://script.google.com/macros/s/AKfycbxeIn_ay7dx9WzMwE-jMrOMqj1MyP-rH0xd9Nln9tkJRF0LL1WQPyNkUa1KZmgzh8H13Q/exec";
         let currentBooth = "";
 
         window.onload = () => {
             if (localStorage.getItem('klikka_admin_logged_in') === 'true') { showAdminPanel(); }
             refreshData();
         };
+
+        // FUNGSI INI YANG HILANG SEBELUMNYA
+        function toggleAdmin() {
+            document.getElementById('view-customer').classList.toggle('hidden');
+            document.getElementById('view-admin').classList.toggle('hidden');
+        }
 
         function selectBooth(b) {
             currentBooth = b;
@@ -147,7 +153,6 @@
         }
 
         function loginAdmin() {
-          // Pastikan ini angkanya 1234 (atau sesuai keinginanmu)
           if(document.getElementById('admin-code').value === "1234") { 
              localStorage.setItem('klikka_admin_logged_in', 'true');
              showAdminPanel();
