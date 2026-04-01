@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klikka Photobooth - Antrian</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Manrope', sans-serif; background-color: #0f172a; color: white; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-md mx-auto space-y-6">
+        <header class="text-center py-4">
+            <h1 class="text-3xl font-extrabold text-amber-400">Klikka Photobooth</h1>
+            <p class="text-slate-400 text-sm">Silakan pilih booth dan ambil antrian</p>
+        </header>
+
+        <div id="booth-selection" class="grid grid-cols-2 gap-3">
+            <button onclick="selectBooth('elevator')" class="glass p-4 rounded-2xl hover:bg-amber-400/20 transition text-center">
+                <span class="text-3xl">🛗</span>
+                <p class="mt-2 font-bold text-sm">Elevator</p>
+            </button>
+            <button onclick="selectBooth('mrt')" class="glass p-4 rounded-2xl hover:bg-blue-400/20 transition text-center">
+                <span class="text-3xl">🚇</span>
+                <p class="mt-2 font-bold text-sm">MRT</p>
+            </button>
+            <button onclick="selectBooth('elevator_vintage')" class="glass p-4 rounded-2xl hover:bg-orange-400/20 transition text-center">
+                <span class="text-3xl">🎬</span>
+                <p class="mt-2 font-bold text-sm text-xs">Elevator Vintage</p>
+            </button>
+            <button onclick="selectBooth('tirai_vintage')" class="glass p-4 rounded-2xl hover:bg-purple-400/20 transition text-center">
+                <span class="text-3xl">🎪</span>
+                <p class="mt-2 font-bold text-sm text-xs">Tirai Vintage</p>
+            </button>
+        </div>
+
+        <div id="dashboard" class="hidden space-y-4">
+            <div class="glass p-6 rounded-[2rem] text-center relative overflow-hidden">
+                <div id="selected-badge" class="absolute top-0 left-0 right-0 py-1 bg-amber-400 text-slate-900 text-[10px] font-bold uppercase tracking-widest">Elevator</div>
+                
+                <p class="text-xs text-slate-400 mt-2 font-bold uppercase tracking-wider">Nomor Aktif</p>
+                <div id="active-no" class="text-7xl font-black text-amber-400 my-2">---</div>
+                
+                <div class="grid grid-cols-2 gap-4 mt-6 border-t border-white/10 pt-4">
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase">Berikutnya</p>
+                        <p id="next-no" class="text-xl font-bold">---</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase">Antrian</p>
+                        <p id="queue-count" class="text-xl font-bold">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <button id="btn-ambil" onclick="takeQueue()" class="w-full bg-amber-400 hover:bg-amber-500 text-slate-900 font-black py-4 rounded-2xl shadow-lg shadow-amber-400/20 transition transform active:scale-95">
+                AMBIL ANTRIAN
+            </button>
+
+            <div id="customer-ticket" class="hidden glass p-4 rounded-2xl border-dashed border-amber-400/50 text-center">
+                <p class="text-xs text-slate-400">Nomor Antrian Anda:</p>
+                <p id="my-number" class="text-4xl font-black text-white mt-1">---</p>
+                <p class="text-[10px] text-slate-500 mt-2">Mohon screenshot atau simpan nomor ini</p>
+            </div>
+
+            <button onclick="location.reload()" class="w-full text-slate-500 text-xs hover:text-white transition"> Kembali ke Pilihan Booth</button>
+        </div>
+    </div>
+
+    <script>
+        // GANTI URL INI DENGAN URL GOOGLE SCRIPT KAMU
+        const API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AWDtjMVOi8iuoVIn1YO1DvwTNHDx6qOEpnOEGJ962mqlsFt2J7EB_xedz0xEq3oK2e-xI_rIJsz66HrLwks3myTLgThERI-EG5GKjK2OUD8ie3SzOchtv-NUDCUqj-Ch7AOt5qkbl8iEx8fAAR4yh-u_O6BTMRX1WTzbOJbdrn_sTWIUqNOQGPHMRYxQo2W5-yVlwCbCE-ae9fBbL0pwn7o166rojLDok5w15AmOOcR8L7Dv4DKYnAnTf9VtqrTx2KSvIv-2_QbQXzDVfxzKJFAPYaIMSO_y0Q&lib=MCdm13DLjVPJcwsYfXHsWx-OUqsFQPJOU"; 
+        
+        let currentBooth = "";
+
+        // Fungsi memilih booth
+        function selectBooth(booth) {
+            currentBooth = booth;
+            document.getElementById('booth-selection').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('selected-badge').innerText = booth.replace('_', ' ');
+            
+            // Set warna tema berdasarkan booth (opsional)
+            const badge = document.getElementById('selected-badge');
+            if(booth === 'mrt') badge.style.backgroundColor = '#60a5fa';
+            if(booth === 'elevator_vintage') badge.style.backgroundColor = '#fb923c';
+            if(booth === 'tirai_vintage') badge.style.backgroundColor = '#c084fc';
+
+            refreshData();
+        }
+
+        // Ambil data terbaru dari Google Sheets
+        async function refreshData() {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'get_status' })
+                });
+                const data = await response.json();
+                const stats = data[currentBooth];
+
+                document.getElementById('active-no').innerText = stats.active_number;
+                document.getElementById('next-no').innerText = stats.next_number;
+                document.getElementById('queue-count').innerText = stats.total_waiting;
+            } catch (e) {
+                console.error("Gagal ambil data", e);
+            }
+        }
+
+        // Fungsi Ambil Antrian
+        async function takeQueue() {
+            const btn = document.getElementById('btn-ambil');
+            btn.disabled = true;
+            btn.innerText = "PROSES...";
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ 
+                        action: 'add_ticket', 
+                        booth_type: currentBooth 
+                    })
+                });
+                const result = await response.json();
+                
+                if(result.success) {
+                    document.getElementById('customer-ticket').classList.remove('hidden');
+                    document.getElementById('my-number').innerText = result.number;
+                    btn.classList.add('hidden');
+                    refreshData();
+                }
+            } catch (e) {
+                alert("Gagal mengambil antrian. Coba lagi.");
+                btn.disabled = false;
+                btn.innerText = "AMBIL ANTRIAN";
+            }
+        }
+
+        // Auto Refresh Dashboard setiap 10 detik
+        setInterval(() => {
+            if(currentBooth) refreshData();
+        }, 10000);
+    </script>
+</body>
+</html>
