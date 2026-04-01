@@ -16,7 +16,7 @@
         ::-webkit-scrollbar-thumb { background: rgba(255, 30, 86, 0.2); border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen p-4 pb-20">
+<body class="min-h-screen p-4 pb-20 relative overflow-x-hidden">
 
     <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
@@ -26,25 +26,25 @@
                 <div class="w-8 h-8 red-gradient rounded-lg rotate-12 flex items-center justify-center font-black text-white shadow-lg shadow-rose-500/30">K</div>
                 <h1 class="text-xl font-extrabold tracking-tighter text-slate-900">KLIKKA<span class="text-rose-500">.</span></h1>
             </div>
-            <button onclick="toggleAdmin()" class="text-[10px] text-slate-500 uppercase tracking-widest border border-slate-300 bg-white/50 px-4 py-2 rounded-full">🔐 Admin</button>
+            <button onclick="toggleAdmin()" class="text-[10px] text-slate-500 uppercase tracking-widest border border-slate-300 bg-white/50 px-4 py-2 rounded-full hover:text-rose-500 transition">🔐 Admin</button>
         </div>
 
         <div id="view-customer">
             <div id="booth-selection" class="grid grid-cols-2 gap-4">
                 <button onclick="selectBooth('elevator')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group">
-                    <span class="text-5xl drop-shadow-md">🛗</span>
+                    <span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🛗</span>
                     <p class="mt-4 font-bold text-slate-800">Elevator</p>
                 </button>
                 <button onclick="selectBooth('mrt')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group">
-                    <span class="text-5xl drop-shadow-md">🚇</span>
+                    <span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🚇</span>
                     <p class="mt-4 font-bold text-slate-800">MRT</p>
                 </button>
                 <button onclick="selectBooth('elevator_vintage')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group">
-                    <span class="text-5xl drop-shadow-md">🎬</span>
+                    <span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🎬</span>
                     <p class="mt-4 font-bold text-slate-800">Elevator Vintage</p>
                 </button>
                 <button onclick="selectBooth('tirai_vintage')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group">
-                    <span class="text-5xl drop-shadow-md">🎪</span>
+                    <span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🎪</span>
                     <p class="mt-4 font-bold text-slate-800">Tirai Vintage</p>
                 </button>
             </div>
@@ -53,7 +53,7 @@
                 <div class="glass p-8 rounded-[3rem] text-center relative border-2 border-white">
                     <p id="current-booth-name" class="inline-block bg-rose-100 text-[10px] font-black uppercase tracking-[0.3em] text-rose-600 px-4 py-1 rounded-full mb-6"></p>
                     <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Now Posing 📸</h2>
-                    <div id="active-no" class="text-8xl font-black text-rose-500 my-4 drop-shadow-sm">---</div>
+                    <div id="active-no" class="text-8xl font-black text-rose-500 my-4 drop-shadow-sm transition-transform">---</div>
                     <div class="grid grid-cols-2 gap-4 mt-8 bg-white/50 rounded-3xl p-6 shadow-inner">
                         <div class="text-left border-r border-slate-200">
                             <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Get Number</p>
@@ -71,17 +71,18 @@
                 <div id="ticket-result" class="hidden glass p-10 rounded-[2rem] border-2 border-dashed border-rose-400 text-center bg-white/80">
                     <p class="text-xs text-slate-500 font-bold mb-2 uppercase tracking-widest">Have fun! Your number is:</p>
                     <p id="my-number" class="text-7xl font-black text-rose-600 active-pulse">---</p>
+                    <p class="text-[10px] text-slate-400 mt-4 font-semibold">Screenshot tiket ini agar tidak hilang!</p>
                 </div>
                 
-                <button onclick="clearMyTicket()" class="w-full text-slate-400 text-xs py-4 font-bold uppercase tracking-widest">← Change Booth / Reset Ticket</button>
+                <button onclick="clearMyTicket()" class="w-full text-slate-400 text-xs py-4 font-bold uppercase tracking-widest hover:text-rose-500 transition">← Change Booth / Reset Ticket</button>
             </div>
         </div>
 
         <div id="view-admin" class="hidden space-y-6">
             <div id="admin-login" class="glass p-10 rounded-[2.5rem] max-w-sm mx-auto text-center border-2 border-white">
-                <h3 class="text-xl font-bold mb-6 text-slate-800">Staff Access Only</h3>
+                <h3 class="text-xl font-bold mb-6 text-slate-800">Staff Access</h3>
                 <input id="admin-code" type="password" placeholder="Passcode" class="w-full p-4 rounded-2xl bg-white/80 border border-slate-200 mb-4 text-center focus:border-rose-500 outline-none transition">
-                <button onclick="loginAdmin()" class="w-full red-gradient text-white py-4 rounded-2xl font-bold">ACCESS DASHBOARD</button>
+                <button onclick="loginAdmin()" class="w-full red-gradient text-white py-4 rounded-2xl font-bold">LOGIN</button>
             </div>
 
             <div id="admin-panel" class="hidden space-y-6">
@@ -95,21 +96,41 @@
                 <div id="admin-booths" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
                 <div class="glass p-6 rounded-[2rem] border border-white">
-                    <h3 class="font-bold text-sm uppercase tracking-widest mb-4 text-slate-800 text-center border-b border-slate-200 pb-2">Recent Activity Log</h3>
-                    <div id="admin-recap" class="text-xs max-h-60 overflow-y-auto pr-2 flex flex-col gap-3"></div>
+                    <h3 class="font-bold text-sm uppercase tracking-widest mb-4 text-slate-800 border-b border-slate-200 pb-3 flex items-center gap-2">
+                        📊 Statistik Pengunjung Selesai
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="text-[10px] text-slate-400 uppercase tracking-widest border-b border-slate-200">
+                                    <th class="pb-3 font-bold">Booth</th>
+                                    <th class="pb-3 text-center font-bold">Hari Ini</th>
+                                    <th class="pb-3 text-center font-bold">Bln Ini</th>
+                                    <th class="pb-3 text-center font-bold">Thn Ini</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-stats-table" class="text-sm">
+                                </tbody>
+                        </table>
+                    </div>
                 </div>
-                <button onclick="logoutAdmin()" class="w-full bg-slate-200 text-slate-500 py-4 rounded-2xl font-bold">LOGOUT SESSION</button>
+
+                <div class="glass p-6 rounded-[2rem] border border-white">
+                    <h3 class="font-bold text-sm uppercase tracking-widest mb-4 text-slate-800 border-b border-slate-200 pb-2">Recent Activity Log</h3>
+                    <div id="admin-recap" class="text-xs max-h-60 overflow-y-auto pr-2 flex flex-col gap-2"></div>
+                </div>
+                
+                <button onclick="logoutAdmin()" class="w-full bg-slate-200 text-slate-500 py-4 rounded-2xl font-bold hover:bg-rose-100 hover:text-rose-600 transition">LOGOUT SESSION</button>
             </div>
         </div>
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwUYDBZAYI4IsnZ9-P5tX8Owp35fqyiAqyQ3ujcoxU3DLEW3yFA2ywOQk3Xw9iZd6_RMw/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbwUYDBZAYI4IsnZ9-P5tX8Owp35fqyiAqyQ3ujcoxU3DLEW3yFA2ywOQk3Xw9iZd6_RMw/exec"; // Masukkan URL Google Script-mu
         let currentBooth = "";
         let lastActiveTrack = {};
 
         window.onload = () => {
-            // Cek jika pelanggan sudah punya tiket sebelumnya
             const savedTicket = localStorage.getItem('klikka_my_ticket');
             const savedBooth = localStorage.getItem('klikka_my_booth');
             
@@ -146,11 +167,19 @@
                 
                 if(currentBooth) {
                     const s = data.stats[currentBooth];
+                    const activeEl = document.getElementById('active-no');
+
                     if(lastActiveTrack[currentBooth] && lastActiveTrack[currentBooth] !== s.active_number && s.active_number !== "---") {
                         document.getElementById('notif-sound').play().catch(()=>{});
+                        activeEl.style.transform = "scale(1.2)";
+                        activeEl.style.color = "#10b981"; // Hijau saat dipanggil
+                        setTimeout(() => {
+                            activeEl.style.transform = "scale(1)";
+                            activeEl.style.color = "#f43f5e"; // Kembali ke Rose
+                        }, 1000);
                     }
                     lastActiveTrack[currentBooth] = s.active_number;
-                    document.getElementById('active-no').innerText = s.active_number;
+                    activeEl.innerText = s.active_number;
                     document.getElementById('next-no').innerText = s.next_number;
                     document.getElementById('queue-count').innerText = s.total_waiting;
                 }
@@ -158,6 +187,7 @@
                 if (document.getElementById('admin-total-done')) {
                     document.getElementById('admin-total-done').innerText = data.total_done;
                     updateAdminPanel(data.stats);
+                    updateAdminStatsTable(data.stats); // Fungsi tabel baru
                     updateRecap(data.recap);
                 }
             } catch (e) { console.error("Sync Error", e); }
@@ -166,14 +196,14 @@
         async function takeQueue() {
             const btn = document.getElementById('btn-ambil');
             btn.disabled = true; btn.innerText = "GENERATING...";
+            document.getElementById('notif-sound').play().catch(()=>{}); 
+
             try {
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'add_ticket', booth_type: currentBooth })});
                 const result = await res.json();
                 if(result.success) {
-                    // SIMPAN TIKET KE STORAGE
                     localStorage.setItem('klikka_my_ticket', result.number);
                     localStorage.setItem('klikka_my_booth', currentBooth);
-                    
                     document.getElementById('my-number').innerText = result.number;
                     document.getElementById('ticket-result').classList.remove('hidden');
                     btn.classList.add('hidden');
@@ -188,21 +218,32 @@
             container.innerHTML = "";
             for (const [name, s] of Object.entries(stats)) {
                 container.innerHTML += `
-                    <div class="glass p-6 rounded-[2rem] border-t-4 border-rose-400 bg-white/80 shadow-sm">
+                    <div class="glass p-5 rounded-[2rem] border-t-4 border-rose-400 bg-white/80 shadow-sm flex flex-col justify-between">
                         <h4 class="font-black uppercase text-rose-600 text-[10px] tracking-[0.2em] mb-4">${name.replace('_',' ')}</h4>
-                        <div class="grid grid-cols-3 gap-2 text-center mb-4 pb-4 border-b border-slate-100">
-                            <div><p class="text-[8px] text-slate-400 font-bold">HARI INI</p><p class="text-xl font-black text-rose-500">${s.summary.daily}</p></div>
-                            <div><p class="text-[8px] text-slate-400 font-bold">BULAN INI</p><p class="text-xl font-black text-slate-700">${s.summary.monthly}</p></div>
-                            <div><p class="text-[8px] text-slate-400 font-bold">TAHUN INI</p><p class="text-xl font-black text-slate-700">${s.summary.yearly}</p></div>
+                        <div class="flex justify-between items-center mb-6 px-2">
+                            <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Active</p><p class="text-2xl font-black text-slate-800">${s.active_number}</p></div>
+                            <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Wait</p><p class="text-2xl font-black text-rose-500">${s.total_waiting}</p></div>
                         </div>
-                        <div class="flex justify-between items-center gap-2">
-                             <div class="px-3 py-2 bg-slate-100 rounded-xl flex-1 text-center border border-slate-200">
-                                <p class="text-[8px] text-slate-400 uppercase font-bold">Wait</p>
-                                <p class="font-black text-rose-500">${s.total_waiting}</p>
-                             </div>
-                             <button onclick="callNext('${name}')" class="flex-[2] red-gradient text-white py-3 rounded-xl font-black text-xs transition-all shadow-md">CALL NEXT →</button>
-                        </div>
+                        <button onclick="callNext('${name}')" class="w-full ${s.total_waiting > 0 ? 'red-gradient text-white shadow-md hover:-translate-y-1' : 'bg-slate-200 text-slate-400'} py-4 rounded-xl font-black text-xs transition-all">CALL NEXT →</button>
                     </div>`;
+            }
+        }
+
+        // FUNGSI BARU: Tabel Statistik Histori
+        function updateAdminStatsTable(stats) {
+            const tbody = document.getElementById('admin-stats-table');
+            if (!tbody) return;
+            tbody.innerHTML = "";
+            
+            for (const [name, s] of Object.entries(stats)) {
+                tbody.innerHTML += `
+                    <tr class="border-b border-slate-100 hover:bg-white/50 transition">
+                        <td class="py-3 font-bold text-slate-700 uppercase text-[10px] tracking-widest">${name.replace('_', ' ')}</td>
+                        <td class="py-3 text-center font-black text-rose-500">${s.summary.daily}</td>
+                        <td class="py-3 text-center font-bold text-slate-700">${s.summary.monthly}</td>
+                        <td class="py-3 text-center font-bold text-slate-700">${s.summary.yearly}</td>
+                    </tr>
+                `;
             }
         }
 
@@ -217,9 +258,9 @@
             const list = document.getElementById('admin-recap');
             if (!list) return;
             list.innerHTML = recap.map(r => `
-                <div class="flex justify-between bg-white/70 p-3 rounded-xl border border-slate-100 shadow-sm items-center">
-                    <span class="text-slate-700 font-semibold"><b class="text-rose-500 font-black">${r.number}</b> <span class="text-[10px] uppercase tracking-wider">| ${r.booth_type.replace('_',' ')}</span></span>
-                    <span class="text-slate-400 text-[10px] font-bold bg-slate-100 px-2 py-1 rounded-md">${new Date(r.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                <div class="flex justify-between bg-white/70 p-3 rounded-xl border border-slate-100 items-center">
+                    <span class="text-slate-700 font-semibold"><b class="text-rose-500 font-black">${r.number}</b> <span class="text-[10px] uppercase tracking-wider text-slate-400 ml-1">| ${r.booth_type.replace('_',' ')}</span></span>
+                    <span class="text-slate-500 text-[10px] font-bold bg-slate-100 px-2 py-1 rounded-md">${new Date(r.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
                 </div>`).join('');
         }
 
