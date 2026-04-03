@@ -47,35 +47,27 @@
                     <div id="active-no" class="text-8xl font-black text-rose-500 my-4 drop-shadow-sm transition-transform duration-300">---</div>
                     <div class="grid grid-cols-2 gap-4 mt-8 bg-white/50 rounded-3xl p-6 shadow-inner">
                         <div class="text-left border-r border-slate-200">
-                            <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Get Number</p>
-                            <p id="next-no" class="text-3xl font-black text-slate-800">---</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Waiting</p>
+                            <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Antrian Offline</p>
                             <p id="queue-count" class="text-3xl font-black text-rose-500">0</p>
+                        </div>
+                        <div class="text-right flex flex-col justify-center">
+                            <button id="btn-ambil" onclick="takeQueue('offline')" class="w-full bg-slate-900 text-white font-black py-4 rounded-xl text-xs shadow-lg active:scale-95 transition-all tracking-widest uppercase">AMBIL DI LOKASI</button>
                         </div>
                     </div>
                 </div>
 
-                <button id="btn-ambil" onclick="takeQueue()" class="w-full red-gradient text-white font-black py-6 rounded-[2rem] text-xl shadow-lg active:scale-95 transition-all">AMBIL ANTRIAN OFFLINE 🎟️</button>
-                
-                <div id="booking-slot-section" class="glass p-6 rounded-[2rem] border border-white mt-4 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-24 h-24 bg-rose-200 rounded-full blur-3xl opacity-50 -mr-10 -mt-10"></div>
-                    <h3 class="font-bold text-sm uppercase tracking-widest text-slate-800 mb-2">Pesan Jam Booking Online 📆</h3>
+                <div id="booking-slot-section" class="glass p-6 rounded-[2rem] border border-white mt-4">
+                    <h3 class="font-bold text-sm uppercase tracking-widest text-slate-800 mb-2">Pilih Jam Booking Online 📆</h3>
+                    <p class="text-[10px] text-slate-500 mb-4">Slot abu-abu berarti sudah terisi atau terblokir oleh durasi antrian offline.</p>
                     
-                    <div class="flex items-center gap-3 bg-white/80 p-4 rounded-2xl mb-4 border border-rose-100">
-                        <div class="p-2 bg-rose-50 rounded-xl"><span class="text-xl">⏱️</span></div>
-                        <div>
-                            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Estimasi Slot Kosong Berikutnya</p>
-                            <p id="est-next-slot" class="text-2xl font-black text-rose-500">Menghitung...</p>
+                    <div id="slot-grid" class="grid grid-cols-4 gap-2 mb-6">
                         </div>
-                    </div>
 
                     <div class="bg-amber-50/80 border border-amber-200 p-4 rounded-2xl flex gap-3 items-start">
                         <span class="text-lg">💅</span>
                         <p class="text-[11px] font-semibold text-amber-800 leading-relaxed">
                             <b class="text-amber-900 block mb-1">Info Penting Bestie! ✨</b>
-                            Usahain nyampe di lokasi <span class="bg-amber-200 px-1 rounded">25 - 30 menit</span> sebelum jadwal booking kamu ya. Biar nggak panik, tetep slay, dan antrian on-track! Kalau telat, slot otomatis hangus bestie~ 💔
+                            Usahain nyampe di lokasi <span class="bg-amber-200 px-1 rounded">25 - 30 menit</span> sebelum jadwal booking ya. Telat dari jadwal? Slot otomatis hangus bye bye~ 💔
                         </p>
                     </div>
                 </div>
@@ -83,10 +75,11 @@
                 <div id="ticket-result" class="hidden glass p-10 rounded-[2rem] border-2 border-dashed border-rose-400 text-center bg-white/80 transition-all">
                     <p id="ticket-msg" class="text-xs text-slate-500 font-bold mb-2 uppercase tracking-widest">Have fun! Your number is:</p>
                     <p id="my-number" class="text-7xl font-black text-rose-600 active-pulse">---</p>
+                    <p id="ticket-time-badge" class="hidden mt-2 inline-block bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-md"></p>
                     <p id="ticket-submsg" class="text-[10px] text-slate-400 mt-4 font-semibold">Screenshot tiket ini agar tidak hilang!</p>
                 </div>
                 
-                <button onclick="clearMyTicket()" class="w-full text-slate-400 text-xs py-4 font-bold uppercase tracking-widest hover:text-rose-500 transition">← Change Booth / Reset Ticket</button>
+                <button onclick="clearMyTicket()" class="w-full text-slate-400 text-xs py-4 font-bold uppercase tracking-widest hover:text-rose-500 transition">← Back to Main Menu</button>
             </div>
         </div>
 
@@ -101,11 +94,11 @@
                 <div class="flex justify-between items-center px-2">
                     <h2 class="text-2xl font-black tracking-tight text-slate-900">Admin<span class="text-rose-500">Ops</span></h2>
                     <div class="px-4 py-2 bg-emerald-100 border border-emerald-200 rounded-full">
-                        <p class="text-emerald-600 text-[10px] font-bold uppercase tracking-widest">Selesai All Time: <span id="admin-total-done" class="text-sm font-black">0</span></p>
+                        <p class="text-emerald-600 text-[10px] font-bold uppercase tracking-widest">Done Today: <span id="admin-total-done" class="text-sm font-black">0</span></p>
                     </div>
                 </div>
 
-                <div id="admin-booths" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                <div id="admin-booths" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
 
                 <div class="grid grid-cols-2 gap-4 mt-6">
                     <button onclick="resetToko()" class="w-full bg-rose-50 border border-rose-200 text-rose-600 py-4 rounded-2xl font-black hover:bg-rose-500 hover:text-white transition shadow-sm text-xs tracking-widest uppercase">🛑 Tutup Toko</button>
@@ -116,17 +109,23 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbyZl1nbcsXOePGANeuIVxXNotJXJH_BUMIbUD3kvWA59bD8jHIs8Jy5IB5qLze2-q00Dw/exec"; // <-- GANTI DISINI
+        const API_URL = "https://script.google.com/macros/s/AKfycbyveLKRcubGbU4aWQ2D4jtfbyNgX3TjXz77RyAUglqCh-dCkx_6YUijfHTi6xDotXFW/exec"; // <-- GANTI DISINI (Deploy Baru ya!)
         let currentBooth = "";
         let lastActiveTrack = {};
+        let selectedOnlineSlot = "";
 
         window.onload = () => {
             const savedTicket = localStorage.getItem('klikka_my_ticket');
             const savedBooth = localStorage.getItem('klikka_my_booth');
+            const savedTime = localStorage.getItem('klikka_my_time');
             
             if (savedTicket && savedBooth) {
                 currentBooth = savedBooth;
                 document.getElementById('my-number').innerText = savedTicket;
+                if(savedTime) {
+                    document.getElementById('ticket-time-badge').innerText = "Booking Jam: " + savedTime;
+                    document.getElementById('ticket-time-badge').classList.remove('hidden');
+                }
                 document.getElementById('ticket-result').classList.remove('hidden');
                 document.getElementById('btn-ambil').classList.add('hidden');
                 document.getElementById('booking-slot-section').classList.add('hidden');
@@ -148,7 +147,49 @@
         function clearMyTicket() {
             localStorage.removeItem('klikka_my_ticket');
             localStorage.removeItem('klikka_my_booth');
+            localStorage.removeItem('klikka_my_time');
             location.reload();
+        }
+
+        function generateSlots(cutoffTimestamp, bookedSlots) {
+            const slotGrid = document.getElementById('slot-grid');
+            if(!slotGrid || localStorage.getItem('klikka_my_ticket')) return; // Jangan render jika sudah punya tiket
+            
+            slotGrid.innerHTML = "";
+            const startHour = 10; // Buka jam 10 pagi
+            const endHour = 21;   // Tutup jam 9 malam
+            const today = new Date();
+            
+            for(let h = startHour; h <= endHour; h++) {
+                ['00', '15', '30', '45'].forEach(m => {
+                    const timeStr = `${h.toString().padStart(2, '0')}:${m}`;
+                    const slotDate = new Date();
+                    slotDate.setHours(h, parseInt(m), 0, 0);
+                    
+                    // Cek apakah slot di masa lalu, melewati batas antrian offline (+buffer), atau sudah dibooking
+                    const isPastCutoff = slotDate.getTime() <= cutoffTimestamp;
+                    const isBooked = bookedSlots.includes(timeStr);
+                    
+                    const btn = document.createElement('button');
+                    btn.innerText = timeStr;
+                    btn.className = `py-2 rounded-xl text-xs font-bold transition-all ${
+                        isPastCutoff || isBooked 
+                        ? 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-50' 
+                        : 'bg-white text-rose-500 border border-rose-200 shadow-sm hover:bg-rose-50 hover:border-rose-400'
+                    }`;
+                    
+                    if(!isPastCutoff && !isBooked) {
+                        btn.onclick = () => confirmOnlineBooking(timeStr);
+                    }
+                    slotGrid.appendChild(btn);
+                });
+            }
+        }
+
+        function confirmOnlineBooking(timeStr) {
+            if(confirm(`Yakin mau booking slot jam ${timeStr}?\nInget ya, telat = slot hangus!💅`)) {
+                takeQueue('online', timeStr);
+            }
         }
 
         async function refreshData() {
@@ -156,7 +197,7 @@
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'get_status' })});
                 const data = await res.json();
                 
-                // UPDATE CUSTOMER DASHBOARD
+                // CUSTOMER DASHBOARD UPDATE
                 if(currentBooth) {
                     const s = data.stats[currentBooth];
                     const activeEl = document.getElementById('active-no');
@@ -171,25 +212,17 @@
                             document.getElementById('my-number').style.color = '#10b981';
                             document.getElementById('ticket-msg').innerText = "IT'S YOUR TURN! SILAKAN MASUK";
                             document.getElementById('ticket-msg').style.color = '#10b981';
-                        } else {
-                            document.getElementById('notif-sound').play().catch(()=>{});
-                            activeEl.style.transform = "scale(1.2)"; activeEl.style.color = "#10b981"; 
-                            setTimeout(() => { activeEl.style.transform = "scale(1)"; activeEl.style.color = "#f43f5e"; }, 1000);
                         }
                     }
-                    
                     lastActiveTrack[currentBooth] = s.active_number;
                     activeEl.innerText = s.active_number;
-                    document.getElementById('next-no').innerText = s.next_number;
-                    document.getElementById('queue-count').innerText = s.total_waiting;
+                    document.getElementById('queue-count').innerText = s.total_waiting_offline;
                     
-                    // Update Slot Info di Customer View
-                    if(document.getElementById('est-next-slot')) {
-                        document.getElementById('est-next-slot').innerText = s.estimated_next_slot + " WIB";
-                    }
+                    // Render Bioskop Slots
+                    generateSlots(s.cutoff_time, s.booked_slots);
                 }
 
-                // UPDATE ADMIN DASHBOARD
+                // ADMIN DASHBOARD UPDATE
                 if (document.getElementById('admin-total-done')) {
                     document.getElementById('admin-total-done').innerText = data.total_done;
                     updateAdminPanel(data.stats);
@@ -197,64 +230,93 @@
             } catch (e) { console.error("Sync Error", e); }
         }
 
-        async function takeQueue() {
-            const btn = document.getElementById('btn-ambil');
-            btn.disabled = true; btn.innerText = "GENERATING...";
+        async function takeQueue(type, time = "") {
+            const btnAmbil = document.getElementById('btn-ambil');
+            btnAmbil.disabled = true; 
             
             try {
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'add_ticket', booth_type: currentBooth })});
+                const res = await fetch(API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ action: 'add_ticket', booth_type: currentBooth, ticket_type: type, booked_time: time })
+                });
                 const result = await res.json();
+                
                 if(result.success) {
                     localStorage.setItem('klikka_my_ticket', result.number);
                     localStorage.setItem('klikka_my_booth', currentBooth);
+                    if(time) localStorage.setItem('klikka_my_time', time);
+
                     document.getElementById('my-number').innerText = result.number;
+                    if(time) {
+                        document.getElementById('ticket-time-badge').innerText = "Booking Jam: " + time;
+                        document.getElementById('ticket-time-badge').classList.remove('hidden');
+                    }
+                    
                     document.getElementById('ticket-result').classList.remove('hidden');
-                    btn.classList.add('hidden');
+                    document.getElementById('btn-ambil').classList.add('hidden');
                     document.getElementById('booking-slot-section').classList.add('hidden');
                     refreshData();
                 }
-            } catch(e) { alert("Network Error"); btn.disabled = false; btn.innerText = "AMBIL ANTRIAN OFFLINE 🎟️"; }
+            } catch(e) { alert("Network Error"); btnAmbil.disabled = false; }
         }
 
+        // --- UPDATE ADMIN PANEL UNTUK MENAMPILKAN ONLINE BOOKING ---
         function updateAdminPanel(stats) {
             const container = document.getElementById('admin-booths');
             if (!container) return;
             container.innerHTML = "";
             for (const [name, s] of Object.entries(stats)) {
-                container.innerHTML += `
-                    <div class="glass p-5 rounded-[2rem] border-t-4 ${s.total_waiting > 0 ? 'border-rose-400 bg-white/80' : 'border-slate-200 bg-white/50'} shadow-sm flex flex-col justify-between">
-                        <div class="flex justify-between items-center mb-4">
-                            <h4 class="font-black uppercase text-rose-600 text-[10px] tracking-[0.2em]">${name.replace('_',' ')}</h4>
-                            <span class="bg-slate-100 text-slate-500 text-[9px] px-2 py-1 rounded font-bold tracking-wider">Estimasi Slot: ${s.estimated_next_slot}</span>
+                
+                // Bikin list pelanggan online hari ini (seperti jadwal bioskop untuk admin)
+                let onlineListHTML = '<p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest text-center mt-2 mb-1">Tidak ada booking online</p>';
+                if(s.online_bookings.length > 0) {
+                    onlineListHTML = s.online_bookings.map(ob => `
+                        <div class="flex justify-between items-center bg-white/70 p-2 rounded-lg border border-slate-100 mb-1">
+                            <div>
+                                <span class="bg-indigo-100 text-indigo-600 text-[10px] font-black px-2 py-0.5 rounded mr-1">${ob.time}</span>
+                                <span class="text-xs font-bold text-slate-700">${ob.number}</span>
+                            </div>
+                            <button onclick="callSpecific('${ob.id}', '${name}')" class="bg-indigo-500 hover:bg-indigo-600 text-white text-[9px] px-3 py-1 rounded shadow-sm transition font-bold tracking-wider">PANGGIL</button>
                         </div>
+                    `).join('');
+                }
+
+                container.innerHTML += `
+                    <div class="glass p-5 rounded-[2rem] border-t-4 border-slate-200 bg-white/50 shadow-sm">
+                        <h4 class="font-black uppercase text-rose-600 text-[10px] tracking-[0.2em] mb-4 text-center">${name.replace('_',' ')}</h4>
                         
                         <div class="flex justify-between items-center mb-4 px-2">
                             <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Active</p><p class="text-2xl font-black text-slate-800">${s.active_number}</p></div>
-                            <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Wait</p><p class="text-2xl font-black text-rose-500">${s.total_waiting}</p></div>
-                            <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Next No</p><p class="text-xl font-bold text-slate-400">${s.next_number}</p></div>
+                            <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Wait (Offline)</p><p class="text-2xl font-black text-rose-500">${s.total_waiting_offline}</p></div>
                         </div>
                         
-                        <div class="bg-rose-50/50 p-3 rounded-xl border border-rose-100 mb-4">
-                            <p class="text-[10px] text-slate-500 font-semibold mb-1">Daftar Antrian Belum Dipanggil:</p>
-                            <p class="text-sm font-black text-rose-600">Teratas: ${s.total_waiting > 0 ? s.next_number : 'Kosong'}</p>
+                        <button onclick="callNext('${name}')" class="w-full ${s.total_waiting_offline > 0 ? 'red-gradient text-white shadow-md hover:-translate-y-1' : 'bg-slate-200 text-slate-400'} py-3 rounded-xl font-black text-xs transition-all mb-4">CALL NEXT OFFLINE →</button>
+                        
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <p class="text-[9px] text-slate-500 font-black mb-2 uppercase tracking-widest border-b border-slate-200 pb-1">Jadwal Online Hari Ini 🎫</p>
+                            <div class="max-h-32 overflow-y-auto pr-1">
+                                ${onlineListHTML}
+                            </div>
                         </div>
-
-                        <button onclick="callNext('${name}')" class="w-full ${s.total_waiting > 0 ? 'red-gradient text-white shadow-md hover:-translate-y-1' : 'bg-slate-200 text-slate-400'} py-4 rounded-xl font-black text-xs transition-all">CALL NEXT →</button>
                     </div>`;
             }
         }
 
         async function callNext(booth) {
-            const targetBtn = event.target;
-            targetBtn.disabled = true; targetBtn.innerText = "CALLING...";
             await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_next', booth_type: booth })});
             await refreshData();
         }
 
+        async function callSpecific(ticketId, booth) {
+            if(confirm("Panggil pelanggan online ini sekarang? (Status antrian aktif saat ini akan di-Done-kan).")) {
+                await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_specific', ticket_id: ticketId, booth_type: booth })});
+                await refreshData();
+            }
+        }
+
         async function resetToko() {
-            if(confirm("TUTUP TOKO: Yakin ingin mereset antrian? Semua nomor yang belum dipanggil akan dibersihkan.")) {
+            if(confirm("TUTUP TOKO: Yakin ingin mereset antrian?")) {
                 await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'reset_queue' })});
-                alert("Antrian berhasil dibersihkan! Selamat beristirahat.");
                 refreshData();
             }
         }
