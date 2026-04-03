@@ -192,7 +192,8 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwMgfe8megxhcR4hSfawIafzLi6spKX2ZdQi6uIkQ48ZywbNuIhC6b3ayrfZQUAGol-eA/exec"; // Ganti dengan URL API barumu
+        // MASUKKAN URL API KAMU DI SINI
+        const API_URL = "https://script.google.com/macros/s/AKfycbyzji2QQp2PxzQ7XOHgmM67IuL6vUtSUWPtVK9CAvAPk7V8LPeI0J5E4lFEk5f82UC08A/exec"; 
         
         let GLOBAL_SETTINGS = { admin_wa: "6281234567890", book_open: "10:00", book_close: "21:00", book_status: true };
         let currentBooth = "";
@@ -269,13 +270,9 @@
             }
             
             slotGrid.innerHTML = "";
-            
             const startHour = parseInt(GLOBAL_SETTINGS.book_open.split(':')[0]);
             const endHour = parseInt(GLOBAL_SETTINGS.book_close.split(':')[0]);
-            
-            // Logika Penutup Waktu (Current Time + Estimasi Antrean Fisik)
             const now = new Date();
-            // Estimasi: 1 antrean offline = 5 menit (5 * 60000 milidetik). Ini akan memblokir slot terdekat jika offline penuh.
             const offlineDelayMs = waitingOfflineCount * 5 * 60000; 
             const cutoffTimestamp = now.getTime() + offlineDelayMs;
             
@@ -283,11 +280,9 @@
                 ['00', '15', '30', '45'].forEach(m => {
                     const timeStr = `${h.toString().padStart(2, '0')}:${m}`;
                     if(timeStr < GLOBAL_SETTINGS.book_open || timeStr > GLOBAL_SETTINGS.book_close) return;
-
                     const slotDate = new Date();
                     slotDate.setHours(h, parseInt(m), 0, 0);
                     
-                    // Blokir jika jam slot sudah lewat dari waktu saat ini + delay antrean offline
                     const isPastCutoff = slotDate.getTime() <= cutoffTimestamp;
                     const isBooked = bookedSlots && bookedSlots.includes(timeStr);
                     
@@ -332,7 +327,6 @@
             try {
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'get_status' })});
                 const data = await res.json();
-                
                 if(data.settings) {
                     GLOBAL_SETTINGS = data.settings;
                     document.getElementById('call-center-link').href = `https://wa.me/${GLOBAL_SETTINGS.admin_wa}`;
@@ -343,12 +337,10 @@
                         document.getElementById('admin-status-input').value = GLOBAL_SETTINGS.book_status.toString();
                     }
                 }
-
                 if(currentBooth) {
                     const s = data.stats[currentBooth];
                     const activeEl = document.getElementById('active-no');
                     const myTicket = localStorage.getItem('klikka_my_ticket');
-
                     if(lastActiveTrack[currentBooth] && lastActiveTrack[currentBooth] !== s.active_number && s.active_number !== "---") {
                         if (myTicket && s.active_number === myTicket) {
                             document.getElementById('my-turn-sound').play().catch(()=>{});
@@ -363,11 +355,8 @@
                     lastActiveTrack[currentBooth] = s.active_number;
                     activeEl.innerText = s.active_number;
                     document.getElementById('queue-count').innerText = s.total_waiting_offline || 0;
-                    
-                    // Memasukkan jumlah antrean offline untuk menghitung blokir waktu
                     generateSlots(s.total_waiting_offline || 0, s.booked_slots || []); 
                 }
-
                 if (document.getElementById('admin-total-done')) {
                     document.getElementById('admin-total-done').innerText = data.total_done;
                     updateAdminPanel(data.stats);
@@ -378,26 +367,31 @@
 
         async function takeQueue(type, time = "", nama = "", wa = "") {
             const btnAmbil = document.getElementById('btn-ambil');
-            if(btnAmbil) btnAmbil.disabled = true; 
+            
+            if(btnAmbil) { 
+                btnAmbil.disabled = true; 
+                btnAmbil.innerText = "LOADING..."; 
+            }
+            
             try {
                 const res = await fetch(API_URL, { 
                     method: 'POST', 
                     body: JSON.stringify({ action: 'add_ticket', booth_type: currentBooth, ticket_type: type, booked_time: time, nama: nama, no_wa: wa })
                 });
+                
                 const result = await res.json();
+                
                 if(result.success) {
                     localStorage.setItem('klikka_my_ticket', result.number);
                     localStorage.setItem('klikka_my_booth', currentBooth);
                     if(time) localStorage.setItem('klikka_my_time', time);
-
                     document.getElementById('my-number').innerText = result.number;
                     if(time) {
                         document.getElementById('ticket-time-badge').innerText = "Booking Jam: " + time;
                         document.getElementById('ticket-time-badge').classList.remove('hidden');
                     }
-                    
                     document.getElementById('ticket-result').classList.remove('hidden');
-                    if(document.getElementById('btn-ambil')) document.getElementById('btn-ambil').classList.add('hidden');
+                    if(btnAmbil) btnAmbil.classList.add('hidden');
                     if(document.getElementById('booking-slot-section')) document.getElementById('booking-slot-section').classList.add('hidden');
                     
                     if(type === 'online') {
@@ -406,8 +400,14 @@
                         window.open(`https://wa.me/${GLOBAL_SETTINGS.admin_wa}?text=${encodeURIComponent(textMsg)}`, '_blank');
                     }
                     refreshData();
+                } else {
+                    alert("Error dari Server: " + (result.error || "Gagal menambah antrean"));
+                    if(btnAmbil) { btnAmbil.disabled = false; btnAmbil.innerText = "AMBIL DI LOKASI"; }
                 }
-            } catch(e) { alert("Network Error"); if(btnAmbil) btnAmbil.disabled = false; }
+            } catch(e) { 
+                alert("Network Error! Pastikan koneksi internet lancar dan API_URL benar."); 
+                if(btnAmbil) { btnAmbil.disabled = false; btnAmbil.innerText = "AMBIL DI LOKASI"; }
+            }
         }
 
         function updateAdminPanel(stats) {
@@ -415,7 +415,6 @@
             if (!container) return;
             container.innerHTML = "";
             for (const [name, s] of Object.entries(stats)) {
-                
                 let onlineListHTML = '<p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest text-center mt-2 mb-1">Tidak ada booking online</p>';
                 if(s.online_bookings && s.online_bookings.length > 0) {
                     onlineListHTML = s.online_bookings.map(ob => `
@@ -432,23 +431,18 @@
                         </div>
                     `).join('');
                 }
-
                 container.innerHTML += `
                     <div class="glass p-5 rounded-[2rem] border-t-4 border-slate-200 bg-white/50 shadow-sm">
                         <h4 class="font-black uppercase text-rose-600 text-[10px] tracking-[0.2em] mb-4 text-center">${name.replace('_',' ')}</h4>
-                        
                         <div class="flex justify-between items-center mb-4 px-2">
                             <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Active</p><p class="text-2xl font-black text-slate-800">${s.active_number}</p></div>
                             <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Wait (Offline)</p><p class="text-2xl font-black text-rose-500">${s.total_waiting_offline || 0}</p></div>
                         </div>
-                        
                         <button onclick="callNext('${name}')" class="w-full ${(s.total_waiting_offline || 0) > 0 ? 'red-gradient text-white shadow-md hover:-translate-y-1' : 'bg-slate-200 text-slate-400'} py-3 rounded-xl font-black text-xs transition-all mb-4">CALL NEXT OFFLINE →</button>
-                        
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 mb-4">
                             <p class="text-[9px] text-slate-500 font-black mb-2 uppercase tracking-widest border-b border-slate-200 pb-1">Jadwal Online Hari Ini 🎫</p>
                             <div class="max-h-40 overflow-y-auto pr-1">${onlineListHTML}</div>
                         </div>
-
                         <div class="bg-slate-100 p-3 rounded-xl border border-slate-200">
                             <p class="text-[9px] text-slate-500 font-black mb-2 uppercase tracking-widest border-b border-slate-200 pb-1">📊 Rekapan Harian</p>
                             <div class="grid grid-cols-3 gap-2 text-center">
@@ -512,4 +506,7 @@
         function showAdminPanel() { document.getElementById('view-customer').classList.add('hidden'); document.getElementById('view-admin').classList.remove('hidden'); document.getElementById('admin-login').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); refreshData(); }
         function logoutAdmin() { localStorage.removeItem('klikka_admin_logged_in'); location.reload(); }
 
-        setInterval(refreshData, 5000);
+        setInterval(refreshData, 5000); 
+    </script>
+</body>
+</html>
