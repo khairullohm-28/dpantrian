@@ -23,6 +23,21 @@
     <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
     <audio id="my-turn-sound" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3" preload="auto"></audio>
 
+    <div id="booking-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glass p-6 rounded-3xl w-full max-w-sm border border-white shadow-2xl transform transition-all">
+            <h3 class="font-black text-slate-800 text-lg mb-1">Lengkapi Data Kamu ✨</h3>
+            <p class="text-[10px] text-slate-500 mb-4 font-semibold uppercase tracking-widest">Booking Slot: <span id="modal-slot-text" class="text-rose-500 font-black"></span></p>
+            
+            <input type="text" id="input-nama" placeholder="Nama Panggilan" class="w-full mb-3 p-4 rounded-2xl bg-white/80 border border-slate-200 outline-none focus:border-rose-400 font-bold text-sm">
+            <input type="tel" id="input-wa" placeholder="No. WhatsApp (cth: 0812...)" class="w-full mb-6 p-4 rounded-2xl bg-white/80 border border-slate-200 outline-none focus:border-rose-400 font-bold text-sm">
+            
+            <div class="flex gap-2">
+                <button onclick="closeModal()" class="w-1/3 py-4 bg-slate-200 text-slate-500 font-bold rounded-2xl text-xs uppercase tracking-widest">Batal</button>
+                <button onclick="submitBooking()" class="w-2/3 py-4 red-gradient text-white font-black rounded-2xl shadow-md text-xs uppercase tracking-widest active:scale-95 transition-transform">Kirim Ke Admin 🚀</button>
+            </div>
+        </div>
+    </div>
+
     <div class="max-w-4xl mx-auto">
         <div class="flex justify-between items-center py-6">
             <div class="flex items-center gap-2">
@@ -58,7 +73,7 @@
 
                 <div id="booking-slot-section" class="glass p-6 rounded-[2rem] border border-white mt-4">
                     <h3 class="font-bold text-sm uppercase tracking-widest text-slate-800 mb-2">Pilih Jam Booking Online 📆</h3>
-                    <p class="text-[10px] text-slate-500 mb-4">Slot abu-abu berarti sudah terisi atau terblokir oleh durasi antrian offline.</p>
+                    <p class="text-[10px] text-slate-500 mb-4">Slot abu-abu berarti sudah terisi atau terblokir.</p>
                     
                     <div id="slot-grid" class="grid grid-cols-4 gap-2 mb-6">
                         </div>
@@ -80,6 +95,10 @@
                 </div>
                 
                 <button onclick="clearMyTicket()" class="w-full text-slate-400 text-xs py-4 font-bold uppercase tracking-widest hover:text-rose-500 transition">← Back to Main Menu</button>
+                
+                <div class="text-center mt-6 pt-6 border-t border-slate-200/50">
+                    <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">Butuh Bantuan? Hubungi <a href="https://wa.me/6281234567890" target="_blank" class="text-rose-500 font-black hover:underline">Call Center Admin</a></p>
+                </div>
             </div>
         </div>
 
@@ -109,7 +128,9 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbyveLKRcubGbU4aWQ2D4jtfbyNgX3TjXz77RyAUglqCh-dCkx_6YUijfHTi6xDotXFW/exec"; // <-- GANTI DISINI (Deploy Baru ya!)
+        const API_URL = "https://script.google.com/macros/s/AKfycbxReB7rlD4kGcm5xgRawo2cS4mIspQG1vlSx6BS-rFmq6UTgvFmx9GZceEE-1LnTWsntg/exec"; // <-- GANTI DISINI (URL Deploy Baru)
+        const ADMIN_WA_NUMBER = "6285159552328"; // <-- GANTI DENGAN NOMOR ADMIN KLIKKA (Awalan 62)
+        
         let currentBooth = "";
         let lastActiveTrack = {};
         let selectedOnlineSlot = "";
@@ -153,12 +174,11 @@
 
         function generateSlots(cutoffTimestamp, bookedSlots) {
             const slotGrid = document.getElementById('slot-grid');
-            if(!slotGrid || localStorage.getItem('klikka_my_ticket')) return; // Jangan render jika sudah punya tiket
+            if(!slotGrid || localStorage.getItem('klikka_my_ticket')) return;
             
             slotGrid.innerHTML = "";
-            const startHour = 10; // Buka jam 10 pagi
-            const endHour = 21;   // Tutup jam 9 malam
-            const today = new Date();
+            const startHour = 10; 
+            const endHour = 21;   
             
             for(let h = startHour; h <= endHour; h++) {
                 ['00', '15', '30', '45'].forEach(m => {
@@ -166,30 +186,57 @@
                     const slotDate = new Date();
                     slotDate.setHours(h, parseInt(m), 0, 0);
                     
-                    // Cek apakah slot di masa lalu, melewati batas antrian offline (+buffer), atau sudah dibooking
                     const isPastCutoff = slotDate.getTime() <= cutoffTimestamp;
                     const isBooked = bookedSlots.includes(timeStr);
                     
                     const btn = document.createElement('button');
                     btn.innerText = timeStr;
-                    btn.className = `py-2 rounded-xl text-xs font-bold transition-all ${
-                        isPastCutoff || isBooked 
-                        ? 'bg-slate-200 text-slate-400 cursor-not-allowed opacity-50' 
-                        : 'bg-white text-rose-500 border border-rose-200 shadow-sm hover:bg-rose-50 hover:border-rose-400'
-                    }`;
+                    btn.id = `btn-slot-${timeStr.replace(':','-')}`;
                     
-                    if(!isPastCutoff && !isBooked) {
-                        btn.onclick = () => confirmOnlineBooking(timeStr);
+                    if(isPastCutoff || isBooked) {
+                        btn.className = 'py-2 rounded-xl text-xs font-bold transition-all bg-slate-200 text-slate-400 cursor-not-allowed opacity-50';
+                        btn.disabled = true;
+                    } else {
+                        btn.className = 'py-2 rounded-xl text-xs font-bold transition-all bg-white text-rose-500 border border-rose-200 shadow-sm hover:bg-rose-50 hover:border-rose-400 focus:bg-rose-500 focus:text-white';
+                        btn.onclick = () => openBookingModal(timeStr, btn);
                     }
                     slotGrid.appendChild(btn);
                 });
             }
         }
 
-        function confirmOnlineBooking(timeStr) {
-            if(confirm(`Yakin mau booking slot jam ${timeStr}?\nInget ya, telat = slot hangus!💅`)) {
-                takeQueue('online', timeStr);
+        function openBookingModal(timeStr, btnElement) {
+            selectedOnlineSlot = timeStr;
+            document.getElementById('modal-slot-text').innerText = timeStr;
+            document.getElementById('booking-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('booking-modal').classList.add('hidden');
+            selectedOnlineSlot = "";
+        }
+
+        async function submitBooking() {
+            const nama = document.getElementById('input-nama').value.trim();
+            const wa = document.getElementById('input-wa').value.trim();
+            
+            if(!nama || !wa) {
+                alert("Isi nama dan No WhatsApp dulu ya bestie! 💅");
+                return;
             }
+            
+            // Tutup modal dan langsung proses
+            closeModal();
+            
+            // Ubah warna slot yang dipilih jadi abu-abu agar tidak bisa diklik lagi saat loading
+            const slotBtn = document.getElementById(`btn-slot-${selectedOnlineSlot.replace(':','-')}`);
+            if(slotBtn) {
+                slotBtn.className = 'py-2 rounded-xl text-xs font-bold transition-all bg-slate-300 text-slate-500 cursor-not-allowed opacity-70';
+                slotBtn.disabled = true;
+                slotBtn.innerText = "Loading...";
+            }
+
+            takeQueue('online', selectedOnlineSlot, nama, wa);
         }
 
         async function refreshData() {
@@ -197,7 +244,6 @@
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'get_status' })});
                 const data = await res.json();
                 
-                // CUSTOMER DASHBOARD UPDATE
                 if(currentBooth) {
                     const s = data.stats[currentBooth];
                     const activeEl = document.getElementById('active-no');
@@ -218,11 +264,9 @@
                     activeEl.innerText = s.active_number;
                     document.getElementById('queue-count').innerText = s.total_waiting_offline;
                     
-                    // Render Bioskop Slots
                     generateSlots(s.cutoff_time, s.booked_slots);
                 }
 
-                // ADMIN DASHBOARD UPDATE
                 if (document.getElementById('admin-total-done')) {
                     document.getElementById('admin-total-done').innerText = data.total_done;
                     updateAdminPanel(data.stats);
@@ -230,14 +274,14 @@
             } catch (e) { console.error("Sync Error", e); }
         }
 
-        async function takeQueue(type, time = "") {
+        async function takeQueue(type, time = "", nama = "", wa = "") {
             const btnAmbil = document.getElementById('btn-ambil');
             btnAmbil.disabled = true; 
             
             try {
                 const res = await fetch(API_URL, { 
                     method: 'POST', 
-                    body: JSON.stringify({ action: 'add_ticket', booth_type: currentBooth, ticket_type: type, booked_time: time })
+                    body: JSON.stringify({ action: 'add_ticket', booth_type: currentBooth, ticket_type: type, booked_time: time, nama: nama, no_wa: wa })
                 });
                 const result = await res.json();
                 
@@ -255,28 +299,40 @@
                     document.getElementById('ticket-result').classList.remove('hidden');
                     document.getElementById('btn-ambil').classList.add('hidden');
                     document.getElementById('booking-slot-section').classList.add('hidden');
+                    
+                    // --- FITUR MENGIRIM PESAN KE WHATSAPP ADMIN OTOMATIS ---
+                    if(type === 'online') {
+                        const boothName = currentBooth.replace('_', ' ').toUpperCase();
+                        const textMsg = `Halo Admin Klikka! 👋\n\nSaya mau konfirmasi booking online nih:\n\n*Nama:* ${nama}\n*No. WA:* ${wa}\n*Booth:* ${boothName}\n*Jam Booking:* ${time} WIB\n*Kode Antrian:* ${result.number}\n\nMohon konfirmasinya ya kak! ✨`;
+                        
+                        // Buka link WhatsApp di tab baru
+                        window.open(`https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent(textMsg)}`, '_blank');
+                    }
+
                     refreshData();
                 }
             } catch(e) { alert("Network Error"); btnAmbil.disabled = false; }
         }
 
-        // --- UPDATE ADMIN PANEL UNTUK MENAMPILKAN ONLINE BOOKING ---
         function updateAdminPanel(stats) {
             const container = document.getElementById('admin-booths');
             if (!container) return;
             container.innerHTML = "";
             for (const [name, s] of Object.entries(stats)) {
                 
-                // Bikin list pelanggan online hari ini (seperti jadwal bioskop untuk admin)
                 let onlineListHTML = '<p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest text-center mt-2 mb-1">Tidak ada booking online</p>';
                 if(s.online_bookings.length > 0) {
                     onlineListHTML = s.online_bookings.map(ob => `
                         <div class="flex justify-between items-center bg-white/70 p-2 rounded-lg border border-slate-100 mb-1">
-                            <div>
+                            <div class="flex-1">
                                 <span class="bg-indigo-100 text-indigo-600 text-[10px] font-black px-2 py-0.5 rounded mr-1">${ob.time}</span>
-                                <span class="text-xs font-bold text-slate-700">${ob.number}</span>
+                                <span class="text-[11px] font-bold text-slate-700">${ob.number}</span>
+                                <p class="text-[9px] text-slate-500 font-semibold truncate max-w-[120px] ml-1 mt-0.5">👤 ${ob.name || "-"}</p>
                             </div>
-                            <button onclick="callSpecific('${ob.id}', '${name}')" class="bg-indigo-500 hover:bg-indigo-600 text-white text-[9px] px-3 py-1 rounded shadow-sm transition font-bold tracking-wider">PANGGIL</button>
+                            <div class="flex flex-col gap-1 items-end">
+                                <a href="https://wa.me/${ob.wa}" target="_blank" class="text-[8px] text-emerald-500 font-bold hover:underline px-2 bg-emerald-50 rounded">📞 Chat WA</a>
+                                <button onclick="callSpecific('${ob.id}', '${name}')" class="bg-indigo-500 hover:bg-indigo-600 text-white text-[9px] px-3 py-1 rounded shadow-sm transition font-bold tracking-wider">PANGGIL</button>
+                            </div>
                         </div>
                     `).join('');
                 }
@@ -294,7 +350,7 @@
                         
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
                             <p class="text-[9px] text-slate-500 font-black mb-2 uppercase tracking-widest border-b border-slate-200 pb-1">Jadwal Online Hari Ini 🎫</p>
-                            <div class="max-h-32 overflow-y-auto pr-1">
+                            <div class="max-h-40 overflow-y-auto pr-1">
                                 ${onlineListHTML}
                             </div>
                         </div>
@@ -308,7 +364,7 @@
         }
 
         async function callSpecific(ticketId, booth) {
-            if(confirm("Panggil pelanggan online ini sekarang? (Status antrian aktif saat ini akan di-Done-kan).")) {
+            if(confirm("Panggil pelanggan online ini sekarang?")) {
                 await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_specific', ticket_id: ticketId, booth_type: booth })});
                 await refreshData();
             }
