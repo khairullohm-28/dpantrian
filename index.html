@@ -16,8 +16,6 @@
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 30, 86, 0.2); border-radius: 10px; }
-        input[type="month"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; transition: 0.2s; }
-        input[type="month"]::-webkit-calendar-picker-indicator:hover { opacity: 1; }
     </style>
 </head>
 <body id="main-body" class="min-h-screen p-4 pb-20 relative overflow-x-hidden">
@@ -36,22 +34,10 @@
 
         <div id="view-customer">
             <div id="booth-selection" class="grid grid-cols-2 gap-4">
-                <button onclick="selectBooth('elevator')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group">
-                    <span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🛗</span>
-                    <p class="mt-4 font-bold text-slate-800">Elevator</p>
-                </button>
-                <button onclick="selectBooth('mrt')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group">
-                    <span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🚇</span>
-                    <p class="mt-4 font-bold text-slate-800">MRT</p>
-                </button>
-                <button onclick="selectBooth('elevator_vintage')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group">
-                    <span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🎬</span>
-                    <p class="mt-4 font-bold text-slate-800">Elevator Vintage</p>
-                </button>
-                <button onclick="selectBooth('tirai_vintage')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group">
-                    <span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🎪</span>
-                    <p class="mt-4 font-bold text-slate-800">Tirai Vintage</p>
-                </button>
+                <button onclick="selectBooth('elevator')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group"><span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🛗</span><p class="mt-4 font-bold text-slate-800">Elevator</p></button>
+                <button onclick="selectBooth('mrt')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group"><span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🚇</span><p class="mt-4 font-bold text-slate-800">MRT</p></button>
+                <button onclick="selectBooth('elevator_vintage')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group"><span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🎬</span><p class="mt-4 font-bold text-slate-800">Elevator Vintage</p></button>
+                <button onclick="selectBooth('tirai_vintage')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group"><span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🎪</span><p class="mt-4 font-bold text-slate-800">Tirai Vintage</p></button>
             </div>
 
             <div id="customer-dashboard" class="hidden space-y-6">
@@ -71,8 +57,29 @@
                     </div>
                 </div>
 
-                <button id="btn-ambil" onclick="takeQueue()" class="w-full red-gradient text-white font-black py-6 rounded-[2rem] text-xl shadow-lg active:scale-95 transition-all">TAKE A TICKET 🎟️</button>
+                <button id="btn-ambil" onclick="takeQueue()" class="w-full red-gradient text-white font-black py-6 rounded-[2rem] text-xl shadow-lg active:scale-95 transition-all">AMBIL ANTRIAN OFFLINE 🎟️</button>
                 
+                <div id="booking-slot-section" class="glass p-6 rounded-[2rem] border border-white mt-4 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-rose-200 rounded-full blur-3xl opacity-50 -mr-10 -mt-10"></div>
+                    <h3 class="font-bold text-sm uppercase tracking-widest text-slate-800 mb-2">Pesan Jam Booking Online 📆</h3>
+                    
+                    <div class="flex items-center gap-3 bg-white/80 p-4 rounded-2xl mb-4 border border-rose-100">
+                        <div class="p-2 bg-rose-50 rounded-xl"><span class="text-xl">⏱️</span></div>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Estimasi Slot Kosong Berikutnya</p>
+                            <p id="est-next-slot" class="text-2xl font-black text-rose-500">Menghitung...</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-50/80 border border-amber-200 p-4 rounded-2xl flex gap-3 items-start">
+                        <span class="text-lg">💅</span>
+                        <p class="text-[11px] font-semibold text-amber-800 leading-relaxed">
+                            <b class="text-amber-900 block mb-1">Info Penting Bestie! ✨</b>
+                            Usahain nyampe di lokasi <span class="bg-amber-200 px-1 rounded">25 - 30 menit</span> sebelum jadwal booking kamu ya. Biar nggak panik, tetep slay, dan antrian on-track! Kalau telat, slot otomatis hangus bestie~ 💔
+                        </p>
+                    </div>
+                </div>
+
                 <div id="ticket-result" class="hidden glass p-10 rounded-[2rem] border-2 border-dashed border-rose-400 text-center bg-white/80 transition-all">
                     <p id="ticket-msg" class="text-xs text-slate-500 font-bold mb-2 uppercase tracking-widest">Have fun! Your number is:</p>
                     <p id="my-number" class="text-7xl font-black text-rose-600 active-pulse">---</p>
@@ -94,46 +101,13 @@
                 <div class="flex justify-between items-center px-2">
                     <h2 class="text-2xl font-black tracking-tight text-slate-900">Admin<span class="text-rose-500">Ops</span></h2>
                     <div class="px-4 py-2 bg-emerald-100 border border-emerald-200 rounded-full">
-                        <p class="text-emerald-600 text-[10px] font-bold uppercase tracking-widest">Total Selesai All Time: <span id="admin-total-done" class="text-sm font-black">0</span></p>
+                        <p class="text-emerald-600 text-[10px] font-bold uppercase tracking-widest">Selesai All Time: <span id="admin-total-done" class="text-sm font-black">0</span></p>
                     </div>
                 </div>
 
                 <div id="admin-booths" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
-                <div class="glass p-6 rounded-[2rem] border border-white">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                        <h3 class="font-bold text-sm uppercase tracking-widest text-slate-800 flex items-center gap-2">
-                            📊 Laporan Pengunjung Harian
-                        </h3>
-                        <div class="flex items-center gap-2 bg-white/80 px-3 py-2 rounded-xl border border-slate-200 shadow-sm">
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Pilih Periode:</span>
-                            <input type="month" id="monthFilter" class="bg-transparent font-bold text-sm text-rose-600 outline-none cursor-pointer" onchange="loadMonthlyStats()">
-                        </div>
-                    </div>
-                    
-                    <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white/40">
-                        <table class="w-full text-left text-xs min-w-[500px]">
-                            <thead class="bg-slate-100/50">
-                                <tr class="text-[9px] text-slate-500 uppercase tracking-widest border-b border-slate-200">
-                                    <th class="py-3 px-2 text-center font-bold">TGL</th>
-                                    <th class="py-3 px-2 text-center font-bold">Elevator</th>
-                                    <th class="py-3 px-2 text-center font-bold text-blue-500">MRT</th>
-                                    <th class="py-3 px-2 text-center font-bold text-amber-500">Vintage</th>
-                                    <th class="py-3 px-2 text-center font-bold text-purple-500">Tirai</th>
-                                    <th class="py-3 px-2 text-center font-black text-rose-500">TOTAL</th>
-                                </tr>
-                            </thead>
-                            <tbody id="admin-monthly-table"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="glass p-6 rounded-[2rem] border border-white">
-                    <h3 class="font-bold text-sm uppercase tracking-widest mb-4 text-slate-800 border-b border-slate-200 pb-2">Log Real-time Terakhir</h3>
-                    <div id="admin-recap" class="text-xs max-h-48 overflow-y-auto pr-2 flex flex-col gap-2"></div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-4 mt-6">
                     <button onclick="resetToko()" class="w-full bg-rose-50 border border-rose-200 text-rose-600 py-4 rounded-2xl font-black hover:bg-rose-500 hover:text-white transition shadow-sm text-xs tracking-widest uppercase">🛑 Tutup Toko</button>
                     <button onclick="logoutAdmin()" class="w-full bg-slate-200 text-slate-500 py-4 rounded-2xl font-bold hover:bg-slate-300 transition shadow-sm text-xs tracking-widest uppercase">Keluar</button>
                 </div>
@@ -142,7 +116,7 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbw-3GhPvQHl2unv0dH36JdYb3U8FIqv9OtWb7xJatuKf7PyeHp7vQbzS6y4I-mqSfdS/exec"; // GANTI DENGAN URL DEPLOYMENT BARU
+        const API_URL = "https://script.google.com/macros/s/AKfycbyZl1nbcsXOePGANeuIVxXNotJXJH_BUMIbUD3kvWA59bD8jHIs8Jy5IB5qLze2-q00Dw/exec"; // <-- GANTI DISINI
         let currentBooth = "";
         let lastActiveTrack = {};
 
@@ -150,16 +124,12 @@
             const savedTicket = localStorage.getItem('klikka_my_ticket');
             const savedBooth = localStorage.getItem('klikka_my_booth');
             
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            document.getElementById('monthFilter').value = `${yyyy}-${mm}`;
-
             if (savedTicket && savedBooth) {
                 currentBooth = savedBooth;
                 document.getElementById('my-number').innerText = savedTicket;
                 document.getElementById('ticket-result').classList.remove('hidden');
                 document.getElementById('btn-ambil').classList.add('hidden');
+                document.getElementById('booking-slot-section').classList.add('hidden');
                 selectBooth(savedBooth);
             }
 
@@ -186,6 +156,7 @@
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'get_status' })});
                 const data = await res.json();
                 
+                // UPDATE CUSTOMER DASHBOARD
                 if(currentBooth) {
                     const s = data.stats[currentBooth];
                     const activeEl = document.getElementById('active-no');
@@ -200,15 +171,10 @@
                             document.getElementById('my-number').style.color = '#10b981';
                             document.getElementById('ticket-msg').innerText = "IT'S YOUR TURN! SILAKAN MASUK";
                             document.getElementById('ticket-msg').style.color = '#10b981';
-                            document.getElementById('ticket-submsg').innerText = "Have a great photo session!";
                         } else {
                             document.getElementById('notif-sound').play().catch(()=>{});
-                            activeEl.style.transform = "scale(1.2)";
-                            activeEl.style.color = "#10b981"; 
-                            setTimeout(() => {
-                                activeEl.style.transform = "scale(1)";
-                                activeEl.style.color = "#f43f5e"; 
-                            }, 1000);
+                            activeEl.style.transform = "scale(1.2)"; activeEl.style.color = "#10b981"; 
+                            setTimeout(() => { activeEl.style.transform = "scale(1)"; activeEl.style.color = "#f43f5e"; }, 1000);
                         }
                     }
                     
@@ -216,12 +182,17 @@
                     activeEl.innerText = s.active_number;
                     document.getElementById('next-no').innerText = s.next_number;
                     document.getElementById('queue-count').innerText = s.total_waiting;
+                    
+                    // Update Slot Info di Customer View
+                    if(document.getElementById('est-next-slot')) {
+                        document.getElementById('est-next-slot').innerText = s.estimated_next_slot + " WIB";
+                    }
                 }
 
+                // UPDATE ADMIN DASHBOARD
                 if (document.getElementById('admin-total-done')) {
                     document.getElementById('admin-total-done').innerText = data.total_done;
                     updateAdminPanel(data.stats);
-                    updateRecap(data.recap);
                 }
             } catch (e) { console.error("Sync Error", e); }
         }
@@ -229,9 +200,7 @@
         async function takeQueue() {
             const btn = document.getElementById('btn-ambil');
             btn.disabled = true; btn.innerText = "GENERATING...";
-            document.getElementById('notif-sound').play().catch(()=>{}); 
-            document.getElementById('my-turn-sound').play().catch(()=>{});
-
+            
             try {
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'add_ticket', booth_type: currentBooth })});
                 const result = await res.json();
@@ -241,9 +210,10 @@
                     document.getElementById('my-number').innerText = result.number;
                     document.getElementById('ticket-result').classList.remove('hidden');
                     btn.classList.add('hidden');
+                    document.getElementById('booking-slot-section').classList.add('hidden');
                     refreshData();
                 }
-            } catch(e) { alert("Network Error"); btn.disabled = false; btn.innerText = "TAKE A TICKET 🎟️"; }
+            } catch(e) { alert("Network Error"); btn.disabled = false; btn.innerText = "AMBIL ANTRIAN OFFLINE 🎟️"; }
         }
 
         function updateAdminPanel(stats) {
@@ -253,11 +223,22 @@
             for (const [name, s] of Object.entries(stats)) {
                 container.innerHTML += `
                     <div class="glass p-5 rounded-[2rem] border-t-4 ${s.total_waiting > 0 ? 'border-rose-400 bg-white/80' : 'border-slate-200 bg-white/50'} shadow-sm flex flex-col justify-between">
-                        <h4 class="font-black uppercase text-rose-600 text-[10px] tracking-[0.2em] mb-4">${name.replace('_',' ')}</h4>
-                        <div class="flex justify-between items-center mb-6 px-2">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="font-black uppercase text-rose-600 text-[10px] tracking-[0.2em]">${name.replace('_',' ')}</h4>
+                            <span class="bg-slate-100 text-slate-500 text-[9px] px-2 py-1 rounded font-bold tracking-wider">Estimasi Slot: ${s.estimated_next_slot}</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center mb-4 px-2">
                             <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Active</p><p class="text-2xl font-black text-slate-800">${s.active_number}</p></div>
                             <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Wait</p><p class="text-2xl font-black text-rose-500">${s.total_waiting}</p></div>
+                            <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Next No</p><p class="text-xl font-bold text-slate-400">${s.next_number}</p></div>
                         </div>
+                        
+                        <div class="bg-rose-50/50 p-3 rounded-xl border border-rose-100 mb-4">
+                            <p class="text-[10px] text-slate-500 font-semibold mb-1">Daftar Antrian Belum Dipanggil:</p>
+                            <p class="text-sm font-black text-rose-600">Teratas: ${s.total_waiting > 0 ? s.next_number : 'Kosong'}</p>
+                        </div>
+
                         <button onclick="callNext('${name}')" class="w-full ${s.total_waiting > 0 ? 'red-gradient text-white shadow-md hover:-translate-y-1' : 'bg-slate-200 text-slate-400'} py-4 rounded-xl font-black text-xs transition-all">CALL NEXT →</button>
                     </div>`;
             }
@@ -270,64 +251,17 @@
             await refreshData();
         }
 
-        // FUNGSI RESET / TUTUP TOKO
         async function resetToko() {
-            if(confirm("TUTUP TOKO: Yakin ingin mereset antrian? Semua nomor yang belum dipanggil akan dibersihkan. (Data statistik Harian/Bulanan yang sudah selesai TETAP AMAN).")) {
+            if(confirm("TUTUP TOKO: Yakin ingin mereset antrian? Semua nomor yang belum dipanggil akan dibersihkan.")) {
                 await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'reset_queue' })});
                 alert("Antrian berhasil dibersihkan! Selamat beristirahat.");
                 refreshData();
             }
         }
 
-        function updateRecap(recap) {
-            const list = document.getElementById('admin-recap');
-            if (!list) return;
-            list.innerHTML = recap.map(r => `
-                <div class="flex justify-between bg-white/70 p-3 rounded-xl border border-slate-100 items-center">
-                    <span class="text-slate-700 font-semibold"><b class="text-rose-500 font-black">${r.number}</b> <span class="text-[10px] uppercase tracking-wider text-slate-400 ml-1">| ${r.booth_type.replace('_',' ')}</span></span>
-                    <span class="text-slate-500 text-[10px] font-bold bg-slate-100 px-2 py-1 rounded-md">${new Date(r.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-                </div>`).join('');
-        }
-
-        async function loadMonthlyStats() {
-            const filterVal = document.getElementById('monthFilter').value;
-            if(!filterVal) return;
-            const [year, month] = filterVal.split('-');
-            const tbody = document.getElementById('admin-monthly-table');
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400 font-bold animate-pulse">Menarik data dari database... ⏳</td></tr>';
-
-            try {
-                const res = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'get_monthly_stats', month: parseInt(month), year: parseInt(year) })
-                });
-                const result = await res.json();
-                if(result.success) { renderMonthlyTable(result.data, result.days); }
-            } catch(e) { tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-rose-500 font-bold">Gagal memuat data. Periksa koneksi internet.</td></tr>'; }
-        }
-
-        function renderMonthlyTable(data, days) {
-            const tbody = document.getElementById('admin-monthly-table');
-            let html = '';
-            let tElv = 0, tMrt = 0, tVnt = 0, tTr = 0, tAll = 0;
-
-            for(let i=1; i<=days; i++) {
-                const d = data[i];
-                if(d.total > 0) {
-                    html += `<tr class="border-b border-slate-200/50 hover:bg-white/70 transition"><td class="py-2 px-2 text-center font-bold text-slate-700">${i}</td><td class="py-2 px-2 text-center text-slate-600 font-semibold">${d.elevator}</td><td class="py-2 px-2 text-center text-blue-500 font-semibold">${d.mrt}</td><td class="py-2 px-2 text-center text-amber-500 font-semibold">${d.elevator_vintage}</td><td class="py-2 px-2 text-center text-purple-500 font-semibold">${d.tirai_vintage}</td><td class="py-2 px-2 text-center font-black text-rose-600 bg-rose-50/50">${d.total}</td></tr>`;
-                } else {
-                     html += `<tr class="border-b border-slate-100 opacity-40"><td class="py-1 px-2 text-center font-bold text-slate-400">${i}</td><td class="py-1 px-2 text-center">-</td><td class="py-1 px-2 text-center">-</td><td class="py-1 px-2 text-center">-</td><td class="py-1 px-2 text-center">-</td><td class="py-1 px-2 text-center font-bold">-</td></tr>`;
-                }
-                tElv += d.elevator; tMrt += d.mrt; tVnt += d.elevator_vintage; tTr += d.tirai_vintage; tAll += d.total;
-            }
-
-            html += `<tr class="bg-rose-100 font-black text-rose-600 border-t-2 border-rose-200"><td class="py-4 px-2 text-center">TOTAL</td><td class="py-4 px-2 text-center">${tElv}</td><td class="py-4 px-2 text-center">${tMrt}</td><td class="py-4 px-2 text-center">${tVnt}</td><td class="py-4 px-2 text-center">${tTr}</td><td class="py-4 px-2 text-center bg-rose-200">${tAll}</td></tr>`;
-            tbody.innerHTML = html;
-        }
-
         function toggleAdmin() { document.getElementById('view-customer').classList.toggle('hidden'); document.getElementById('view-admin').classList.toggle('hidden'); }
         function loginAdmin() { if(document.getElementById('admin-code').value === "1234") { localStorage.setItem('klikka_admin_logged_in', 'true'); showAdminPanel(); } else { alert("Passcode Incorrect!"); } }
-        function showAdminPanel() { document.getElementById('view-customer').classList.add('hidden'); document.getElementById('view-admin').classList.remove('hidden'); document.getElementById('admin-login').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); refreshData(); loadMonthlyStats(); }
+        function showAdminPanel() { document.getElementById('view-customer').classList.add('hidden'); document.getElementById('view-admin').classList.remove('hidden'); document.getElementById('admin-login').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); refreshData(); }
         function logoutAdmin() { localStorage.removeItem('klikka_admin_logged_in'); location.reload(); }
 
         setInterval(refreshData, 5000); 
