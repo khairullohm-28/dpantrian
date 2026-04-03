@@ -72,8 +72,11 @@
                 </div>
 
                 <div id="booking-slot-section" class="glass p-6 rounded-[2rem] border border-white mt-4">
-                    <h3 class="font-bold text-sm uppercase tracking-widest text-slate-800 mb-2">Pilih Jam Booking Online 📆</h3>
-                    <p class="text-[10px] text-slate-500 mb-4">Slot abu-abu berarti sudah terisi atau terblokir.</p>
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-sm uppercase tracking-widest text-slate-800">Pilih Jam Booking 📆</h3>
+                        <span id="booking-status-badge" class="bg-emerald-100 text-emerald-600 text-[9px] px-2 py-1 rounded font-black tracking-widest uppercase">BUKA</span>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mb-4">Slot abu-abu berarti terisi/terblokir antrian offline.</p>
                     
                     <div id="slot-grid" class="grid grid-cols-4 gap-2 mb-6">
                         </div>
@@ -82,7 +85,7 @@
                         <span class="text-lg">💅</span>
                         <p class="text-[11px] font-semibold text-amber-800 leading-relaxed">
                             <b class="text-amber-900 block mb-1">Info Penting Bestie! ✨</b>
-                            Usahain nyampe di lokasi <span class="bg-amber-200 px-1 rounded">25 - 30 menit</span> sebelum jadwal booking ya. Telat dari jadwal? Slot otomatis hangus bye bye~ 💔
+                            Usahain nyampe <span class="bg-amber-200 px-1 rounded">25 - 30 menit</span> sebelum jadwal booking ya. Telat dari jadwal? Slot otomatis hangus bye bye~ 💔
                         </p>
                     </div>
                 </div>
@@ -117,15 +120,43 @@
                     </div>
                 </div>
 
-                <div class="glass p-4 rounded-2xl border border-rose-100 shadow-sm">
-                    <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">📞 Setting Nomor WA Admin</p>
-                    <div class="flex gap-2">
-                        <input type="text" id="admin-wa-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold" placeholder="Contoh: 6281234567890">
-                        <button onclick="saveWaNumber()" class="bg-slate-900 text-white px-4 py-3 rounded-xl text-xs font-bold shadow-md hover:bg-slate-800 transition">SIMPAN</button>
+                <div class="glass p-5 rounded-3xl border border-white shadow-sm space-y-4 bg-slate-50/50">
+                    <p class="text-[11px] font-black uppercase tracking-widest text-slate-800 border-b border-slate-200 pb-2">⚙️ Pengaturan Sistem</p>
+                    
+                    <div>
+                        <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Nomor WA Admin (Awalan 62)</label>
+                        <input type="text" id="admin-wa-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-rose-400">
                     </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Jam Buka Online</label>
+                            <input type="time" id="admin-open-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-rose-400">
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Jam Tutup Online</label>
+                            <input type="time" id="admin-close-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-rose-400">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Status Booking Online Saat Ini</label>
+                        <select id="admin-status-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-rose-400 bg-white">
+                            <option value="true">🟢 DIBUKA (Normal)</option>
+                            <option value="false">🔴 DITUTUP (Sementara / Full)</option>
+                        </select>
+                    </div>
+
+                    <button onclick="saveSettings()" class="w-full bg-slate-900 text-white py-3 rounded-xl text-xs font-bold shadow-md hover:bg-slate-800 transition tracking-widest uppercase mt-2">SIMPAN PENGATURAN</button>
                 </div>
 
                 <div id="admin-booths" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+
+                <div class="glass p-5 rounded-3xl border border-white shadow-sm mt-6">
+                    <h3 class="font-black text-[11px] uppercase tracking-widest text-slate-800 border-b border-slate-200 pb-2 mb-3">🕒 Recent Activity (Hari Ini)</h3>
+                    <div id="admin-recap-log" class="max-h-48 overflow-y-auto pr-2 space-y-2">
+                        </div>
+                </div>
 
                 <div class="grid grid-cols-2 gap-4 mt-6">
                     <button onclick="resetToko()" class="w-full bg-rose-50 border border-rose-200 text-rose-600 py-4 rounded-2xl font-black hover:bg-rose-500 hover:text-white transition shadow-sm text-xs tracking-widest uppercase">🛑 Tutup Toko</button>
@@ -136,8 +167,14 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxC2Ee9811uAFutCrLSWO3aIKerEr2t6GTU403yekykkvDaCye8B8ge2fgh4fZ7qiE20w/exec"; // <-- GANTI DISINI YA
-        let GLOBAL_ADMIN_WA = "6285159552328"; // Nilai default, akan tertimpa oleh database
+        const API_URL = "URL_GASS_SCRIPT_KAMU_DISINI"; // <-- GANTI DISINI
+        
+        let GLOBAL_SETTINGS = {
+            admin_wa: "6281234567890",
+            book_open: "10:00",
+            book_close: "21:00",
+            book_status: true
+        };
         
         let currentBooth = "";
         let lastActiveTrack = {};
@@ -156,12 +193,9 @@
                     document.getElementById('ticket-time-badge').classList.remove('hidden');
                 }
                 
-                // Jika sudah ada tiket, sembunyikan booking & tombol ambil
                 document.getElementById('ticket-result').classList.remove('hidden');
                 document.getElementById('btn-ambil').classList.add('hidden');
-                if(document.getElementById('booking-slot-section')) {
-                    document.getElementById('booking-slot-section').classList.add('hidden');
-                }
+                if(document.getElementById('booking-slot-section')) document.getElementById('booking-slot-section').classList.add('hidden');
                 selectBooth(savedBooth);
             }
 
@@ -175,7 +209,6 @@
             document.getElementById('customer-dashboard').classList.remove('hidden');
             document.getElementById('current-booth-name').innerText = b.replace('_', ' ');
             
-            // Tampilkan kembali bagian booking slot jika belum ambil tiket
             if (!localStorage.getItem('klikka_my_ticket')) {
                 document.getElementById('btn-ambil').classList.remove('hidden');
                 document.getElementById('booking-slot-section').classList.remove('hidden');
@@ -190,33 +223,55 @@
             location.reload();
         }
 
-        async function saveWaNumber() {
-            const newWa = document.getElementById('admin-wa-input').value.trim();
-            if(!newWa || !newWa.startsWith('62')) {
-                alert("Masukkan nomor WA yang valid (Gunakan awalan 62, contoh 628...)");
-                return;
-            }
+        async function saveSettings() {
+            const wa = document.getElementById('admin-wa-input').value.trim();
+            const open = document.getElementById('admin-open-input').value;
+            const close = document.getElementById('admin-close-input').value;
+            const status = document.getElementById('admin-status-input').value === 'true';
+
+            if(!wa || !wa.startsWith('62')) return alert("Nomor WA harus valid (awalan 62).");
+            if(!open || !close) return alert("Jam Buka dan Tutup harus diisi!");
+
             try {
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'update_wa', new_wa: newWa })});
-                const data = await res.json();
-                if(data.success) {
-                    alert("Nomor WA Admin berhasil diupdate!");
-                    refreshData();
-                }
-            } catch(e) { alert("Gagal update WA."); }
+                await fetch(API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ action: 'update_settings', admin_wa: wa, book_open: open, book_close: close, book_status: status })
+                });
+                alert("Pengaturan Berhasil Disimpan!");
+                refreshData();
+            } catch(e) { alert("Gagal menyimpan."); }
         }
 
         function generateSlots(cutoffTimestamp, bookedSlots) {
             const slotGrid = document.getElementById('slot-grid');
+            const badge = document.getElementById('booking-status-badge');
+            
             if(!slotGrid || localStorage.getItem('klikka_my_ticket')) return;
             
+            // Cek Status Setting
+            if(!GLOBAL_SETTINGS.book_status) {
+                badge.className = "bg-rose-100 text-rose-600 text-[9px] px-2 py-1 rounded font-black tracking-widest uppercase";
+                badge.innerText = "DITUTUP SEMENTARA";
+                slotGrid.innerHTML = '<div class="col-span-4 p-4 bg-slate-100 text-slate-500 rounded-xl text-center font-bold text-xs border border-slate-200">Mohon maaf, booking online sedang ditutup atau kuota full. Silakan datang langsung ke lokasi 🙏</div>';
+                return;
+            } else {
+                badge.className = "bg-emerald-100 text-emerald-600 text-[9px] px-2 py-1 rounded font-black tracking-widest uppercase";
+                badge.innerText = `BUKA (${GLOBAL_SETTINGS.book_open} - ${GLOBAL_SETTINGS.book_close})`;
+            }
+            
             slotGrid.innerHTML = "";
-            const startHour = 10; 
-            const endHour = 21;   
+            
+            // Ambil jam dari setting
+            const startHour = parseInt(GLOBAL_SETTINGS.book_open.split(':')[0]);
+            const endHour = parseInt(GLOBAL_SETTINGS.book_close.split(':')[0]);
             
             for(let h = startHour; h <= endHour; h++) {
                 ['00', '15', '30', '45'].forEach(m => {
                     const timeStr = `${h.toString().padStart(2, '0')}:${m}`;
+                    
+                    // Filter batas jam buka dan tutup secara presisi
+                    if(timeStr < GLOBAL_SETTINGS.book_open || timeStr > GLOBAL_SETTINGS.book_close) return;
+
                     const slotDate = new Date();
                     slotDate.setHours(h, parseInt(m), 0, 0);
                     
@@ -254,20 +309,14 @@
             const nama = document.getElementById('input-nama').value.trim();
             const wa = document.getElementById('input-wa').value.trim();
             
-            if(!nama || !wa) {
-                alert("Isi nama dan No WhatsApp dulu ya bestie! 💅");
-                return;
-            }
+            if(!nama || !wa) return alert("Isi nama dan No WhatsApp dulu ya bestie! 💅");
             
             closeModal();
-            
             const slotBtn = document.getElementById(`btn-slot-${selectedOnlineSlot.replace(':','-')}`);
             if(slotBtn) {
                 slotBtn.className = 'py-2 rounded-xl text-xs font-bold transition-all bg-slate-300 text-slate-500 cursor-not-allowed opacity-70';
-                slotBtn.disabled = true;
-                slotBtn.innerText = "Loading...";
+                slotBtn.disabled = true; slotBtn.innerText = "Loading...";
             }
-
             takeQueue('online', selectedOnlineSlot, nama, wa);
         }
 
@@ -276,13 +325,17 @@
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'get_status' })});
                 const data = await res.json();
                 
-                // Update Setting WA Global
-                if(data.admin_wa) {
-                    GLOBAL_ADMIN_WA = data.admin_wa;
-                    document.getElementById('call-center-link').href = `https://wa.me/${GLOBAL_ADMIN_WA}`;
-                    // Isi input form admin kalau kosong
-                    const waInput = document.getElementById('admin-wa-input');
-                    if(waInput && waInput.value === "") waInput.value = GLOBAL_ADMIN_WA;
+                if(data.settings) {
+                    GLOBAL_SETTINGS = data.settings;
+                    document.getElementById('call-center-link').href = `https://wa.me/${GLOBAL_SETTINGS.admin_wa}`;
+                    
+                    // Isi form admin jika aktif
+                    if(document.getElementById('admin-wa-input') && document.getElementById('admin-wa-input').value === "") {
+                        document.getElementById('admin-wa-input').value = GLOBAL_SETTINGS.admin_wa;
+                        document.getElementById('admin-open-input').value = GLOBAL_SETTINGS.book_open;
+                        document.getElementById('admin-close-input').value = GLOBAL_SETTINGS.book_close;
+                        document.getElementById('admin-status-input').value = GLOBAL_SETTINGS.book_status.toString();
+                    }
                 }
 
                 if(currentBooth) {
@@ -311,6 +364,7 @@
                 if (document.getElementById('admin-total-done')) {
                     document.getElementById('admin-total-done').innerText = data.total_done;
                     updateAdminPanel(data.stats);
+                    updateAdminRecapLog(data.recap);
                 }
             } catch (e) { console.error("Sync Error", e); }
         }
@@ -318,14 +372,12 @@
         async function takeQueue(type, time = "", nama = "", wa = "") {
             const btnAmbil = document.getElementById('btn-ambil');
             btnAmbil.disabled = true; 
-            
             try {
                 const res = await fetch(API_URL, { 
                     method: 'POST', 
                     body: JSON.stringify({ action: 'add_ticket', booth_type: currentBooth, ticket_type: type, booked_time: time, nama: nama, no_wa: wa })
                 });
                 const result = await res.json();
-                
                 if(result.success) {
                     localStorage.setItem('klikka_my_ticket', result.number);
                     localStorage.setItem('klikka_my_booth', currentBooth);
@@ -339,16 +391,13 @@
                     
                     document.getElementById('ticket-result').classList.remove('hidden');
                     document.getElementById('btn-ambil').classList.add('hidden');
-                    document.getElementById('booking-slot-section').classList.add('hidden');
+                    if(document.getElementById('booking-slot-section')) document.getElementById('booking-slot-section').classList.add('hidden');
                     
                     if(type === 'online') {
                         const boothName = currentBooth.replace('_', ' ').toUpperCase();
                         const textMsg = `Halo Admin Klikka! 👋\n\nSaya mau konfirmasi booking online nih:\n\n*Nama:* ${nama}\n*No. WA:* ${wa}\n*Booth:* ${boothName}\n*Jam Booking:* ${time} WIB\n*Kode Antrian:* ${result.number}\n\nMohon konfirmasinya ya kak! ✨`;
-                        
-                        // Gunakan GLOBAL_ADMIN_WA dari database
-                        window.open(`https://wa.me/${GLOBAL_ADMIN_WA}?text=${encodeURIComponent(textMsg)}`, '_blank');
+                        window.open(`https://wa.me/${GLOBAL_SETTINGS.admin_wa}?text=${encodeURIComponent(textMsg)}`, '_blank');
                     }
-
                     refreshData();
                 }
             } catch(e) { alert("Network Error"); btnAmbil.disabled = false; }
@@ -388,35 +437,45 @@
                         
                         <button onclick="callNext('${name}')" class="w-full ${s.total_waiting_offline > 0 ? 'red-gradient text-white shadow-md hover:-translate-y-1' : 'bg-slate-200 text-slate-400'} py-3 rounded-xl font-black text-xs transition-all mb-4">CALL NEXT OFFLINE →</button>
                         
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 mb-4">
                             <p class="text-[9px] text-slate-500 font-black mb-2 uppercase tracking-widest border-b border-slate-200 pb-1">Jadwal Online Hari Ini 🎫</p>
-                            <div class="max-h-40 overflow-y-auto pr-1">
-                                ${onlineListHTML}
+                            <div class="max-h-40 overflow-y-auto pr-1">${onlineListHTML}</div>
+                        </div>
+
+                        <div class="bg-slate-100 p-3 rounded-xl border border-slate-200">
+                            <p class="text-[9px] text-slate-500 font-black mb-2 uppercase tracking-widest border-b border-slate-200 pb-1">📊 Rekapan Selesai</p>
+                            <div class="grid grid-cols-2 gap-2 text-center">
+                                <div><p class="text-[8px] text-slate-400 uppercase font-bold">Hari Ini (Off)</p><p class="text-sm font-black text-slate-700">${s.summary.daily_offline}</p></div>
+                                <div><p class="text-[8px] text-slate-400 uppercase font-bold">Hari Ini (On)</p><p class="text-sm font-black text-indigo-600">${s.summary.daily_online}</p></div>
+                                <div><p class="text-[8px] text-slate-400 uppercase font-bold">Bulan Ini</p><p class="text-sm font-black text-emerald-600">${s.summary.monthly}</p></div>
+                                <div><p class="text-[8px] text-slate-400 uppercase font-bold">Total</p><p class="text-sm font-black text-rose-500">${s.summary.total}</p></div>
                             </div>
                         </div>
                     </div>`;
             }
         }
 
-        async function callNext(booth) {
-            await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_next', booth_type: booth })});
-            await refreshData();
-        }
-
-        async function callSpecific(ticketId, booth) {
-            if(confirm("Panggil pelanggan online ini sekarang? (Status antrian saat ini akan otomatis jadi Done)")) {
-                await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_specific', ticket_id: ticketId, booth_type: booth })});
-                await refreshData();
+        function updateAdminRecapLog(recapList) {
+            const container = document.getElementById('admin-recap-log');
+            if(!container) return;
+            if(recapList.length === 0) {
+                container.innerHTML = '<p class="text-[10px] text-slate-400 text-center py-2 font-bold uppercase tracking-widest">Belum ada aktivitas hari ini.</p>';
+                return;
             }
+            container.innerHTML = recapList.map(r => `
+                <div class="flex justify-between items-center bg-white/70 p-2.5 rounded-xl border border-slate-100">
+                    <div>
+                        <span class="font-black text-slate-800 text-xs mr-2">${r.number}</span>
+                        <span class="text-[9px] text-slate-400 uppercase font-bold tracking-widest">${r.booth_type.replace('_',' ')}</span>
+                    </div>
+                    <span class="bg-emerald-50 text-emerald-600 text-[9px] px-2 py-1 rounded font-black tracking-widest">SELESAI (${new Date(r.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})})</span>
+                </div>
+            `).join('');
         }
 
-        async function resetToko() {
-            if(confirm("TUTUP TOKO: Yakin ingin mereset antrian?")) {
-                await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'reset_queue' })});
-                refreshData();
-            }
-        }
-
+        async function callNext(booth) { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_next', booth_type: booth })}); await refreshData(); }
+        async function callSpecific(ticketId, booth) { if(confirm("Panggil pelanggan online ini sekarang? (Status antrian saat ini akan otomatis jadi Done)")) { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_specific', ticket_id: ticketId, booth_type: booth })}); await refreshData(); } }
+        async function resetToko() { if(confirm("TUTUP TOKO: Yakin ingin mereset antrian?")) { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'reset_queue' })}); refreshData(); } }
         function toggleAdmin() { document.getElementById('view-customer').classList.toggle('hidden'); document.getElementById('view-admin').classList.toggle('hidden'); }
         function loginAdmin() { if(document.getElementById('admin-code').value === "1234") { localStorage.setItem('klikka_admin_logged_in', 'true'); showAdminPanel(); } else { alert("Passcode Incorrect!"); } }
         function showAdminPanel() { document.getElementById('view-customer').classList.add('hidden'); document.getElementById('view-admin').classList.remove('hidden'); document.getElementById('admin-login').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); refreshData(); }
