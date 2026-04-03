@@ -192,15 +192,9 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbwQTbg95Zs2om7Z_KlQezv_X9yvPe3pUMCBbEKuYZGWq25VKmUsOpimvhIUTogE6EI7Ew/exec"; // <-- GANTI DISINI (Jika ada update)
+        const API_URL = "https://script.google.com/macros/s/AKfycbw9XtGLIW7CG_Ag_151yjjokFSRMpg5jpK-tVUl_ykXbvWTCDdTMHnUqth7J4MR5BBxVQ/exec"; // Ganti dengan URL API barumu
         
-        let GLOBAL_SETTINGS = {
-            admin_wa: "6281234567890",
-            book_open: "10:00",
-            book_close: "21:00",
-            book_status: true
-        };
-        
+        let GLOBAL_SETTINGS = { admin_wa: "6281234567890", book_open: "10:00", book_close: "21:00", book_status: true };
         let currentBooth = "";
         let lastActiveTrack = {};
         let selectedOnlineSlot = "";
@@ -217,13 +211,11 @@
                     document.getElementById('ticket-time-badge').innerText = "Booking Jam: " + savedTime;
                     document.getElementById('ticket-time-badge').classList.remove('hidden');
                 }
-                
                 document.getElementById('ticket-result').classList.remove('hidden');
                 document.getElementById('btn-ambil').classList.add('hidden');
                 if(document.getElementById('booking-slot-section')) document.getElementById('booking-slot-section').classList.add('hidden');
                 selectBooth(savedBooth);
             }
-
             if (localStorage.getItem('klikka_admin_logged_in') === 'true') { showAdminPanel(); }
             refreshData();
         };
@@ -233,7 +225,6 @@
             document.getElementById('view-customer').querySelector('#booth-selection').classList.add('hidden');
             document.getElementById('customer-dashboard').classList.remove('hidden');
             document.getElementById('current-booth-name').innerText = b.replace('_', ' ');
-            
             if (!localStorage.getItem('klikka_my_ticket')) {
                 document.getElementById('btn-ambil').classList.remove('hidden');
                 document.getElementById('booking-slot-section').classList.remove('hidden');
@@ -253,31 +244,24 @@
             const open = document.getElementById('admin-open-input').value;
             const close = document.getElementById('admin-close-input').value;
             const status = document.getElementById('admin-status-input').value === 'true';
-
             if(!wa || !wa.startsWith('62')) return alert("Nomor WA harus valid (awalan 62).");
             if(!open || !close) return alert("Jam Buka dan Tutup harus diisi!");
-
             try {
-                await fetch(API_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ action: 'update_settings', admin_wa: wa, book_open: open, book_close: close, book_status: status })
-                });
+                await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'update_settings', admin_wa: wa, book_open: open, book_close: close, book_status: status }) });
                 alert("Pengaturan Berhasil Disimpan!");
                 refreshData();
             } catch(e) { alert("Gagal menyimpan."); }
         }
 
-        function generateSlots(cutoffTimestamp, bookedSlots) {
+        function generateSlots(waitingOfflineCount, bookedSlots) {
             const slotGrid = document.getElementById('slot-grid');
             const badge = document.getElementById('booking-status-badge');
-            
             if(!slotGrid || localStorage.getItem('klikka_my_ticket')) return;
             
-            // Cek Status Setting
             if(!GLOBAL_SETTINGS.book_status) {
                 badge.className = "bg-rose-100 text-rose-600 text-[9px] px-2 py-1 rounded font-black tracking-widest uppercase";
                 badge.innerText = "DITUTUP SEMENTARA";
-                slotGrid.innerHTML = '<div class="col-span-4 p-4 bg-slate-100 text-slate-500 rounded-xl text-center font-bold text-xs border border-slate-200">Mohon maaf, booking online sedang ditutup atau kuota full. Silakan datang langsung ke lokasi 🙏</div>';
+                slotGrid.innerHTML = '<div class="col-span-4 p-4 bg-slate-100 text-slate-500 rounded-xl text-center font-bold text-xs border border-slate-200">Mohon maaf, booking online sedang ditutup. Silakan datang langsung ke lokasi 🙏</div>';
                 return;
             } else {
                 badge.className = "bg-emerald-100 text-emerald-600 text-[9px] px-2 py-1 rounded font-black tracking-widest uppercase";
@@ -286,22 +270,26 @@
             
             slotGrid.innerHTML = "";
             
-            // Ambil jam dari setting
             const startHour = parseInt(GLOBAL_SETTINGS.book_open.split(':')[0]);
             const endHour = parseInt(GLOBAL_SETTINGS.book_close.split(':')[0]);
+            
+            // Logika Penutup Waktu (Current Time + Estimasi Antrean Fisik)
+            const now = new Date();
+            // Estimasi: 1 antrean offline = 5 menit (5 * 60000 milidetik). Ini akan memblokir slot terdekat jika offline penuh.
+            const offlineDelayMs = waitingOfflineCount * 5 * 60000; 
+            const cutoffTimestamp = now.getTime() + offlineDelayMs;
             
             for(let h = startHour; h <= endHour; h++) {
                 ['00', '15', '30', '45'].forEach(m => {
                     const timeStr = `${h.toString().padStart(2, '0')}:${m}`;
-                    
-                    // Filter batas jam buka dan tutup secara presisi
                     if(timeStr < GLOBAL_SETTINGS.book_open || timeStr > GLOBAL_SETTINGS.book_close) return;
 
                     const slotDate = new Date();
                     slotDate.setHours(h, parseInt(m), 0, 0);
                     
+                    // Blokir jika jam slot sudah lewat dari waktu saat ini + delay antrean offline
                     const isPastCutoff = slotDate.getTime() <= cutoffTimestamp;
-                    const isBooked = bookedSlots && bookedSlots.includes(timeStr); // Ditambahkan handling jika bookedSlots undefined
+                    const isBooked = bookedSlots && bookedSlots.includes(timeStr);
                     
                     const btn = document.createElement('button');
                     btn.innerText = timeStr;
@@ -333,15 +321,10 @@
         async function submitBooking() {
             const nama = document.getElementById('input-nama').value.trim();
             const wa = document.getElementById('input-wa').value.trim();
-            
             if(!nama || !wa) return alert("Isi nama dan No WhatsApp dulu ya bestie! 💅");
-            
             closeModal();
             const slotBtn = document.getElementById(`btn-slot-${selectedOnlineSlot.replace(':','-')}`);
-            if(slotBtn) {
-                slotBtn.className = 'py-2 rounded-xl text-xs font-bold transition-all bg-slate-300 text-slate-500 cursor-not-allowed opacity-70';
-                slotBtn.disabled = true; slotBtn.innerText = "Loading...";
-            }
+            if(slotBtn) { slotBtn.className = 'py-2 rounded-xl text-xs font-bold transition-all bg-slate-300 text-slate-500 cursor-not-allowed opacity-70'; slotBtn.disabled = true; slotBtn.innerText = "Loading..."; }
             takeQueue('online', selectedOnlineSlot, nama, wa);
         }
 
@@ -353,8 +336,6 @@
                 if(data.settings) {
                     GLOBAL_SETTINGS = data.settings;
                     document.getElementById('call-center-link').href = `https://wa.me/${GLOBAL_SETTINGS.admin_wa}`;
-                    
-                    // Isi form admin jika aktif
                     if(document.getElementById('admin-wa-input') && document.getElementById('admin-wa-input').value === "") {
                         document.getElementById('admin-wa-input').value = GLOBAL_SETTINGS.admin_wa;
                         document.getElementById('admin-open-input').value = GLOBAL_SETTINGS.book_open;
@@ -381,9 +362,10 @@
                     }
                     lastActiveTrack[currentBooth] = s.active_number;
                     activeEl.innerText = s.active_number;
-                    document.getElementById('queue-count').innerText = s.total_waiting_offline || 0; // Fallback jika tidak ada prop
+                    document.getElementById('queue-count').innerText = s.total_waiting_offline || 0;
                     
-                    generateSlots(s.cutoff_time, s.booked_slots || []); 
+                    // Memasukkan jumlah antrean offline untuk menghitung blokir waktu
+                    generateSlots(s.total_waiting_offline || 0, s.booked_slots || []); 
                 }
 
                 if (document.getElementById('admin-total-done')) {
@@ -396,7 +378,7 @@
 
         async function takeQueue(type, time = "", nama = "", wa = "") {
             const btnAmbil = document.getElementById('btn-ambil');
-            btnAmbil.disabled = true; 
+            if(btnAmbil) btnAmbil.disabled = true; 
             try {
                 const res = await fetch(API_URL, { 
                     method: 'POST', 
@@ -415,7 +397,7 @@
                     }
                     
                     document.getElementById('ticket-result').classList.remove('hidden');
-                    document.getElementById('btn-ambil').classList.add('hidden');
+                    if(document.getElementById('btn-ambil')) document.getElementById('btn-ambil').classList.add('hidden');
                     if(document.getElementById('booking-slot-section')) document.getElementById('booking-slot-section').classList.add('hidden');
                     
                     if(type === 'online') {
@@ -425,7 +407,7 @@
                     }
                     refreshData();
                 }
-            } catch(e) { alert("Network Error"); btnAmbil.disabled = false; }
+            } catch(e) { alert("Network Error"); if(btnAmbil) btnAmbil.disabled = false; }
         }
 
         function updateAdminPanel(stats) {
@@ -466,6 +448,15 @@
                             <p class="text-[9px] text-slate-500 font-black mb-2 uppercase tracking-widest border-b border-slate-200 pb-1">Jadwal Online Hari Ini 🎫</p>
                             <div class="max-h-40 overflow-y-auto pr-1">${onlineListHTML}</div>
                         </div>
+
+                        <div class="bg-slate-100 p-3 rounded-xl border border-slate-200">
+                            <p class="text-[9px] text-slate-500 font-black mb-2 uppercase tracking-widest border-b border-slate-200 pb-1">📊 Rekapan Harian</p>
+                            <div class="grid grid-cols-3 gap-2 text-center">
+                                <div><p class="text-[8px] text-slate-400 uppercase font-bold">Offline</p><p class="text-sm font-black text-slate-700">${s.summary.daily_offline}</p></div>
+                                <div><p class="text-[8px] text-slate-400 uppercase font-bold">Online</p><p class="text-sm font-black text-indigo-600">${s.summary.daily_online}</p></div>
+                                <div><p class="text-[8px] text-slate-400 uppercase font-bold">Bulan Ini</p><p class="text-sm font-black text-emerald-600">${s.summary.monthly}</p></div>
+                            </div>
+                        </div>
                     </div>`;
             }
         }
@@ -490,19 +481,12 @@
 
         async function loadRekapanBulanan() {
             const btn = document.querySelector('button[onclick="loadRekapanBulanan()"]');
-            btn.innerText = "LOADING...";
-            btn.disabled = true;
-
+            btn.innerText = "LOADING..."; btn.disabled = true;
             const m = document.getElementById('filter-bulan').value;
             const y = document.getElementById('filter-tahun').value;
-
             try {
-                const res = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'get_recap_monthly_summary', month: m, year: y })
-                });
+                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'get_recap_monthly_summary', month: m, year: y }) });
                 const result = await res.json();
-                
                 if(result.success) {
                     const c = document.getElementById('rekapan-bulanan-container');
                     const d = result.data;
@@ -517,12 +501,7 @@
                         </div>
                     `;
                 }
-            } catch(e) {
-                alert("Gagal menarik data rekapan.");
-            } finally {
-                btn.innerText = "TARIK";
-                btn.disabled = false;
-            }
+            } catch(e) { alert("Gagal menarik data rekapan."); } finally { btn.innerText = "TARIK"; btn.disabled = false; }
         }
 
         async function callNext(booth) { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_next', booth_type: booth })}); await refreshData(); }
@@ -533,7 +512,4 @@
         function showAdminPanel() { document.getElementById('view-customer').classList.add('hidden'); document.getElementById('view-admin').classList.remove('hidden'); document.getElementById('admin-login').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); refreshData(); }
         function logoutAdmin() { localStorage.removeItem('klikka_admin_logged_in'); location.reload(); }
 
-        setInterval(refreshData, 5000); 
-    </script>
-</body>
-</html>
+        setInterval(refreshData, 5000);
