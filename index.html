@@ -203,13 +203,26 @@ kode index.html:
                 </div>
             </div>
         </div>
-        
+        <div id="thermal-wrapper" style="display:none; position:fixed; left:-9999px;">
+    <div id="thermal-ticket" style="width:54mm; padding:2mm; font-family:monospace; font-size:10pt;">
+        <div style="text-align:center; font-weight:bold;">LOGO KLIKKA</div>
+        <div style="text-align:center">Klikka Photobooth Tulungagung</div>
+        <div style="border-bottom:1px dashed #000; margin:2mm 0;"></div>
+        <div id="p-booth" style="font-weight:bold; text-align:center;">-</div>
+        <div id="p-nomor" style="font-size:24pt; font-weight:bold; text-align:center;">-</div>
+        <div style="border-bottom:1px dashed #000; margin:2mm 0;"></div>
+        <div id="p-waktu" style="text-align:center;">-</div>
+        <div style="border-bottom:1px dashed #000; margin:2mm 0;"></div>
+        <div id="p-qr" style="margin:2mm auto; width:35mm;"></div>
+        <div style="text-align:center">Harap menunggu dipanggil. Terima Kasih!</div>
+    </div>
+</div>
     </div>
     
 
     <script>
         // MASUKKAN URL API KAMU DI SINI
-        const API_URL = "https://script.google.com/macros/s/AKfycbzjXt3lWNlYP5_5-Ut7cbMsN1Xh1tzrNuJl1E9NrvKjL2pRDwJRE30LbYMXzLIj9PTkxA/exec"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycbyui-Bgg241I_6bQglpBdGwf4AsVCJc3HJws7XMgPTtJ0hnSjHw68Ir0hzw7xhZb1qu6g/exec"; 
         
         let GLOBAL_SETTINGS = { admin_wa: "6281234567890", book_open: "10:00", book_close: "21:00", book_status: true };
         let currentBooth = "";
@@ -564,5 +577,25 @@ async function tambahDanCetak(boothType) {
         <div style="text-align:center">Harap menunggu sampai dipanggil.<br>Terima Kasih!</div>
     </div>
 </div>
+    // Fungsi Cetak
+function cetakTiketThermal(booth, nomor) {
+    document.getElementById('p-booth').innerText = booth.toUpperCase();
+    document.getElementById('p-nomor').innerText = nomor;
+    document.getElementById('p-waktu').innerText = new Date().toLocaleString();
+    
+    document.getElementById('p-qr').innerHTML = "";
+    new QRCode(document.getElementById("p-qr"), {
+        text: window.location.origin + window.location.pathname + "?booth=" + booth + "&ticket=" + nomor,
+        width: 128, height: 128
+    });
+
+    // Perintah Print
+    setTimeout(() => { window.print(); }, 500);
+}
+
+// Override CSS untuk Print
+const style = document.createElement('style');
+style.innerHTML = `@media print { body > *:not(#thermal-wrapper) { display: none !important; } #thermal-wrapper { display: block !important; } @page { size: 58mm auto; margin: 0; } }`;
+document.head.appendChild(style);
 </body>
 </html>
