@@ -17,6 +17,19 @@ kode index.html:
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 30, 86, 0.2); border-radius: 10px; }
+        /* KODE CETAK THERMAL */
+@media print {
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body > *:not(#thermal-wrapper) { display: none !important; }
+    #thermal-wrapper { display: block !important; position: static !important; }
+    @page { size: 58mm auto; margin: 0; }
+}
+#thermal-wrapper { display: none; position: fixed; top: 0; left: -9999px; }
+.struk-thermal { width: 54mm; padding: 2mm; font-family: 'Courier New', monospace; font-size: 8pt; line-height: 1.3; color: #000; }
+.t-logo { font-size: 14pt; font-weight: bold; text-align: center; }
+.t-divider { border-bottom: 1px dashed #000; margin: 2mm 0; }
+.t-nomor { font-size: 24pt; font-weight: bold; text-align: center; margin: 2mm 0; }
+.t-qr { width: 35mm; height: 35mm; margin: 2mm auto; }
     </style>
 </head>
 <body id="main-body" class="min-h-screen p-4 pb-20 relative overflow-x-hidden">
@@ -190,11 +203,13 @@ kode index.html:
                 </div>
             </div>
         </div>
+        
     </div>
+    
 
     <script>
         // MASUKKAN URL API KAMU DI SINI
-        const API_URL = "https://script.google.com/macros/s/AKfycbyzji2QQp2PxzQ7XOHgmM67IuL6vUtSUWPtVK9CAvAPk7V8LPeI0J5E4lFEk5f82UC08A/exec"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycbzjXt3lWNlYP5_5-Ut7cbMsN1Xh1tzrNuJl1E9NrvKjL2pRDwJRE30LbYMXzLIj9PTkxA/exec"; 
         
         let GLOBAL_SETTINGS = { admin_wa: "6281234567890", book_open: "10:00", book_close: "21:00", book_status: true };
         let currentBooth = "";
@@ -508,6 +523,46 @@ kode index.html:
         function logoutAdmin() { localStorage.removeItem('klikka_admin_logged_in'); location.reload(); }
 
         setInterval(refreshData, 5000); 
+        async function cetakTiket(booth, nomor) {
+    // 1. Set Data
+    document.getElementById('print-booth-name').innerText = booth.replace('_', ' ').toUpperCase();
+    document.getElementById('print-nomor').innerText = nomor;
+    document.getElementById('print-waktu').innerText = new Date().toLocaleString('id-ID');
+
+    // 2. Generate QR Code (Mengarah ke domain kamu dengan parameter booth & ticket)
+    document.getElementById('print-qrcode').innerHTML = "";
+    new QRCode(document.getElementById("print-qrcode"), {
+        text: window.location.origin + window.location.pathname + "?booth=" + booth + "&ticket=" + nomor,
+        width: 128, height: 128
+    });
+
+    // 3. Print
+    setTimeout(() => { window.print(); }, 500);
+}
+
+// Gunakan fungsi ini saat klik tombol "Cetak" di admin panel
+async function tambahDanCetak(boothType) {
+    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'add_ticket', booth_type: boothType }) });
+    const data = await res.json();
+    if(data.success) {
+        cetakTiket(boothType, data.number);
+    }
+}
     </script>
+    <div id="thermal-wrapper">
+    <div class="struk-thermal">
+        <div class="t-logo">KLIKKA</div>
+        <div style="text-align:center">Klikka Photobooth Tulungagung</div>
+        <div class="t-divider"></div>
+        <div id="print-booth-name" style="font-weight:bold; text-align:center">NAMA BOOTH</div>
+        <div class="t-nomor" id="print-nomor">MRT000</div>
+        <div class="t-divider"></div>
+        <div id="print-waktu" style="text-align:center">07/06/2026 14:00</div>
+        <div class="t-divider"></div>
+        <div style="text-align:center">Scan QR untuk cek antrian:</div>
+        <div id="print-qrcode" class="t-qr"></div>
+        <div style="text-align:center">Harap menunggu sampai dipanggil.<br>Terima Kasih!</div>
+    </div>
+</div>
 </body>
 </html>
