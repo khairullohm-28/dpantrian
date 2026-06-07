@@ -3,510 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Klikka - Smart Queue</title>
+    <title>Klikka Photobooth - Queue System</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <style>
-        body { font-family: 'Manrope', sans-serif; background-color: #fff1f2; background-image: radial-gradient(at 0% 0%, #ffe4e6 0px, transparent 50%), radial-gradient(at 100% 100%, #fbcfe8 0px, transparent 50%); color: #0f172a; background-attachment: fixed; transition: background-color 0.5s ease; }
-        .glass { background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 10px 40px -10px rgba(255, 30, 86, 0.08); transition: all 0.5s ease; }
-        .red-gradient { background: linear-gradient(135deg, #ff1e56 0%, #ff4b72 100%); }
-        .active-pulse { animation: pulse 2s infinite; }
-        .my-turn-bg { background-color: #ecfdf5 !important; background-image: none !important; }
-        .my-turn-glass { border-color: #10b981 !important; box-shadow: 0 0 50px rgba(16, 185, 129, 0.4) !important; background: rgba(255,255,255,0.9) !important; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 30, 86, 0.2); border-radius: 10px; }
-    </style>
-</head>
-<body id="main-body" class="min-h-screen p-4 pb-20 relative overflow-x-hidden">
-
-    <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
-    <audio id="my-turn-sound" src="https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3" preload="auto"></audio>
-
-    <div id="booking-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="glass p-6 rounded-3xl w-full max-w-sm border border-white shadow-2xl transform transition-all">
-            <h3 class="font-black text-slate-800 text-lg mb-1">Lengkapi Data Kamu ✨</h3>
-            <p class="text-[10px] text-slate-500 mb-4 font-semibold uppercase tracking-widest">Booking Slot: <span id="modal-slot-text" class="text-rose-500 font-black"></span></p>
-            
-            <input type="text" id="input-nama" placeholder="Nama Panggilan" class="w-full mb-3 p-4 rounded-2xl bg-white/80 border border-slate-200 outline-none focus:border-rose-400 font-bold text-sm">
-            <input type="tel" id="input-wa" placeholder="No. WhatsApp (cth: 0812...)" class="w-full mb-6 p-4 rounded-2xl bg-white/80 border border-slate-200 outline-none focus:border-rose-400 font-bold text-sm">
-            
-            <div class="flex gap-2">
-                <button onclick="closeModal()" class="w-1/3 py-4 bg-slate-200 text-slate-500 font-bold rounded-2xl text-xs uppercase tracking-widest">Batal</button>
-                <button onclick="submitBooking()" class="w-2/3 py-4 red-gradient text-white font-black rounded-2xl shadow-md text-xs uppercase tracking-widest active:scale-95 transition-transform">Kirim Ke Admin 🚀</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="max-w-4xl mx-auto">
-        <div class="flex justify-between items-center py-6">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 red-gradient rounded-lg rotate-12 flex items-center justify-center font-black text-white shadow-lg shadow-rose-500/30">K</div>
-                <h1 class="text-xl font-extrabold tracking-tighter text-slate-900">KLIKKA<span class="text-rose-500">.</span></h1>
-            </div>
-            <button onclick="toggleAdmin()" class="text-[10px] text-slate-500 uppercase tracking-widest border border-slate-300 bg-white/50 px-4 py-2 rounded-full hover:text-rose-500 transition shadow-sm">🔐 Admin</button>
-        </div>
-
-        <div id="view-customer">
-            <div id="booth-selection" class="grid grid-cols-2 gap-4">
-                <button onclick="selectBooth('elevator')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group"><span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🛗</span><p class="mt-4 font-bold text-slate-800">Elevator</p></button>
-                <button onclick="selectBooth('mrt')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group"><span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🚇</span><p class="mt-4 font-bold text-slate-800">MRT</p></button>
-                <button onclick="selectBooth('elevator_vintage')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group"><span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🎬</span><p class="mt-4 font-bold text-slate-800">Elevator Vintage</p></button>
-                <button onclick="selectBooth('tirai_vintage')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group"><span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🎪</span><p class="mt-4 font-bold text-slate-800">Tirai Vintage</p></button>
-            </div>
-
-            <div id="customer-dashboard" class="hidden space-y-6">
-                <div class="glass p-8 rounded-[3rem] text-center relative border-2 border-white">
-                    <p id="current-booth-name" class="inline-block bg-rose-100 text-[10px] font-black uppercase tracking-[0.3em] text-rose-600 px-4 py-1 rounded-full mb-6"></p>
-                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Now Posing 📸</h2>
-                    <div id="active-no" class="text-6xl md:text-8xl font-black text-rose-500 my-4 drop-shadow-sm transition-transform duration-300 break-words leading-none">---</div>
-                    <div class="grid grid-cols-2 gap-4 mt-8 bg-white/50 rounded-3xl p-6 shadow-inner">
-                        <div class="text-left border-r border-slate-200">
-                            <p class="text-[10px] text-slate-400 uppercase font-bold mb-1">Antrian Offline</p>
-                            <p id="queue-count" class="text-3xl font-black text-rose-500">0</p>
-                        </div>
-                        <div class="text-right flex flex-col justify-center">
-                            <button id="btn-ambil" onclick="takeQueue('offline')" class="w-full bg-slate-900 text-white font-black py-4 rounded-xl text-xs shadow-lg active:scale-95 transition-all tracking-widest uppercase">AMBIL DI LOKASI</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="booking-slot-section" class="glass p-6 rounded-[2rem] border border-white mt-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <h3 class="font-bold text-sm uppercase tracking-widest text-slate-800">Pilih Jam Booking 📆</h3>
-                        <span id="booking-status-badge" class="bg-emerald-100 text-emerald-600 text-[9px] px-2 py-1 rounded font-black tracking-widest uppercase">BUKA</span>
-                    </div>
-                    <p class="text-[10px] text-slate-500 mb-4">Slot abu-abu berarti terisi/terblokir antrian offline.</p>
-                    
-                    <div id="slot-grid" class="grid grid-cols-4 gap-2 mb-6">
-                        </div>
-
-                    <div class="bg-amber-50/80 border border-amber-200 p-4 rounded-2xl flex gap-3 items-start">
-                        <span class="text-lg">💅</span>
-                        <p class="text-[11px] font-semibold text-amber-800 leading-relaxed">
-                            <b class="text-amber-900 block mb-1">Info Penting Bestie! ✨</b>
-                            Usahain nyampe <span class="bg-amber-200 px-1 rounded">25 - 30 menit</span> sebelum jadwal booking ya. Telat dari jadwal? Slot otomatis hangus bye bye~ 💔
-                        </p>
-                    </div>
-                </div>
-
-                <div id="ticket-result" class="hidden glass p-10 rounded-[2rem] border-2 border-dashed border-rose-400 text-center bg-white/80 transition-all">
-                    <p id="ticket-msg" class="text-xs text-slate-500 font-bold mb-2 uppercase tracking-widest">Have fun! Your number is:</p>
-                    <p id="my-number" class="text-7xl font-black text-rose-600 active-pulse">---</p>
-                    <p id="ticket-time-badge" class="hidden mt-2 inline-block bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-md"></p>
-                    <p id="ticket-submsg" class="text-[10px] text-slate-400 mt-4 font-semibold">Screenshot tiket ini agar tidak hilang!</p>
-                </div>
-                
-                <button onclick="clearMyTicket()" class="w-full text-slate-400 text-xs py-4 font-bold uppercase tracking-widest hover:text-rose-500 transition">← Back to Main Menu</button>
-                
-                <div class="text-center mt-6 pt-6 border-t border-slate-200/50">
-                    <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">Butuh Bantuan? Hubungi <a id="call-center-link" href="#" target="_blank" class="text-rose-500 font-black hover:underline">Call Center Admin</a></p>
-                </div>
-            </div>
-        </div>
-
-        <div id="view-admin" class="hidden space-y-6">
-            <div id="admin-login" class="glass p-10 rounded-[2.5rem] max-w-sm mx-auto text-center border-2 border-white">
-                <h3 class="text-xl font-bold mb-6 text-slate-800">Staff Access</h3>
-                <input id="admin-code" type="password" placeholder="Passcode" class="w-full p-4 rounded-2xl bg-white/80 border border-slate-200 mb-4 text-center focus:border-rose-500 outline-none transition">
-                <button onclick="loginAdmin()" class="w-full red-gradient text-white py-4 rounded-2xl font-bold">LOGIN</button>
-            </div>
-
-            <div id="admin-panel" class="hidden space-y-6">
-                <div class="flex justify-between items-center px-2">
-                    <h2 class="text-2xl font-black tracking-tight text-slate-900">Admin<span class="text-rose-500">Ops</span></h2>
-                    <div class="px-4 py-2 bg-emerald-100 border border-emerald-200 rounded-full">
-                        <p class="text-emerald-600 text-[10px] font-bold uppercase tracking-widest">Done Today: <span id="admin-total-done" class="text-sm font-black">0</span></p>
-                    </div>
-                </div>
-
-                <div class="glass p-5 rounded-3xl border border-white shadow-sm space-y-4 bg-slate-50/50">
-                    <p class="text-[11px] font-black uppercase tracking-widest text-slate-800 border-b border-slate-200 pb-2">⚙️ Pengaturan Sistem</p>
-                    
-                    <div>
-                        <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Nomor WA Admin (Awalan 62)</label>
-                        <input type="text" id="admin-wa-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-rose-400">
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Jam Buka Online</label>
-                            <input type="time" id="admin-open-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-rose-400">
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Jam Tutup Online</label>
-                            <input type="time" id="admin-close-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-rose-400">
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Status Booking Online Saat Ini</label>
-                        <select id="admin-status-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-rose-400 bg-white">
-                            <option value="true">🟢 DIBUKA (Normal)</option>
-                            <option value="false">🔴 DITUTUP (Sementara / Full)</option>
-                        </select>
-                    </div>
-
-                    <button onclick="saveSettings()" class="w-full bg-slate-900 text-white py-3 rounded-xl text-xs font-bold shadow-md hover:bg-slate-800 transition tracking-widest uppercase mt-2">SIMPAN PENGATURAN</button>
-                </div>
-
-                <div id="admin-booths" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
-
-                <div class="glass p-5 rounded-3xl border border-white shadow-sm mt-6">
-                    <h3 class="font-black text-[11px] uppercase tracking-widest text-slate-800 border-b border-slate-200 pb-2 mb-3">🕒 Recent Activity (Hari Ini)</h3>
-                    <div id="admin-recap-log" class="max-h-48 overflow-y-auto pr-2 space-y-2">
-                        </div>
-                </div>
-
-                <div class="glass p-5 rounded-3xl border border-white shadow-sm mt-6">
-                    <div class="flex justify-between items-center border-b border-slate-200 pb-2 mb-4">
-                        <h3 class="font-black text-[11px] uppercase tracking-widest text-slate-800">📅 Rekapan Selesai</h3>
-                        <div class="flex gap-2">
-                            <select id="filter-bulan" class="p-1.5 text-[10px] rounded-lg border border-slate-200 outline-none font-bold bg-white">
-                                <option value="1">Jan</option><option value="2">Feb</option>
-                                <option value="3">Mar</option><option value="4" selected>Apr</option>
-                                <option value="5">Mei</option><option value="6">Jun</option>
-                                <option value="7">Jul</option><option value="8">Agu</option>
-                                <option value="9">Sep</option><option value="10">Okt</option>
-                                <option value="11">Nov</option><option value="12">Des</option>
-                            </select>
-                            <select id="filter-tahun" class="p-1.5 text-[10px] rounded-lg border border-slate-200 outline-none font-bold bg-white">
-                                <option value="2025">2025</option>
-                                <option value="2026" selected>2026</option>
-                            </select>
-                            <button onclick="loadRekapanBulanan()" class="bg-indigo-500 text-white text-[10px] px-3 py-1 rounded-lg font-bold hover:bg-indigo-600 transition shadow-sm">TARIK</button>
-                        </div>
-                    </div>
-                    
-                    <div id="rekapan-bulanan-container" class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-                        <div class="col-span-2 md:col-span-4 p-4 text-[10px] text-slate-400 font-bold uppercase tracking-widest">Silakan klik Tarik Data</div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4 mt-6">
-                    <button onclick="resetToko()" class="w-full bg-rose-50 border border-rose-200 text-rose-600 py-4 rounded-2xl font-black hover:bg-rose-500 hover:text-white transition shadow-sm text-xs tracking-widest uppercase">🛑 Tutup Toko</button>
-                    <button onclick="logoutAdmin()" class="w-full bg-slate-200 text-slate-500 py-4 rounded-2xl font-bold hover:bg-slate-300 transition shadow-sm text-xs tracking-widest uppercase">Keluar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // MASUKKAN URL API KAMU DI SINI
-        const API_URL = "https://script.google.com/macros/s/AKfycbyzji2QQp2PxzQ7XOHgmM67IuL6vUtSUWPtVK9CAvAPk7V8LPeI0J5E4lFEk5f82UC08A/exec"; 
+        body { font-family: 'Manrope', sans-serif; background-color: #fff1f2; color: #0f172a; }
         
-        let GLOBAL_SETTINGS = { admin_wa: "6281234567890", book_open: "10:00", book_close: "21:00", book_status: true };
-        let currentBooth = "";
-        let lastActiveTrack = {};
-        let selectedOnlineSlot = "";
-
-        window.onload = () => {
-            const savedTicket = localStorage.getItem('klikka_my_ticket');
-            const savedBooth = localStorage.getItem('klikka_my_booth');
-            const savedTime = localStorage.getItem('klikka_my_time');
-            
-            if (savedTicket && savedBooth) {
-                currentBooth = savedBooth;
-                document.getElementById('my-number').innerText = savedTicket;
-                if(savedTime) {
-                    document.getElementById('ticket-time-badge').innerText = "Booking Jam: " + savedTime;
-                    document.getElementById('ticket-time-badge').classList.remove('hidden');
-                }
-                document.getElementById('ticket-result').classList.remove('hidden');
-                document.getElementById('btn-ambil').classList.add('hidden');
-                if(document.getElementById('booking-slot-section')) document.getElementById('booking-slot-section').classList.add('hidden');
-                selectBooth(savedBooth);
-            }
-            if (localStorage.getItem('klikka_admin_logged_in') === 'true') { showAdminPanel(); }
-            refreshData();
-        };
-
-        function selectBooth(b) {
-            currentBooth = b;
-            document.getElementById('view-customer').querySelector('#booth-selection').classList.add('hidden');
-            document.getElementById('customer-dashboard').classList.remove('hidden');
-            document.getElementById('current-booth-name').innerText = b.replace('_', ' ');
-            if (!localStorage.getItem('klikka_my_ticket')) {
-                document.getElementById('btn-ambil').classList.remove('hidden');
-                document.getElementById('booking-slot-section').classList.remove('hidden');
-            }
-            refreshData();
+        /* ============================================================
+           KODE UNTUK PRINTER THERMAL (58mm)
+           ============================================================ */
+        @media print {
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            /* Sembunyikan semua tampilan web saat diprint, KECUALI area struk */
+            body > *:not(#print-area) { display: none !important; }
+            #print-area { display: block !important; position: static !important; }
+            /* Atur ukuran kertas ke thermal 58mm dan hilangkan margin browser */
+            @page { margin: 0; size: 58mm auto; } 
+            body { background: white; margin: 0; padding: 0; }
         }
 
-        function clearMyTicket() {
-            localStorage.removeItem('klikka_my_ticket');
-            localStorage.removeItem('klikka_my_booth');
-            localStorage.removeItem('klikka_my_time');
+        #print-area { display: none; }
+        .struk { width: 54mm; padding: 2mm; font-family: 'Courier New', Courier, monospace; font-size: 11px; text-align: center; color: #000; background: #fff; line-height: 1.4; }
+        .struk-logo { font-size: 18px; font-weight: bold; margin-bottom: 2px; }
+        .struk-divider { border-bottom: 1px dashed #000; margin: 6px 0; }
+        .struk-nomor { font-size: 32px; font-weight: bold; margin: 4px 0; line-height: 1; }
+        .struk-booth { font-size: 14px; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
+        .struk-qr img { width: 35mm !important; height: 35mm !important; margin: 4px auto; display: block; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <div id="view-customer" class="hidden flex flex-col items-center justify-center min-h-screen p-4">
+        <div class="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-xl w-full max-w-sm text-center border border-white">
+            <h1 class="text-2xl font-extrabold text-rose-600 tracking-wider mb-2">KLIKKA.</h1>
+            <p class="text-xs text-gray-500 uppercase tracking-widest font-bold mb-6">Live Queue Tracker</p>
+            
+            <div class="mb-6">
+                <p class="text-sm font-bold text-gray-400 uppercase">Booth Kamu</p>
+                <p id="cust-booth-name" class="text-lg font-extrabold uppercase bg-rose-100 text-rose-700 py-1 px-4 rounded-full inline-block mt-1">-</p>
+            </div>
+
+            <div class="bg-rose-50 rounded-2xl p-6 border-2 border-rose-100 mb-6">
+                <p class="text-xs font-bold text-rose-400 uppercase tracking-widest mb-1">Nomor Antrian Kamu</p>
+                <p id="cust-my-number" class="text-5xl font-extrabold text-rose-600">-</p>
+            </div>
+
+            <div class="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase">Sedang Dipanggil</p>
+                    <p id="cust-active-number" class="text-xl font-bold text-slate-800">-</p>
+                </div>
+                <div class="w-px h-8 bg-gray-200"></div>
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase">Sisa Antrian</p>
+                    <p id="cust-waiting-count" class="text-xl font-bold text-slate-800">- Orang</p>
+                </div>
+            </div>
+            
+            <p class="text-[10px] text-gray-400 mt-6">Data diperbarui otomatis secara real-time</p>
+        </div>
+    </div>
+
+
+    <div id="view-login" class="flex flex-col items-center justify-center min-h-screen p-4">
+        <div class="bg-white/80 backdrop-blur-xl p-8 rounded-3xl shadow-xl w-full max-w-sm text-center">
+            <h1 class="text-3xl font-extrabold text-rose-600 mb-2">Admin Klikka</h1>
+            <p class="text-sm text-gray-500 mb-6">Masukkan PIN untuk mengelola antrian</p>
+            <input type="password" id="admin-pin" placeholder="PIN ADMIN" class="w-full bg-gray-50 border-2 border-gray-200 text-center text-2xl tracking-[0.5em] font-bold p-4 rounded-xl mb-4 focus:outline-none focus:border-rose-500 transition-colors">
+            <button onclick="loginAdmin()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold p-4 rounded-xl shadow-lg transition-all active:scale-95">MASUK</button>
+        </div>
+    </div>
+
+
+    <div id="view-admin" class="hidden max-w-6xl mx-auto p-4 pb-20">
+        <div class="flex justify-between items-center bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-sm mb-6 border border-white">
+            <h1 class="text-xl font-extrabold text-rose-600">Klikka Dashboard</h1>
+            <div class="flex gap-2">
+                <button onclick="refreshData()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold transition-colors">🔄 Refresh</button>
+                <button onclick="logoutAdmin()" class="bg-rose-50 text-rose-600 hover:bg-rose-100 px-4 py-2 rounded-xl text-sm font-bold transition-colors">Logout</button>
+            </div>
+        </div>
+
+        <div id="booth-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="text-center w-full col-span-full py-10 text-gray-500 font-bold animate-pulse">Memuat data dari Google Sheets...</div>
+        </div>
+    </div>
+
+
+    <div id="print-area">
+        <div class="struk">
+            <div class="struk-logo">LOGO KLIKKA</div>
+            <div>Nomor Antrian<br>Klikka Photobooth Tulungagung</div>
+            <div class="struk-booth" id="struk-booth-name">NAMA BOOTH</div>
+            
+            <div class="struk-divider"></div>
+            <div class="struk-nomor" id="struk-nomor">---</div>
+            <div class="struk-divider"></div>
+            
+            <div id="struk-waktu">00/00/0000 00:00</div>
+            
+            <div class="struk-divider"></div>
+            <div style="font-size: 10px; margin-bottom: 4px;">Scan QR di bawah untuk:<br>- Cek Posisi antrian real-time</div>
+            
+            <div class="struk-qr" id="struk-qrcode"></div>
+            
+            <div class="struk-divider"></div>
+            <div style="font-size: 10px; margin-top: 4px;">Harap menunggu sampai nomor kamu dipanggil.<br>Terima kasih!</div>
+        </div>
+    </div>
+
+
+    <script>
+        // ------------------------------------------------------------
+        // KONFIGURASI URL SERVER
+        // ------------------------------------------------------------
+        // !!! PENTING: GANTI URL DI BAWAH INI DENGAN URL DEPLOY APPS SCRIPT KAMU !!!
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyzji2QQp2PxzQ7XOHgmM67IuL6vUtSUWPtVK9CAvAPk7V8LPeI0J5E4lFEk5f82UC08A/exec'; 
+        
+        // Data Referensi Booth sesuai Backend kamu
+        const BOOTHS = [
+            { id: 'elevator', name: 'Elevator Booth' },
+            { id: 'mrt', name: 'MRT Booth' },
+            { id: 'elevator_vintage', name: 'Elevator Vintage' },
+            { id: 'tirai_vintage', name: 'Tirai Vintage' }
+        ];
+
+        // ------------------------------------------------------------
+        // FUNGSI KOMUNIKASI KE GOOGLE SHEETS (ANTI-CORS BLOKIR)
+        // ------------------------------------------------------------
+        async function apiPost(data) {
+            try {
+                const res = await fetch(GAS_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(data)
+                });
+                return await res.json();
+            } catch (err) {
+                console.error("Gagal Request:", err);
+                return { success: false, error: "Koneksi ke database gagal. Pastikan URL Apps Script benar." };
+            }
+        }
+
+        // ------------------------------------------------------------
+        // LOGIKA HALAMAN & LOGIN
+        // ------------------------------------------------------------
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const scanTicket = urlParams.get('ticket');
+            const scanBooth = urlParams.get('booth');
+
+            if(scanTicket && scanBooth) {
+                // JIKA DIAKSES LEWAT SCAN QR CODE DARI STRUK (MODE PELANGGAN)
+                document.getElementById('view-login').classList.add('hidden');
+                document.getElementById('view-admin').classList.add('hidden');
+                document.getElementById('view-customer').classList.remove('hidden');
+                
+                document.getElementById('cust-my-number').innerText = scanTicket;
+                document.getElementById('cust-booth-name').innerText = scanBooth.replace('_', ' ');
+                
+                trackCustomerQueue(scanBooth);
+                setInterval(() => trackCustomerQueue(scanBooth), 4000); // Update tiap 4 detik
+            } else {
+                // JIKA DIAKSES NORMAL OLEH ADMIN
+                if(localStorage.getItem('klikka_admin') === 'true') {
+                    showAdminDashboard();
+                } else {
+                    document.getElementById('view-login').classList.remove('hidden');
+                }
+            }
+        };
+
+        function loginAdmin() {
+            if(document.getElementById('admin-pin').value === "1234") {
+                localStorage.setItem('klikka_admin', 'true');
+                showAdminDashboard();
+            } else {
+                alert("PIN Salah!");
+            }
+        }
+
+        function logoutAdmin() {
+            localStorage.removeItem('klikka_admin');
             location.reload();
         }
 
-        async function saveSettings() {
-            const wa = document.getElementById('admin-wa-input').value.trim();
-            const open = document.getElementById('admin-open-input').value;
-            const close = document.getElementById('admin-close-input').value;
-            const status = document.getElementById('admin-status-input').value === 'true';
-            if(!wa || !wa.startsWith('62')) return alert("Nomor WA harus valid (awalan 62).");
-            if(!open || !close) return alert("Jam Buka dan Tutup harus diisi!");
-            try {
-                await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'update_settings', admin_wa: wa, book_open: open, book_close: close, book_status: status }) });
-                alert("Pengaturan Berhasil Disimpan!");
-                refreshData();
-            } catch(e) { alert("Gagal menyimpan."); }
+        function showAdminDashboard() {
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('view-customer').classList.add('hidden');
+            document.getElementById('view-admin').classList.remove('hidden');
+            refreshData();
+            setInterval(refreshData, 5000); // Auto-refresh admin tiap 5 detik
         }
 
-        function generateSlots(waitingOfflineCount, bookedSlots) {
-            const slotGrid = document.getElementById('slot-grid');
-            const badge = document.getElementById('booking-status-badge');
-            if(!slotGrid || localStorage.getItem('klikka_my_ticket')) return;
-            
-            if(!GLOBAL_SETTINGS.book_status) {
-                badge.className = "bg-rose-100 text-rose-600 text-[9px] px-2 py-1 rounded font-black tracking-widest uppercase";
-                badge.innerText = "DITUTUP SEMENTARA";
-                slotGrid.innerHTML = '<div class="col-span-4 p-4 bg-slate-100 text-slate-500 rounded-xl text-center font-bold text-xs border border-slate-200">Mohon maaf, booking online sedang ditutup. Silakan datang langsung ke lokasi 🙏</div>';
-                return;
-            } else {
-                badge.className = "bg-emerald-100 text-emerald-600 text-[9px] px-2 py-1 rounded font-black tracking-widest uppercase";
-                badge.innerText = `BUKA (${GLOBAL_SETTINGS.book_open} - ${GLOBAL_SETTINGS.book_close})`;
-            }
-            
-            slotGrid.innerHTML = "";
-            const startHour = parseInt(GLOBAL_SETTINGS.book_open.split(':')[0]);
-            const endHour = parseInt(GLOBAL_SETTINGS.book_close.split(':')[0]);
-            const now = new Date();
-            const offlineDelayMs = waitingOfflineCount * 5 * 60000; 
-            const cutoffTimestamp = now.getTime() + offlineDelayMs;
-            
-            for(let h = startHour; h <= endHour; h++) {
-                ['00', '15', '30', '45'].forEach(m => {
-                    const timeStr = `${h.toString().padStart(2, '0')}:${m}`;
-                    if(timeStr < GLOBAL_SETTINGS.book_open || timeStr > GLOBAL_SETTINGS.book_close) return;
-                    const slotDate = new Date();
-                    slotDate.setHours(h, parseInt(m), 0, 0);
-                    
-                    const isPastCutoff = slotDate.getTime() <= cutoffTimestamp;
-                    const isBooked = bookedSlots && bookedSlots.includes(timeStr);
-                    
-                    const btn = document.createElement('button');
-                    btn.innerText = timeStr;
-                    btn.id = `btn-slot-${timeStr.replace(':','-')}`;
-                    
-                    if(isPastCutoff || isBooked) {
-                        btn.className = 'py-2 rounded-xl text-xs font-bold transition-all bg-slate-200 text-slate-400 cursor-not-allowed opacity-50';
-                        btn.disabled = true;
-                    } else {
-                        btn.className = 'py-2 rounded-xl text-xs font-bold transition-all bg-white text-rose-500 border border-rose-200 shadow-sm hover:bg-rose-50 hover:border-rose-400 focus:bg-rose-500 focus:text-white';
-                        btn.onclick = () => openBookingModal(timeStr, btn);
-                    }
-                    slotGrid.appendChild(btn);
-                });
-            }
-        }
-
-        function openBookingModal(timeStr, btnElement) {
-            selectedOnlineSlot = timeStr;
-            document.getElementById('modal-slot-text').innerText = timeStr;
-            document.getElementById('booking-modal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('booking-modal').classList.add('hidden');
-            selectedOnlineSlot = "";
-        }
-
-        async function submitBooking() {
-            const nama = document.getElementById('input-nama').value.trim();
-            const wa = document.getElementById('input-wa').value.trim();
-            if(!nama || !wa) return alert("Isi nama dan No WhatsApp dulu ya bestie! 💅");
-            closeModal();
-            const slotBtn = document.getElementById(`btn-slot-${selectedOnlineSlot.replace(':','-')}`);
-            if(slotBtn) { slotBtn.className = 'py-2 rounded-xl text-xs font-bold transition-all bg-slate-300 text-slate-500 cursor-not-allowed opacity-70'; slotBtn.disabled = true; slotBtn.innerText = "Loading..."; }
-            takeQueue('online', selectedOnlineSlot, nama, wa);
-        }
-
+        // ------------------------------------------------------------
+        // LOGIKA ADMIN PANEL & TOMBOL-TOMBOL
+        // ------------------------------------------------------------
         async function refreshData() {
-            try {
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'get_status' })});
-                const data = await res.json();
-                if(data.settings) {
-                    GLOBAL_SETTINGS = data.settings;
-                    document.getElementById('call-center-link').href = `https://wa.me/${GLOBAL_SETTINGS.admin_wa}`;
-                    if(document.getElementById('admin-wa-input') && document.getElementById('admin-wa-input').value === "") {
-                        document.getElementById('admin-wa-input').value = GLOBAL_SETTINGS.admin_wa;
-                        document.getElementById('admin-open-input').value = GLOBAL_SETTINGS.book_open;
-                        document.getElementById('admin-close-input').value = GLOBAL_SETTINGS.book_close;
-                        document.getElementById('admin-status-input').value = GLOBAL_SETTINGS.book_status.toString();
-                    }
-                }
-                if(currentBooth) {
-                    const s = data.stats[currentBooth];
-                    const activeEl = document.getElementById('active-no');
-                    const myTicket = localStorage.getItem('klikka_my_ticket');
-                    if(lastActiveTrack[currentBooth] && lastActiveTrack[currentBooth] !== s.active_number && s.active_number !== "---") {
-                        if (myTicket && s.active_number === myTicket) {
-                            document.getElementById('my-turn-sound').play().catch(()=>{});
-                            document.getElementById('main-body').classList.add('my-turn-bg');
-                            document.getElementById('ticket-result').classList.add('my-turn-glass');
-                            document.getElementById('my-number').classList.add('active-pulse');
-                            document.getElementById('my-number').style.color = '#10b981';
-                            document.getElementById('ticket-msg').innerText = "IT'S YOUR TURN! SILAKAN MASUK";
-                            document.getElementById('ticket-msg').style.color = '#10b981';
-                        }
-                    }
-                    lastActiveTrack[currentBooth] = s.active_number;
-                    activeEl.innerText = s.active_number;
-                    document.getElementById('queue-count').innerText = s.total_waiting_offline || 0;
-                    generateSlots(s.total_waiting_offline || 0, s.booked_slots || []); 
-                }
-                if (document.getElementById('admin-total-done')) {
-                    document.getElementById('admin-total-done').innerText = data.total_done;
-                    updateAdminPanel(data.stats);
-                    updateAdminRecapLog(data.recap);
-                }
-            } catch (e) { console.error("Sync Error", e); }
-        }
+            // Abaikan jika tidak di halaman admin
+            if(document.getElementById('view-admin').classList.contains('hidden')) return;
 
-        async function takeQueue(type, time = "", nama = "", wa = "") {
-            const btnAmbil = document.getElementById('btn-ambil');
-            
-            if(btnAmbil) { 
-                btnAmbil.disabled = true; 
-                btnAmbil.innerText = "LOADING..."; 
-            }
-            
-            try {
-                const res = await fetch(API_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ action: 'add_ticket', booth_type: currentBooth, ticket_type: type, booked_time: time, nama: nama, no_wa: wa })
-                });
-                
-                const result = await res.json();
-                
-                if(result.success) {
-                    localStorage.setItem('klikka_my_ticket', result.number);
-                    localStorage.setItem('klikka_my_booth', currentBooth);
-                    if(time) localStorage.setItem('klikka_my_time', time);
-                    document.getElementById('my-number').innerText = result.number;
-                    if(time) {
-                        document.getElementById('ticket-time-badge').innerText = "Booking Jam: " + time;
-                        document.getElementById('ticket-time-badge').classList.remove('hidden');
-                    }
-                    document.getElementById('ticket-result').classList.remove('hidden');
-                    if(btnAmbil) btnAmbil.classList.add('hidden');
-                    if(document.getElementById('booking-slot-section')) document.getElementById('booking-slot-section').classList.add('hidden');
-                    
-                    if(type === 'online') {
-                        const boothName = currentBooth.replace('_', ' ').toUpperCase();
-                        const textMsg = `Halo Admin Klikka! 👋\n\nSaya mau konfirmasi booking online nih:\n\n*Nama:* ${nama}\n*No. WA:* ${wa}\n*Booth:* ${boothName}\n*Jam Booking:* ${time} WIB\n*Kode Antrian:* ${result.number}\n\nMohon konfirmasinya ya kak! ✨`;
-                        window.open(`https://wa.me/${GLOBAL_SETTINGS.admin_wa}?text=${encodeURIComponent(textMsg)}`, '_blank');
-                    }
-                    refreshData();
-                } else {
-                    alert("Error dari Server: " + (result.error || "Gagal menambah antrean"));
-                    if(btnAmbil) { btnAmbil.disabled = false; btnAmbil.innerText = "AMBIL DI LOKASI"; }
-                }
-            } catch(e) { 
-                alert("Network Error! Pastikan koneksi internet lancar dan API_URL benar."); 
-                if(btnAmbil) { btnAmbil.disabled = false; btnAmbil.innerText = "AMBIL DI LOKASI"; }
-            }
-        }
+            const res = await apiPost({ action: 'get_status' });
+            if(!res || !res.stats) return;
 
-        function updateAdminPanel(stats) {
-            const container = document.getElementById('admin-booths');
-            if (!container) return;
-            container.innerHTML = "";
-            for (const [name, s] of Object.entries(stats)) {
-                let onlineListHTML = '<p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest text-center mt-2 mb-1">Tidak ada booking online</p>';
-                if(s.online_bookings && s.online_bookings.length > 0) {
-                    onlineListHTML = s.online_bookings.map(ob => `
-                        <div class="flex justify-between items-center bg-white/70 p-2 rounded-lg border border-slate-100 mb-1">
-                            <div class="flex-1">
-                                <span class="bg-indigo-100 text-indigo-600 text-[10px] font-black px-2 py-0.5 rounded mr-1">${ob.time}</span>
-                                <span class="text-[11px] font-bold text-slate-700">${ob.number}</span>
-                                <p class="text-[9px] text-slate-500 font-semibold truncate max-w-[120px] ml-1 mt-0.5">👤 ${ob.name || "-"}</p>
-                            </div>
-                            <div class="flex flex-col gap-1 items-end">
-                                <a href="https://wa.me/${ob.wa}" target="_blank" class="text-[8px] text-emerald-500 font-bold hover:underline px-2 bg-emerald-50 rounded border border-emerald-200">📞 Chat WA</a>
-                                <button onclick="callSpecific('${ob.id}', '${name}')" class="bg-indigo-500 hover:bg-indigo-600 text-white text-[9px] px-3 py-1 rounded shadow-sm transition font-bold tracking-wider">PANGGIL</button>
-                            </div>
-                        </div>
-                    `).join('');
-                }
+            const container = document.getElementById('booth-container');
+            container.innerHTML = '';
+
+            BOOTHS.forEach(b => {
+                const stat = res.stats[b.id] || { active_number: '---', total_waiting_offline: 0 };
+                const aktif = stat.active_number;
+                const sisa = stat.total_waiting_offline;
+
                 container.innerHTML += `
-                    <div class="glass p-5 rounded-[2rem] border-t-4 border-slate-200 bg-white/50 shadow-sm">
-                        <h4 class="font-black uppercase text-rose-600 text-[10px] tracking-[0.2em] mb-4 text-center">${name.replace('_',' ')}</h4>
-                        <div class="flex justify-between items-center mb-4 px-2">
-                            <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Active</p><p class="text-2xl font-black text-slate-800">${s.active_number}</p></div>
-                            <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Wait (Offline)</p><p class="text-2xl font-black text-rose-500">${s.total_waiting_offline || 0}</p></div>
-                        </div>
-                        <button onclick="callNext('${name}')" class="w-full ${(s.total_waiting_offline || 0) > 0 ? 'red-gradient text-white shadow-md hover:-translate-y-1' : 'bg-slate-200 text-slate-400'} py-3 rounded-xl font-black text-xs transition-all mb-4">CALL NEXT OFFLINE →</button>
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 mb-4">
-                            <p class="text-[9px] text-slate-500 font-black mb-2 uppercase tracking-widest border-b border-slate-200 pb-1">Jadwal Online Hari Ini 🎫</p>
-                            <div class="max-h-40 overflow-y-auto pr-1">${onlineListHTML}</div>
-                        </div>
-                        <div class="bg-slate-100 p-3 rounded-xl border border-slate-200">
-                            <p class="text-[9px] text-slate-500 font-black mb-2 uppercase tracking-widest border-b border-slate-200 pb-1">📊 Rekapan Harian</p>
-                            <div class="grid grid-cols-3 gap-2 text-center">
-                                <div><p class="text-[8px] text-slate-400 uppercase font-bold">Offline</p><p class="text-sm font-black text-slate-700">${s.summary.daily_offline}</p></div>
-                                <div><p class="text-[8px] text-slate-400 uppercase font-bold">Online</p><p class="text-sm font-black text-indigo-600">${s.summary.daily_online}</p></div>
-                                <div><p class="text-[8px] text-slate-400 uppercase font-bold">Bulan Ini</p><p class="text-sm font-black text-emerald-600">${s.summary.monthly}</p></div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col">
+                        <h2 class="text-lg font-extrabold text-slate-800 uppercase mb-4 text-center pb-3 border-b-2 border-gray-50">${b.name}</h2>
+                        
+                        <div class="flex gap-2 mb-4 text-center">
+                            <div class="flex-1 bg-rose-50 p-3 rounded-xl">
+                                <p class="text-[10px] font-bold text-rose-400 uppercase tracking-wider mb-1">Nomor Aktif</p>
+                                <p class="text-2xl font-extrabold text-rose-600">${aktif}</p>
+                            </div>
+                            <div class="flex-1 bg-gray-50 p-3 rounded-xl">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Menunggu</p>
+                                <p class="text-2xl font-extrabold text-slate-700">${sisa}</p>
                             </div>
                         </div>
-                    </div>`;
-            }
-        }
 
-        function updateAdminRecapLog(recapList) {
-            const container = document.getElementById('admin-recap-log');
-            if(!container) return;
-            if(!recapList || recapList.length === 0) {
-                container.innerHTML = '<p class="text-[10px] text-slate-400 text-center py-2 font-bold uppercase tracking-widest">Belum ada aktivitas hari ini.</p>';
-                return;
-            }
-            container.innerHTML = recapList.map(r => `
-                <div class="flex justify-between items-center bg-white/70 p-2.5 rounded-xl border border-slate-100">
-                    <div>
-                        <span class="font-black text-slate-800 text-xs mr-2">${r.number}</span>
-                        <span class="text-[9px] text-slate-400 uppercase font-bold tracking-widest">${r.booth_type.replace('_',' ')}</span>
-                    </div>
-                    <span class="bg-emerald-50 text-emerald-600 text-[9px] px-2 py-1 rounded font-black tracking-widest">SELESAI (${new Date(r.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})})</span>
-                </div>
-            `).join('');
-        }
-
-        async function loadRekapanBulanan() {
-            const btn = document.querySelector('button[onclick="loadRekapanBulanan()"]');
-            btn.innerText = "LOADING..."; btn.disabled = true;
-            const m = document.getElementById('filter-bulan').value;
-            const y = document.getElementById('filter-tahun').value;
-            try {
-                const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'get_recap_monthly_summary', month: m, year: y }) });
-                const result = await res.json();
-                if(result.success) {
-                    const c = document.getElementById('rekapan-bulanan-container');
-                    const d = result.data;
-                    c.innerHTML = `
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">Elevator</p><p class="text-xl font-black text-slate-700">${d.elevator}</p></div>
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">MRT</p><p class="text-xl font-black text-slate-700">${d.mrt}</p></div>
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">Elv. Vintage</p><p class="text-xl font-black text-slate-700">${d.elevator_vintage}</p></div>
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">Tirai Vintage</p><p class="text-xl font-black text-slate-700">${d.tirai_vintage}</p></div>
-                        <div class="col-span-2 md:col-span-4 bg-indigo-50 p-4 rounded-xl border border-indigo-200 flex justify-between items-center px-6">
-                            <p class="text-[11px] text-indigo-500 uppercase font-black tracking-widest">Total Selesai Bulan Ini</p>
-                            <p class="text-3xl font-black text-indigo-600">${d.total}</p>
+                        <div class="mt-auto flex flex-col gap-2">
+                            <button onclick="panggilNext('${b.id}')" class="w-full bg-rose-600 text-white font-bold py-3 rounded-xl text-xs uppercase shadow-md active:scale-95 transition-all">📢 Panggil Selanjutnya</button>
+                            <button onclick="tambahDanCetak('${b.id}', '${b.name}')" class="w-full bg-slate-800 text-white font-bold py-3 rounded-xl text-xs uppercase shadow-md active:scale-95 transition-all">🖨️ Cetak Tiket Offline</button>
                         </div>
-                    `;
-                }
-            } catch(e) { alert("Gagal menarik data rekapan."); } finally { btn.innerText = "TARIK"; btn.disabled = false; }
+                    </div>
+                `;
+            });
         }
 
-        async function callNext(booth) { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_next', booth_type: booth })}); await refreshData(); }
-        async function callSpecific(ticketId, booth) { if(confirm("Panggil pelanggan online ini sekarang? (Status antrian saat ini akan otomatis jadi Done)")) { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_specific', ticket_id: ticketId, booth_type: booth })}); await refreshData(); } }
-        async function resetToko() { if(confirm("TUTUP TOKO: Yakin ingin mereset antrian?")) { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'reset_queue' })}); refreshData(); } }
-        function toggleAdmin() { document.getElementById('view-customer').classList.toggle('hidden'); document.getElementById('view-admin').classList.toggle('hidden'); }
-        function loginAdmin() { if(document.getElementById('admin-code').value === "1234") { localStorage.setItem('klikka_admin_logged_in', 'true'); showAdminPanel(); } else { alert("Passcode Incorrect!"); } }
-        function showAdminPanel() { document.getElementById('view-customer').classList.add('hidden'); document.getElementById('view-admin').classList.remove('hidden'); document.getElementById('admin-login').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); refreshData(); }
-        function logoutAdmin() { localStorage.removeItem('klikka_admin_logged_in'); location.reload(); }
+        async function panggilNext(boothId) {
+            const res = await apiPost({ action: 'call_next', booth_type: boothId });
+            if(res.success) refreshData();
+        }
 
-        setInterval(refreshData, 5000); 
+        // ------------------------------------------------------------
+        // LOGIKA CETAK THERMAL & QR CODE
+        // ------------------------------------------------------------
+        async function tambahDanCetak(boothId, boothName) {
+            if(!confirm(`Buat antrian baru untuk ${boothName} dan cetak struk?`)) return;
+            
+            // Minta backend membuat tiket baru
+            const result = await apiPost({ action: 'add_ticket', booth_type: boothId, ticket_type: 'offline' });
+            
+            if (result.success) {
+                // Update UI Struk Print
+                document.getElementById('struk-booth-name').innerText = boothName;
+                document.getElementById('struk-nomor').innerText = result.number;
+                
+                const now = new Date();
+                const waktu = `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+                document.getElementById('struk-waktu').innerText = waktu;
+
+                // Generate URL untuk Pelanggan (Otomatis mengambil link Vercel/Github kamu saat ini)
+                const baseUrl = window.location.href.split('?')[0]; 
+                const trackingUrl = `${baseUrl}?booth=${boothId}&ticket=${result.number}`;
+
+                // Buat QR Code
+                document.getElementById('struk-qrcode').innerHTML = ""; 
+                new QRCode(document.getElementById("struk-qrcode"), {
+                    text: trackingUrl, width: 128, height: 128
+                });
+
+                // Refresh tabel admin
+                refreshData();
+
+                // Munculkan layar print browser (Beri jeda 500ms agar QR tergambar penuh)
+                setTimeout(() => { window.print(); }, 500);
+            } else {
+                alert("Gagal membuat tiket: " + result.error);
+            }
+        }
+
+        // ------------------------------------------------------------
+        // LOGIKA LIVE TRACKING (Untuk Halaman Pelanggan)
+        // ------------------------------------------------------------
+        async function trackCustomerQueue(boothId) {
+            const res = await apiPost({ action: 'get_status' });
+            if(!res || !res.stats || !res.stats[boothId]) return;
+
+            const stat = res.stats[boothId];
+            document.getElementById('cust-active-number').innerText = stat.active_number;
+            document.getElementById('cust-waiting-count').innerText = stat.total_waiting_offline;
+        }
     </script>
 </body>
 </html>
