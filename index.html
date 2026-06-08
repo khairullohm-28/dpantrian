@@ -1,4 +1,3 @@
-kode index.html: 
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -17,19 +16,6 @@ kode index.html:
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 30, 86, 0.2); border-radius: 10px; }
-        /* KODE CETAK THERMAL */
-@media print {
-    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    body > *:not(#thermal-wrapper) { display: none !important; }
-    #thermal-wrapper { display: block !important; position: static !important; }
-    @page { size: 58mm auto; margin: 0; }
-}
-#thermal-wrapper { display: none; position: fixed; top: 0; left: -9999px; }
-.struk-thermal { width: 54mm; padding: 2mm; font-family: 'Courier New', monospace; font-size: 8pt; line-height: 1.3; color: #000; }
-.t-logo { font-size: 14pt; font-weight: bold; text-align: center; }
-.t-divider { border-bottom: 1px dashed #000; margin: 2mm 0; }
-.t-nomor { font-size: 24pt; font-weight: bold; text-align: center; margin: 2mm 0; }
-.t-qr { width: 35mm; height: 35mm; margin: 2mm auto; }
     </style>
 </head>
 <body id="main-body" class="min-h-screen p-4 pb-20 relative overflow-x-hidden">
@@ -63,11 +49,7 @@ kode index.html:
 
         <div id="view-customer">
             <div id="booth-selection" class="grid grid-cols-2 gap-4">
-                <button onclick="selectBooth('elevator')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group"><span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🛗</span><p class="mt-4 font-bold text-slate-800">Elevator</p></button>
-                <button onclick="selectBooth('mrt')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group"><span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🚇</span><p class="mt-4 font-bold text-slate-800">MRT</p></button>
-                <button onclick="selectBooth('elevator_vintage')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group"><span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🎬</span><p class="mt-4 font-bold text-slate-800">Elevator Vintage</p></button>
-                <button onclick="selectBooth('tirai_vintage')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group"><span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">🎪</span><p class="mt-4 font-bold text-slate-800">Tirai Vintage</p></button>
-            </div>
+                </div>
 
             <div id="customer-dashboard" class="hidden space-y-6">
                 <div class="glass p-8 rounded-[3rem] text-center relative border-2 border-white">
@@ -92,8 +74,7 @@ kode index.html:
                     </div>
                     <p class="text-[10px] text-slate-500 mb-4">Slot abu-abu berarti terisi/terblokir antrian offline.</p>
                     
-                    <div id="slot-grid" class="grid grid-cols-4 gap-2 mb-6">
-                        </div>
+                    <div id="slot-grid" class="grid grid-cols-4 gap-2 mb-6"></div>
 
                     <div class="bg-amber-50/80 border border-amber-200 p-4 rounded-2xl flex gap-3 items-start">
                         <span class="text-lg">💅</span>
@@ -135,7 +116,7 @@ kode index.html:
                 </div>
 
                 <div class="glass p-5 rounded-3xl border border-white shadow-sm space-y-4 bg-slate-50/50">
-                    <p class="text-[11px] font-black uppercase tracking-widest text-slate-800 border-b border-slate-200 pb-2">⚙️ Pengaturan Sistem</p>
+                    <p class="text-[11px] font-black uppercase tracking-widest text-slate-800 border-b border-slate-200 pb-2">⚙️ Pengaturan Sistem & Booth</p>
                     
                     <div>
                         <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Nomor WA Admin (Awalan 62)</label>
@@ -161,15 +142,20 @@ kode index.html:
                         </select>
                     </div>
 
-                    <button onclick="saveSettings()" class="w-full bg-slate-900 text-white py-3 rounded-xl text-xs font-bold shadow-md hover:bg-slate-800 transition tracking-widest uppercase mt-2">SIMPAN PENGATURAN</button>
+                    <div class="mt-4 border-t border-slate-200 pt-4">
+                        <label class="text-[10px] font-black uppercase text-slate-800 mb-2 block">🎨 Manajemen Identitas Booth</label>
+                        <div id="admin-booth-settings" class="space-y-3">
+                            </div>
+                    </div>
+
+                    <button onclick="saveSettings()" class="w-full bg-slate-900 text-white py-3 rounded-xl text-xs font-bold shadow-md hover:bg-slate-800 transition tracking-widest uppercase mt-4">SIMPAN PENGATURAN PABRIK</button>
                 </div>
 
                 <div id="admin-booths" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
 
                 <div class="glass p-5 rounded-3xl border border-white shadow-sm mt-6">
                     <h3 class="font-black text-[11px] uppercase tracking-widest text-slate-800 border-b border-slate-200 pb-2 mb-3">🕒 Recent Activity (Hari Ini)</h3>
-                    <div id="admin-recap-log" class="max-h-48 overflow-y-auto pr-2 space-y-2">
-                        </div>
+                    <div id="admin-recap-log" class="max-h-48 overflow-y-auto pr-2 space-y-2"></div>
                 </div>
 
                 <div class="glass p-5 rounded-3xl border border-white shadow-sm mt-6">
@@ -203,28 +189,20 @@ kode index.html:
                 </div>
             </div>
         </div>
-        <div id="thermal-wrapper" style="display:none; position:fixed; left:-9999px;">
-    <div id="thermal-ticket" style="width:54mm; padding:2mm; font-family:monospace; font-size:10pt;">
-        <div style="text-align:center; font-weight:bold;">LOGO KLIKKA</div>
-        <div style="text-align:center">Klikka Photobooth Tulungagung</div>
-        <div style="border-bottom:1px dashed #000; margin:2mm 0;"></div>
-        <div id="p-booth" style="font-weight:bold; text-align:center;">-</div>
-        <div id="p-nomor" style="font-size:24pt; font-weight:bold; text-align:center;">-</div>
-        <div style="border-bottom:1px dashed #000; margin:2mm 0;"></div>
-        <div id="p-waktu" style="text-align:center;">-</div>
-        <div style="border-bottom:1px dashed #000; margin:2mm 0;"></div>
-        <div id="p-qr" style="margin:2mm auto; width:35mm;"></div>
-        <div style="text-align:center">Harap menunggu dipanggil. Terima Kasih!</div>
     </div>
-</div>
-    </div>
-    
 
     <script>
         // MASUKKAN URL API KAMU DI SINI
-        const API_URL = "https://script.google.com/macros/s/AKfycbyui-Bgg241I_6bQglpBdGwf4AsVCJc3HJws7XMgPTtJ0hnSjHw68Ir0hzw7xhZb1qu6g/exec"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycbyOo2hJq6Xx1l2FODMkRVZ2ywgkwIT-1oAOChoDPQEpg_Ycb6a_XDa1hJHds5vHFHs8jw/exec"; 
         
         let GLOBAL_SETTINGS = { admin_wa: "6281234567890", book_open: "10:00", book_close: "21:00", book_status: true };
+        let GLOBAL_BOOTHS = {
+            "elevator": { name: "Elevator", prefix: "E", icon: "🛗", desc: "Classic Elevator Booth" },
+            "mrt": { name: "MRT", prefix: "M", icon: "🚇", desc: "MRT Train Vibe" },
+            "elevator_vintage": { name: "Elevator Vintage", prefix: "EV", icon: "🎬", desc: "Vintage Elevator Setup" },
+            "tirai_vintage": { name: "Tirai Vintage", prefix: "TV", icon: "🎪", desc: "Classic Curtain Booth" }
+        };
+
         let currentBooth = "";
         let lastActiveTrack = {};
         let selectedOnlineSlot = "";
@@ -244,22 +222,57 @@ kode index.html:
                 document.getElementById('ticket-result').classList.remove('hidden');
                 document.getElementById('btn-ambil').classList.add('hidden');
                 if(document.getElementById('booking-slot-section')) document.getElementById('booking-slot-section').classList.add('hidden');
-                selectBooth(savedBooth);
+                selectBoothUI(savedBooth); // Only UI shift
             }
             if (localStorage.getItem('klikka_admin_logged_in') === 'true') { showAdminPanel(); }
             refreshData();
         };
 
+        function renderCustomerBooths() {
+            const container = document.getElementById('booth-selection');
+            if(!container) return;
+            container.innerHTML = '';
+            for (const [key, b] of Object.entries(GLOBAL_BOOTHS)) {
+                container.innerHTML += `
+                <button onclick="selectBooth('${key}')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group">
+                    <span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">${b.icon}</span>
+                    <p class="mt-4 font-bold text-slate-800">${b.name}</p>
+                </button>`;
+            }
+        }
+
+        function renderAdminBoothSettings() {
+            const container = document.getElementById('admin-booth-settings');
+            if(!container) return;
+            container.innerHTML = '';
+            for (const [key, b] of Object.entries(GLOBAL_BOOTHS)) {
+                container.innerHTML += `
+                <div class="bg-slate-100 p-3 rounded-xl border border-slate-200">
+                    <p class="text-[10px] font-black uppercase text-slate-600 mb-2">${key.replace('_',' ')}</p>
+                    <div class="grid grid-cols-4 gap-2 mb-2">
+                        <input type="text" id="booth-name-${key}" value="${b.name}" placeholder="Nama" class="col-span-2 p-2 rounded-lg text-[10px] border border-slate-300 outline-none">
+                        <input type="text" id="booth-icon-${key}" value="${b.icon}" placeholder="Ikon" class="p-2 rounded-lg text-[10px] border border-slate-300 outline-none text-center">
+                        <input type="text" id="booth-prefix-${key}" value="${b.prefix}" placeholder="Prefix" class="p-2 rounded-lg text-[10px] border border-slate-300 outline-none text-center uppercase">
+                    </div>
+                    <input type="text" id="booth-desc-${key}" value="${b.desc}" placeholder="Deskripsi Singkat" class="w-full p-2 rounded-lg text-[10px] border border-slate-300 outline-none">
+                </div>`;
+            }
+        }
+
         function selectBooth(b) {
             currentBooth = b;
-            document.getElementById('view-customer').querySelector('#booth-selection').classList.add('hidden');
-            document.getElementById('customer-dashboard').classList.remove('hidden');
-            document.getElementById('current-booth-name').innerText = b.replace('_', ' ');
+            selectBoothUI(b);
             if (!localStorage.getItem('klikka_my_ticket')) {
                 document.getElementById('btn-ambil').classList.remove('hidden');
                 document.getElementById('booking-slot-section').classList.remove('hidden');
             }
             refreshData();
+        }
+
+        function selectBoothUI(b) {
+            document.getElementById('view-customer').querySelector('#booth-selection').classList.add('hidden');
+            document.getElementById('customer-dashboard').classList.remove('hidden');
+            document.getElementById('current-booth-name').innerText = GLOBAL_BOOTHS[b] ? GLOBAL_BOOTHS[b].name.toUpperCase() : b.toUpperCase();
         }
 
         function clearMyTicket() {
@@ -274,11 +287,31 @@ kode index.html:
             const open = document.getElementById('admin-open-input').value;
             const close = document.getElementById('admin-close-input').value;
             const status = document.getElementById('admin-status-input').value === 'true';
+            
             if(!wa || !wa.startsWith('62')) return alert("Nomor WA harus valid (awalan 62).");
             if(!open || !close) return alert("Jam Buka dan Tutup harus diisi!");
+
+            // Grab updated booths
+            const updatedBooths = {};
+            for (const key of Object.keys(GLOBAL_BOOTHS)) {
+                updatedBooths[key] = {
+                    name: document.getElementById(`booth-name-${key}`).value || key,
+                    icon: document.getElementById(`booth-icon-${key}`).value || '📸',
+                    prefix: document.getElementById(`booth-prefix-${key}`).value.toUpperCase() || 'Q',
+                    desc: document.getElementById(`booth-desc-${key}`).value || 'Photobooth'
+                };
+            }
+
             try {
-                await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'update_settings', admin_wa: wa, book_open: open, book_close: close, book_status: status }) });
-                alert("Pengaturan Berhasil Disimpan!");
+                await fetch(API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        action: 'update_settings', 
+                        admin_wa: wa, book_open: open, book_close: close, book_status: status,
+                        booths: updatedBooths 
+                    }) 
+                });
+                alert("Pengaturan & Detail Booth Berhasil Disimpan!");
                 refreshData();
             } catch(e) { alert("Gagal menyimpan."); }
         }
@@ -356,6 +389,15 @@ kode index.html:
             try {
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'get_status' })});
                 const data = await res.json();
+                
+                if(data.booths_config) {
+                    GLOBAL_BOOTHS = data.booths_config;
+                    renderCustomerBooths();
+                    if(document.getElementById('admin-booth-settings') && document.getElementById('admin-booth-settings').innerHTML === '') {
+                        renderAdminBoothSettings();
+                    }
+                }
+
                 if(data.settings) {
                     GLOBAL_SETTINGS = data.settings;
                     document.getElementById('call-center-link').href = `https://wa.me/${GLOBAL_SETTINGS.admin_wa}`;
@@ -366,10 +408,12 @@ kode index.html:
                         document.getElementById('admin-status-input').value = GLOBAL_SETTINGS.book_status.toString();
                     }
                 }
+
                 if(currentBooth) {
                     const s = data.stats[currentBooth];
                     const activeEl = document.getElementById('active-no');
                     const myTicket = localStorage.getItem('klikka_my_ticket');
+                    
                     if(lastActiveTrack[currentBooth] && lastActiveTrack[currentBooth] !== s.active_number && s.active_number !== "---") {
                         if (myTicket && s.active_number === myTicket) {
                             document.getElementById('my-turn-sound').play().catch(()=>{});
@@ -386,6 +430,7 @@ kode index.html:
                     document.getElementById('queue-count').innerText = s.total_waiting_offline || 0;
                     generateSlots(s.total_waiting_offline || 0, s.booked_slots || []); 
                 }
+
                 if (document.getElementById('admin-total-done')) {
                     document.getElementById('admin-total-done').innerText = data.total_done;
                     updateAdminPanel(data.stats);
@@ -396,11 +441,7 @@ kode index.html:
 
         async function takeQueue(type, time = "", nama = "", wa = "") {
             const btnAmbil = document.getElementById('btn-ambil');
-            
-            if(btnAmbil) { 
-                btnAmbil.disabled = true; 
-                btnAmbil.innerText = "LOADING..."; 
-            }
+            if(btnAmbil) { btnAmbil.disabled = true; btnAmbil.innerText = "LOADING..."; }
             
             try {
                 const res = await fetch(API_URL, { 
@@ -414,6 +455,7 @@ kode index.html:
                     localStorage.setItem('klikka_my_ticket', result.number);
                     localStorage.setItem('klikka_my_booth', currentBooth);
                     if(time) localStorage.setItem('klikka_my_time', time);
+                    
                     document.getElementById('my-number').innerText = result.number;
                     if(time) {
                         document.getElementById('ticket-time-badge').innerText = "Booking Jam: " + time;
@@ -424,7 +466,7 @@ kode index.html:
                     if(document.getElementById('booking-slot-section')) document.getElementById('booking-slot-section').classList.add('hidden');
                     
                     if(type === 'online') {
-                        const boothName = currentBooth.replace('_', ' ').toUpperCase();
+                        const boothName = GLOBAL_BOOTHS[currentBooth].name.toUpperCase();
                         const textMsg = `Halo Admin Klikka! 👋\n\nSaya mau konfirmasi booking online nih:\n\n*Nama:* ${nama}\n*No. WA:* ${wa}\n*Booth:* ${boothName}\n*Jam Booking:* ${time} WIB\n*Kode Antrian:* ${result.number}\n\nMohon konfirmasinya ya kak! ✨`;
                         window.open(`https://wa.me/${GLOBAL_SETTINGS.admin_wa}?text=${encodeURIComponent(textMsg)}`, '_blank');
                     }
@@ -439,11 +481,88 @@ kode index.html:
             }
         }
 
+        // FUNGSI PRINT STRUK THERMAL VIA BROWSER
+        function printTicket(boothKey, queueNumber, queueCode) {
+            const booth = GLOBAL_BOOTHS[boothKey] || {name: boothKey, desc: "Klikka Photobooth"};
+            const printWindow = window.open('', '_blank', 'width=400,height=600');
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('id-ID');
+            const timeStr = now.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+            
+            // Link antrian ke URL saat ini
+            const appUrl = window.location.href.split('?')[0]; 
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(appUrl)}`;
+
+            const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body { font-family: monospace; text-align: center; width: 300px; margin: 0 auto; padding: 10px 0; color: #000; }
+                    .logo { font-size: 24px; font-weight: bold; margin-bottom: 10px; letter-spacing: 2px; }
+                    .queue-no { font-size: 56px; font-weight: bold; margin: 5px 0; line-height: 1; }
+                    .company { font-size: 14px; font-weight: bold; margin-top: 5px; }
+                    .code { font-size: 14px; margin: 5px 0; }
+                    .desc { font-size: 12px; margin-bottom: 10px; font-style: italic; }
+                    .divider { border-top: 1px dashed #000; margin: 10px 0; }
+                    .datetime { font-size: 12px; }
+                    .qr-text { font-size: 12px; margin-top: 10px; font-weight: bold; }
+                    img { margin-top: 5px; width: 120px; height: 120px; }
+                    .footer { font-size: 11px; margin-top: 15px; font-weight: bold; }
+                </style>
+            </head>
+            <body>
+                <div class="logo">KLIKKA.</div>
+                <div class="queue-no">${queueNumber}</div>
+                <div class="company">CV. DUAPUTRA JAYA BERSAUDARA</div>
+                <div class="code">Kode: ${queueCode || '-'}</div>
+                <div class="desc">${booth.name} - ${booth.desc}</div>
+                <div class="divider"></div>
+                <div class="datetime">${dateStr} | ${timeStr}</div>
+                <div class="divider"></div>
+                <div class="qr-text">Scan QR di bawah untuk:<br>- Cek Posisi antrian real-time -</div>
+                <img src="${qrUrl}" alt="QR Code">
+                <div class="divider"></div>
+                <div class="footer">Harap menunggu sampai nomor kamu dipanggil.<br>Terima kasih!</div>
+                <script>
+                    window.onload = function() {
+                        setTimeout(function(){
+                            window.print();
+                            window.close();
+                        }, 500); // Jeda sejenak agar QR termuat
+                    }
+                <\/script>
+            </body>
+            </html>
+            `;
+            printWindow.document.write(html);
+            printWindow.document.close();
+        }
+
+        // FUNGSI ADMIN: BUAT TIKET DAN LANGSUNG PRINT
+        async function addAndPrintTicket(boothKey) {
+            const btn = document.getElementById(`btn-print-${boothKey}`);
+            btn.innerText = "MENCETAK..."; btn.disabled = true;
+            try {
+                const res = await fetch(API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ action: 'add_ticket', booth_type: boothKey, ticket_type: 'offline', booked_time: '', nama: 'Walk-in', no_wa: '' })
+                });
+                const result = await res.json();
+                if(result.success) {
+                    printTicket(boothKey, result.number, result.code);
+                    refreshData();
+                } else { alert("Gagal membuat tiket."); }
+            } catch(e) { alert("Error jaringan."); }
+            finally { btn.innerHTML = "🖨️ BUAT & CETAK TIKET OFFLINE"; btn.disabled = false; }
+        }
+
         function updateAdminPanel(stats) {
             const container = document.getElementById('admin-booths');
             if (!container) return;
             container.innerHTML = "";
             for (const [name, s] of Object.entries(stats)) {
+                const bConfig = GLOBAL_BOOTHS[name] || { name: name };
                 let onlineListHTML = '<p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest text-center mt-2 mb-1">Tidak ada booking online</p>';
                 if(s.online_bookings && s.online_bookings.length > 0) {
                     onlineListHTML = s.online_bookings.map(ob => `
@@ -462,12 +581,17 @@ kode index.html:
                 }
                 container.innerHTML += `
                     <div class="glass p-5 rounded-[2rem] border-t-4 border-slate-200 bg-white/50 shadow-sm">
-                        <h4 class="font-black uppercase text-rose-600 text-[10px] tracking-[0.2em] mb-4 text-center">${name.replace('_',' ')}</h4>
+                        <h4 class="font-black uppercase text-rose-600 text-[10px] tracking-[0.2em] mb-4 text-center">${bConfig.name.toUpperCase()}</h4>
+                        
                         <div class="flex justify-between items-center mb-4 px-2">
                             <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Active</p><p class="text-2xl font-black text-slate-800">${s.active_number}</p></div>
                             <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Wait (Offline)</p><p class="text-2xl font-black text-rose-500">${s.total_waiting_offline || 0}</p></div>
                         </div>
-                        <button onclick="callNext('${name}')" class="w-full ${(s.total_waiting_offline || 0) > 0 ? 'red-gradient text-white shadow-md hover:-translate-y-1' : 'bg-slate-200 text-slate-400'} py-3 rounded-xl font-black text-xs transition-all mb-4">CALL NEXT OFFLINE →</button>
+                        
+                        <button onclick="callNext('${name}')" class="w-full ${(s.total_waiting_offline || 0) > 0 ? 'red-gradient text-white shadow-md hover:-translate-y-1' : 'bg-slate-200 text-slate-400'} py-3 rounded-xl font-black text-xs transition-all mb-2">CALL NEXT OFFLINE →</button>
+                        
+                        <button id="btn-print-${name}" onclick="addAndPrintTicket('${name}')" class="w-full bg-slate-800 text-white shadow-md hover:bg-slate-900 py-3 rounded-xl font-black text-[10px] transition-all mb-4">🖨️ BUAT & CETAK TIKET OFFLINE</button>
+
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 mb-4">
                             <p class="text-[9px] text-slate-500 font-black mb-2 uppercase tracking-widest border-b border-slate-200 pb-1">Jadwal Online Hari Ini 🎫</p>
                             <div class="max-h-40 overflow-y-auto pr-1">${onlineListHTML}</div>
@@ -491,15 +615,17 @@ kode index.html:
                 container.innerHTML = '<p class="text-[10px] text-slate-400 text-center py-2 font-bold uppercase tracking-widest">Belum ada aktivitas hari ini.</p>';
                 return;
             }
-            container.innerHTML = recapList.map(r => `
+            container.innerHTML = recapList.map(r => {
+                const bConfig = GLOBAL_BOOTHS[r.booth_type] || {name: r.booth_type.replace('_',' ')};
+                return `
                 <div class="flex justify-between items-center bg-white/70 p-2.5 rounded-xl border border-slate-100">
                     <div>
                         <span class="font-black text-slate-800 text-xs mr-2">${r.number}</span>
-                        <span class="text-[9px] text-slate-400 uppercase font-bold tracking-widest">${r.booth_type.replace('_',' ')}</span>
+                        <span class="text-[9px] text-slate-400 uppercase font-bold tracking-widest">${bConfig.name}</span>
                     </div>
                     <span class="bg-emerald-50 text-emerald-600 text-[9px] px-2 py-1 rounded font-black tracking-widest">SELESAI (${new Date(r.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})})</span>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         async function loadRekapanBulanan() {
@@ -514,13 +640,13 @@ kode index.html:
                     const c = document.getElementById('rekapan-bulanan-container');
                     const d = result.data;
                     c.innerHTML = `
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">Elevator</p><p class="text-xl font-black text-slate-700">${d.elevator}</p></div>
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">MRT</p><p class="text-xl font-black text-slate-700">${d.mrt}</p></div>
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">Elv. Vintage</p><p class="text-xl font-black text-slate-700">${d.elevator_vintage}</p></div>
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">Tirai Vintage</p><p class="text-xl font-black text-slate-700">${d.tirai_vintage}</p></div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">Elevator</p><p class="text-xl font-black text-slate-700">${d.elevator || 0}</p></div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">MRT</p><p class="text-xl font-black text-slate-700">${d.mrt || 0}</p></div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">Elv. Vintage</p><p class="text-xl font-black text-slate-700">${d.elevator_vintage || 0}</p></div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">Tirai Vintage</p><p class="text-xl font-black text-slate-700">${d.tirai_vintage || 0}</p></div>
                         <div class="col-span-2 md:col-span-4 bg-indigo-50 p-4 rounded-xl border border-indigo-200 flex justify-between items-center px-6">
                             <p class="text-[11px] text-indigo-500 uppercase font-black tracking-widest">Total Selesai Bulan Ini</p>
-                            <p class="text-3xl font-black text-indigo-600">${d.total}</p>
+                            <p class="text-3xl font-black text-indigo-600">${d.total || 0}</p>
                         </div>
                     `;
                 }
@@ -536,66 +662,6 @@ kode index.html:
         function logoutAdmin() { localStorage.removeItem('klikka_admin_logged_in'); location.reload(); }
 
         setInterval(refreshData, 5000); 
-        async function cetakTiket(booth, nomor) {
-    // 1. Set Data
-    document.getElementById('print-booth-name').innerText = booth.replace('_', ' ').toUpperCase();
-    document.getElementById('print-nomor').innerText = nomor;
-    document.getElementById('print-waktu').innerText = new Date().toLocaleString('id-ID');
-
-    // 2. Generate QR Code (Mengarah ke domain kamu dengan parameter booth & ticket)
-    document.getElementById('print-qrcode').innerHTML = "";
-    new QRCode(document.getElementById("print-qrcode"), {
-        text: window.location.origin + window.location.pathname + "?booth=" + booth + "&ticket=" + nomor,
-        width: 128, height: 128
-    });
-
-    // 3. Print
-    setTimeout(() => { window.print(); }, 500);
-}
-
-// Gunakan fungsi ini saat klik tombol "Cetak" di admin panel
-async function tambahDanCetak(boothType) {
-    const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'add_ticket', booth_type: boothType }) });
-    const data = await res.json();
-    if(data.success) {
-        cetakTiket(boothType, data.number);
-    }
-}
     </script>
-    <div id="thermal-wrapper">
-    <div class="struk-thermal">
-        <div class="t-logo">KLIKKA</div>
-        <div style="text-align:center">Klikka Photobooth Tulungagung</div>
-        <div class="t-divider"></div>
-        <div id="print-booth-name" style="font-weight:bold; text-align:center">NAMA BOOTH</div>
-        <div class="t-nomor" id="print-nomor">MRT000</div>
-        <div class="t-divider"></div>
-        <div id="print-waktu" style="text-align:center">07/06/2026 14:00</div>
-        <div class="t-divider"></div>
-        <div style="text-align:center">Scan QR untuk cek antrian:</div>
-        <div id="print-qrcode" class="t-qr"></div>
-        <div style="text-align:center">Harap menunggu sampai dipanggil.<br>Terima Kasih!</div>
-    </div>
-</div>
-    // Fungsi Cetak
-function cetakTiketThermal(booth, nomor) {
-    document.getElementById('p-booth').innerText = booth.toUpperCase();
-    document.getElementById('p-nomor').innerText = nomor;
-    document.getElementById('p-waktu').innerText = new Date().toLocaleString();
-    
-    document.getElementById('p-qr').innerHTML = "";
-    new QRCode(document.getElementById("p-qr"), {
-        text: window.location.origin + window.location.pathname + "?booth=" + booth + "&ticket=" + nomor,
-        width: 128, height: 128
-    });
-
-    // Perintah Print
-    setTimeout(() => { window.print(); }, 500);
-}
-
-// Override CSS untuk Print
-const style = document.createElement('style');
-style.innerHTML = `@media print { body > *:not(#thermal-wrapper) { display: none !important; } #thermal-wrapper { display: block !important; } @page { size: 58mm auto; margin: 0; } }`;
-document.head.appendChild(style);
 </body>
 </html>
