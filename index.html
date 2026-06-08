@@ -49,7 +49,8 @@
 
         <div id="view-customer">
             <div id="booth-selection" class="grid grid-cols-2 gap-4">
-                </div>
+                <p class="col-span-2 text-center text-sm text-slate-400 font-bold">Memuat data booth...</p>
+            </div>
 
             <div id="customer-dashboard" class="hidden space-y-6">
                 <div class="glass p-8 rounded-[3rem] text-center relative border-2 border-white">
@@ -93,10 +94,6 @@
                 </div>
                 
                 <button onclick="clearMyTicket()" class="w-full text-slate-400 text-xs py-4 font-bold uppercase tracking-widest hover:text-rose-500 transition">← Back to Main Menu</button>
-                
-                <div class="text-center mt-6 pt-6 border-t border-slate-200/50">
-                    <p class="text-[10px] text-slate-400 font-semibold uppercase tracking-widest">Butuh Bantuan? Hubungi <a id="call-center-link" href="#" target="_blank" class="text-rose-500 font-black hover:underline">Call Center Admin</a></p>
-                </div>
             </div>
         </div>
 
@@ -145,7 +142,20 @@
                     <div class="mt-4 border-t border-slate-200 pt-4">
                         <label class="text-[10px] font-black uppercase text-slate-800 mb-2 block">🎨 Manajemen Identitas Booth</label>
                         <div id="admin-booth-settings" class="space-y-3">
-                            </div>
+                            <p class="text-xs text-slate-400">Memuat pengaturan booth...</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 border-t border-slate-200 pt-4">
+                        <label class="text-[10px] font-black uppercase text-slate-800 mb-2 block">🖨️ Pengaturan Cetak Struk Offline</label>
+                        <div class="space-y-3">
+                            <select id="print-size" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none bg-white">
+                                <option value="58">Ukuran Kertas: 58mm</option>
+                                <option value="80">Ukuran Kertas: 80mm</option>
+                            </select>
+                            <input type="text" id="print-company" placeholder="Nama Perusahaan (Header)" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none">
+                            <textarea id="print-footer" placeholder="Pesan Footer Bawah" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none" rows="2"></textarea>
+                        </div>
                     </div>
 
                     <button onclick="saveSettings()" class="w-full bg-slate-900 text-white py-3 rounded-xl text-xs font-bold shadow-md hover:bg-slate-800 transition tracking-widest uppercase mt-4">SIMPAN PENGATURAN PABRIK</button>
@@ -165,7 +175,7 @@
                             <select id="filter-bulan" class="p-1.5 text-[10px] rounded-lg border border-slate-200 outline-none font-bold bg-white">
                                 <option value="1">Jan</option><option value="2">Feb</option>
                                 <option value="3">Mar</option><option value="4" selected>Apr</option>
-                                <option value="5">Mei</option><option value="6">Jun</option>
+                                <option value="5">Mei</option><option value="6" selected>Jun</option>
                                 <option value="7">Jul</option><option value="8">Agu</option>
                                 <option value="9">Sep</option><option value="10">Okt</option>
                                 <option value="11">Nov</option><option value="12">Des</option>
@@ -193,9 +203,10 @@
 
     <script>
         // MASUKKAN URL API KAMU DI SINI
-        const API_URL = "https://script.google.com/macros/s/AKfycbyOo2hJq6Xx1l2FODMkRVZ2ywgkwIT-1oAOChoDPQEpg_Ycb6a_XDa1hJHds5vHFHs8jw/exec"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycbw8Ty9uqyfNxVMorol7LMfFUOgjvjYKjI7UrEqz3fNuFKuXuX91jy5UsHt_g-8OhEJW8g/exec"; 
         
         let GLOBAL_SETTINGS = { admin_wa: "6281234567890", book_open: "10:00", book_close: "21:00", book_status: true };
+        let GLOBAL_PRINT = { size: "58", company: "CV. DUAPUTRA JAYA BERSAUDARA", footer: "Harap menunggu sampai nomor kamu dipanggil.\nTerima kasih!" };
         let GLOBAL_BOOTHS = {
             "elevator": { name: "Elevator", prefix: "E", icon: "🛗", desc: "Classic Elevator Booth" },
             "mrt": { name: "MRT", prefix: "M", icon: "🚇", desc: "MRT Train Vibe" },
@@ -206,6 +217,7 @@
         let currentBooth = "";
         let lastActiveTrack = {};
         let selectedOnlineSlot = "";
+        let hasRenderedAdminSettings = false; // Flag agar input admin tidak tertimpa saat ngetik
 
         window.onload = () => {
             const savedTicket = localStorage.getItem('klikka_my_ticket');
@@ -222,7 +234,6 @@
                 document.getElementById('ticket-result').classList.remove('hidden');
                 document.getElementById('btn-ambil').classList.add('hidden');
                 if(document.getElementById('booking-slot-section')) document.getElementById('booking-slot-section').classList.add('hidden');
-                selectBoothUI(savedBooth); // Only UI shift
             }
             if (localStorage.getItem('klikka_admin_logged_in') === 'true') { showAdminPanel(); }
             refreshData();
@@ -230,7 +241,7 @@
 
         function renderCustomerBooths() {
             const container = document.getElementById('booth-selection');
-            if(!container) return;
+            if(!container || localStorage.getItem('klikka_my_ticket')) return;
             container.innerHTML = '';
             for (const [key, b] of Object.entries(GLOBAL_BOOTHS)) {
                 container.innerHTML += `
@@ -241,38 +252,54 @@
             }
         }
 
-        function renderAdminBoothSettings() {
-            const container = document.getElementById('admin-booth-settings');
-            if(!container) return;
-            container.innerHTML = '';
-            for (const [key, b] of Object.entries(GLOBAL_BOOTHS)) {
-                container.innerHTML += `
-                <div class="bg-slate-100 p-3 rounded-xl border border-slate-200">
-                    <p class="text-[10px] font-black uppercase text-slate-600 mb-2">${key.replace('_',' ')}</p>
-                    <div class="grid grid-cols-4 gap-2 mb-2">
-                        <input type="text" id="booth-name-${key}" value="${b.name}" placeholder="Nama" class="col-span-2 p-2 rounded-lg text-[10px] border border-slate-300 outline-none">
-                        <input type="text" id="booth-icon-${key}" value="${b.icon}" placeholder="Ikon" class="p-2 rounded-lg text-[10px] border border-slate-300 outline-none text-center">
-                        <input type="text" id="booth-prefix-${key}" value="${b.prefix}" placeholder="Prefix" class="p-2 rounded-lg text-[10px] border border-slate-300 outline-none text-center uppercase">
-                    </div>
-                    <input type="text" id="booth-desc-${key}" value="${b.desc}" placeholder="Deskripsi Singkat" class="w-full p-2 rounded-lg text-[10px] border border-slate-300 outline-none">
-                </div>`;
+        function renderAdminSettingsInputs() {
+            if (hasRenderedAdminSettings) return; // Jangan render ulang kalau admin sedang aktif ngetik
+            
+            // Render Booth Settings
+            const boothContainer = document.getElementById('admin-booth-settings');
+            if(boothContainer) {
+                boothContainer.innerHTML = '';
+                for (const [key, b] of Object.entries(GLOBAL_BOOTHS)) {
+                    boothContainer.innerHTML += `
+                    <div class="bg-slate-100 p-3 rounded-xl border border-slate-200">
+                        <p class="text-[9px] font-black uppercase text-slate-400 mb-2 border-b border-slate-200 pb-1">ID Sistem: ${key}</p>
+                        <div class="grid grid-cols-4 gap-2 mb-2">
+                            <input type="text" id="booth-name-${key}" value="${b.name}" placeholder="Nama Booth" 
+                                onkeyup="document.getElementById('booth-prefix-${key}').value = this.value.charAt(0).toUpperCase()"
+                                class="col-span-2 p-2 rounded-lg text-[10px] font-bold border border-slate-300 outline-none focus:border-rose-400">
+                            <input type="text" id="booth-icon-${key}" value="${b.icon}" placeholder="Ikon" class="p-2 rounded-lg text-[10px] border border-slate-300 outline-none text-center">
+                            <input type="text" id="booth-prefix-${key}" value="${b.prefix}" placeholder="Kode" class="p-2 rounded-lg font-black text-rose-500 text-[10px] border border-slate-300 outline-none text-center uppercase">
+                        </div>
+                        <input type="text" id="booth-desc-${key}" value="${b.desc}" placeholder="Deskripsi Singkat" class="w-full p-2 rounded-lg text-[10px] border border-slate-300 outline-none">
+                    </div>`;
+                }
             }
+
+            // Render Print Settings
+            document.getElementById('print-size').value = GLOBAL_PRINT.size || "58";
+            document.getElementById('print-company').value = GLOBAL_PRINT.company || "CV. DUAPUTRA JAYA BERSAUDARA";
+            document.getElementById('print-footer').value = GLOBAL_PRINT.footer || "Harap menunggu sampai nomor kamu dipanggil.\nTerima kasih!";
+            
+            // Render General Settings
+            document.getElementById('admin-wa-input').value = GLOBAL_SETTINGS.admin_wa;
+            document.getElementById('admin-open-input').value = GLOBAL_SETTINGS.book_open;
+            document.getElementById('admin-close-input').value = GLOBAL_SETTINGS.book_close;
+            document.getElementById('admin-status-input').value = GLOBAL_SETTINGS.book_status.toString();
+
+            hasRenderedAdminSettings = true;
         }
 
         function selectBooth(b) {
             currentBooth = b;
-            selectBoothUI(b);
+            document.getElementById('view-customer').querySelector('#booth-selection').classList.add('hidden');
+            document.getElementById('customer-dashboard').classList.remove('hidden');
+            document.getElementById('current-booth-name').innerText = GLOBAL_BOOTHS[b] ? GLOBAL_BOOTHS[b].name.toUpperCase() : b.toUpperCase();
+            
             if (!localStorage.getItem('klikka_my_ticket')) {
                 document.getElementById('btn-ambil').classList.remove('hidden');
                 document.getElementById('booking-slot-section').classList.remove('hidden');
             }
             refreshData();
-        }
-
-        function selectBoothUI(b) {
-            document.getElementById('view-customer').querySelector('#booth-selection').classList.add('hidden');
-            document.getElementById('customer-dashboard').classList.remove('hidden');
-            document.getElementById('current-booth-name').innerText = GLOBAL_BOOTHS[b] ? GLOBAL_BOOTHS[b].name.toUpperCase() : b.toUpperCase();
         }
 
         function clearMyTicket() {
@@ -291,7 +318,7 @@
             if(!wa || !wa.startsWith('62')) return alert("Nomor WA harus valid (awalan 62).");
             if(!open || !close) return alert("Jam Buka dan Tutup harus diisi!");
 
-            // Grab updated booths
+            // Ambil data Booth Baru
             const updatedBooths = {};
             for (const key of Object.keys(GLOBAL_BOOTHS)) {
                 updatedBooths[key] = {
@@ -302,16 +329,25 @@
                 };
             }
 
+            // Ambil data Print Baru
+            const updatedPrint = {
+                size: document.getElementById('print-size').value,
+                company: document.getElementById('print-company').value,
+                footer: document.getElementById('print-footer').value
+            };
+
             try {
                 await fetch(API_URL, { 
                     method: 'POST', 
                     body: JSON.stringify({ 
                         action: 'update_settings', 
                         admin_wa: wa, book_open: open, book_close: close, book_status: status,
-                        booths: updatedBooths 
+                        booths: updatedBooths,
+                        print: updatedPrint
                     }) 
                 });
-                alert("Pengaturan & Detail Booth Berhasil Disimpan!");
+                alert("Pengaturan Berhasil Disimpan!");
+                hasRenderedAdminSettings = false; // Reset agar form update dari server
                 refreshData();
             } catch(e) { alert("Gagal menyimpan."); }
         }
@@ -393,20 +429,14 @@
                 if(data.booths_config) {
                     GLOBAL_BOOTHS = data.booths_config;
                     renderCustomerBooths();
-                    if(document.getElementById('admin-booth-settings') && document.getElementById('admin-booth-settings').innerHTML === '') {
-                        renderAdminBoothSettings();
-                    }
                 }
 
-                if(data.settings) {
-                    GLOBAL_SETTINGS = data.settings;
-                    document.getElementById('call-center-link').href = `https://wa.me/${GLOBAL_SETTINGS.admin_wa}`;
-                    if(document.getElementById('admin-wa-input') && document.getElementById('admin-wa-input').value === "") {
-                        document.getElementById('admin-wa-input').value = GLOBAL_SETTINGS.admin_wa;
-                        document.getElementById('admin-open-input').value = GLOBAL_SETTINGS.book_open;
-                        document.getElementById('admin-close-input').value = GLOBAL_SETTINGS.book_close;
-                        document.getElementById('admin-status-input').value = GLOBAL_SETTINGS.book_status.toString();
-                    }
+                if(data.settings) { GLOBAL_SETTINGS = data.settings; document.getElementById('call-center-link').href = `https://wa.me/${GLOBAL_SETTINGS.admin_wa}`; }
+                if(data.print_config) { GLOBAL_PRINT = data.print_config; }
+
+                // Hanya render input admin jika view admin sedang terbuka dan belum dirender (biar nggak nimpa yang lagi diketik)
+                if (!document.getElementById('view-admin').classList.contains('hidden')) {
+                    renderAdminSettingsInputs();
                 }
 
                 if(currentBooth) {
@@ -414,6 +444,10 @@
                     const activeEl = document.getElementById('active-no');
                     const myTicket = localStorage.getItem('klikka_my_ticket');
                     
+                    if (document.getElementById('current-booth-name')) {
+                        document.getElementById('current-booth-name').innerText = GLOBAL_BOOTHS[currentBooth].name.toUpperCase();
+                    }
+
                     if(lastActiveTrack[currentBooth] && lastActiveTrack[currentBooth] !== s.active_number && s.active_number !== "---") {
                         if (myTicket && s.active_number === myTicket) {
                             document.getElementById('my-turn-sound').play().catch(()=>{});
@@ -489,6 +523,11 @@
             const dateStr = now.toLocaleDateString('id-ID');
             const timeStr = now.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit', second:'2-digit'});
             
+            // Konfigurasi Kertas
+            const paperWidth = GLOBAL_PRINT.size === "80" ? "270px" : "180px"; 
+            const companyName = GLOBAL_PRINT.company || "CV. DUAPUTRA JAYA BERSAUDARA";
+            const footerText = (GLOBAL_PRINT.footer || "Terima kasih!").replace(/\n/g, "<br>");
+
             // Link antrian ke URL saat ini
             const appUrl = window.location.href.split('?')[0]; 
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(appUrl)}`;
@@ -498,23 +537,23 @@
             <html>
             <head>
                 <style>
-                    body { font-family: monospace; text-align: center; width: 300px; margin: 0 auto; padding: 10px 0; color: #000; }
-                    .logo { font-size: 24px; font-weight: bold; margin-bottom: 10px; letter-spacing: 2px; }
-                    .queue-no { font-size: 56px; font-weight: bold; margin: 5px 0; line-height: 1; }
-                    .company { font-size: 14px; font-weight: bold; margin-top: 5px; }
-                    .code { font-size: 14px; margin: 5px 0; }
-                    .desc { font-size: 12px; margin-bottom: 10px; font-style: italic; }
+                    body { font-family: monospace; text-align: center; width: ${paperWidth}; margin: 0 auto; padding: 10px 0; color: #000; }
+                    .logo { font-size: 20px; font-weight: bold; margin-bottom: 10px; letter-spacing: 1px; }
+                    .queue-no { font-size: ${GLOBAL_PRINT.size === "80" ? "56px" : "40px"}; font-weight: bold; margin: 5px 0; line-height: 1; }
+                    .company { font-size: 12px; font-weight: bold; margin-top: 5px; text-transform: uppercase; }
+                    .code { font-size: 11px; margin: 5px 0; }
+                    .desc { font-size: 11px; margin-bottom: 10px; font-style: italic; }
                     .divider { border-top: 1px dashed #000; margin: 10px 0; }
-                    .datetime { font-size: 12px; }
-                    .qr-text { font-size: 12px; margin-top: 10px; font-weight: bold; }
-                    img { margin-top: 5px; width: 120px; height: 120px; }
-                    .footer { font-size: 11px; margin-top: 15px; font-weight: bold; }
+                    .datetime { font-size: 10px; }
+                    .qr-text { font-size: 10px; margin-top: 10px; font-weight: bold; }
+                    img { margin-top: 5px; width: ${GLOBAL_PRINT.size === "80" ? "120px" : "100px"}; height: auto; }
+                    .footer { font-size: 10px; margin-top: 15px; font-weight: bold; }
                 </style>
             </head>
             <body>
                 <div class="logo">KLIKKA.</div>
                 <div class="queue-no">${queueNumber}</div>
-                <div class="company">CV. DUAPUTRA JAYA BERSAUDARA</div>
+                <div class="company">${companyName}</div>
                 <div class="code">Kode: ${queueCode || '-'}</div>
                 <div class="desc">${booth.name} - ${booth.desc}</div>
                 <div class="divider"></div>
@@ -523,13 +562,13 @@
                 <div class="qr-text">Scan QR di bawah untuk:<br>- Cek Posisi antrian real-time -</div>
                 <img src="${qrUrl}" alt="QR Code">
                 <div class="divider"></div>
-                <div class="footer">Harap menunggu sampai nomor kamu dipanggil.<br>Terima kasih!</div>
+                <div class="footer">${footerText}</div>
                 <script>
                     window.onload = function() {
                         setTimeout(function(){
                             window.print();
                             window.close();
-                        }, 500); // Jeda sejenak agar QR termuat
+                        }, 500); 
                     }
                 <\/script>
             </body>
@@ -539,7 +578,6 @@
             printWindow.document.close();
         }
 
-        // FUNGSI ADMIN: BUAT TIKET DAN LANGSUNG PRINT
         async function addAndPrintTicket(boothKey) {
             const btn = document.getElementById(`btn-print-${boothKey}`);
             btn.innerText = "MENCETAK..."; btn.disabled = true;
@@ -562,7 +600,7 @@
             if (!container) return;
             container.innerHTML = "";
             for (const [name, s] of Object.entries(stats)) {
-                const bConfig = GLOBAL_BOOTHS[name] || { name: name };
+                const bConfig = GLOBAL_BOOTHS[name] || { name: name.replace('_',' ') };
                 let onlineListHTML = '<p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest text-center mt-2 mb-1">Tidak ada booking online</p>';
                 if(s.online_bookings && s.online_bookings.length > 0) {
                     onlineListHTML = s.online_bookings.map(ob => `
@@ -639,11 +677,12 @@
                 if(result.success) {
                     const c = document.getElementById('rekapan-bulanan-container');
                     const d = result.data;
+                    const getName = (key) => GLOBAL_BOOTHS[key] ? GLOBAL_BOOTHS[key].name : key;
                     c.innerHTML = `
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">Elevator</p><p class="text-xl font-black text-slate-700">${d.elevator || 0}</p></div>
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">MRT</p><p class="text-xl font-black text-slate-700">${d.mrt || 0}</p></div>
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">Elv. Vintage</p><p class="text-xl font-black text-slate-700">${d.elevator_vintage || 0}</p></div>
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">Tirai Vintage</p><p class="text-xl font-black text-slate-700">${d.tirai_vintage || 0}</p></div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1 truncate">${getName('elevator')}</p><p class="text-xl font-black text-slate-700">${d.elevator || 0}</p></div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1 truncate">${getName('mrt')}</p><p class="text-xl font-black text-slate-700">${d.mrt || 0}</p></div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1 truncate">${getName('elevator_vintage')}</p><p class="text-xl font-black text-slate-700">${d.elevator_vintage || 0}</p></div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1 truncate">${getName('tirai_vintage')}</p><p class="text-xl font-black text-slate-700">${d.tirai_vintage || 0}</p></div>
                         <div class="col-span-2 md:col-span-4 bg-indigo-50 p-4 rounded-xl border border-indigo-200 flex justify-between items-center px-6">
                             <p class="text-[11px] text-indigo-500 uppercase font-black tracking-widest">Total Selesai Bulan Ini</p>
                             <p class="text-3xl font-black text-indigo-600">${d.total || 0}</p>
@@ -656,9 +695,9 @@
         async function callNext(booth) { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_next', booth_type: booth })}); await refreshData(); }
         async function callSpecific(ticketId, booth) { if(confirm("Panggil pelanggan online ini sekarang? (Status antrian saat ini akan otomatis jadi Done)")) { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_specific', ticket_id: ticketId, booth_type: booth })}); await refreshData(); } }
         async function resetToko() { if(confirm("TUTUP TOKO: Yakin ingin mereset antrian?")) { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'reset_queue' })}); refreshData(); } }
-        function toggleAdmin() { document.getElementById('view-customer').classList.toggle('hidden'); document.getElementById('view-admin').classList.toggle('hidden'); }
+        function toggleAdmin() { document.getElementById('view-customer').classList.toggle('hidden'); document.getElementById('view-admin').classList.toggle('hidden'); if(!document.getElementById('view-admin').classList.contains('hidden')) { renderAdminSettingsInputs(); } }
         function loginAdmin() { if(document.getElementById('admin-code').value === "1234") { localStorage.setItem('klikka_admin_logged_in', 'true'); showAdminPanel(); } else { alert("Passcode Incorrect!"); } }
-        function showAdminPanel() { document.getElementById('view-customer').classList.add('hidden'); document.getElementById('view-admin').classList.remove('hidden'); document.getElementById('admin-login').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); refreshData(); }
+        function showAdminPanel() { document.getElementById('view-customer').classList.add('hidden'); document.getElementById('view-admin').classList.remove('hidden'); document.getElementById('admin-login').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); renderAdminSettingsInputs(); refreshData(); }
         function logoutAdmin() { localStorage.removeItem('klikka_admin_logged_in'); location.reload(); }
 
         setInterval(refreshData, 5000); 
