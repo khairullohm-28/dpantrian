@@ -38,41 +38,6 @@
         </div>
     </div>
 
-    <div id="edit-booth-modal" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-        <div class="bg-white p-6 rounded-3xl w-full max-w-sm border border-slate-200 shadow-2xl">
-            <div class="flex justify-between items-center border-b border-slate-100 pb-3 mb-4">
-                <h3 class="font-black text-slate-800 text-sm uppercase tracking-widest">🎨 Edit Identitas Booth</h3>
-                <span id="edit-booth-id" class="text-[9px] bg-slate-100 text-slate-400 px-2 py-1 rounded font-bold uppercase tracking-widest">ID</span>
-            </div>
-            
-            <div class="space-y-3">
-                <div>
-                    <label class="text-[10px] font-bold text-slate-500 mb-1 block">Nama Visual Booth</label>
-                    <input type="text" id="edit-booth-name" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-rose-400 bg-slate-50" onkeyup="document.getElementById('edit-booth-prefix').value = this.value.charAt(0).toUpperCase()">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-500 mb-1 block">Ikon (Emoji)</label>
-                        <input type="text" id="edit-booth-icon" class="w-full p-3 rounded-xl border border-slate-200 text-sm outline-none text-center bg-slate-50">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-slate-500 mb-1 block">Prefix (Kode)</label>
-                        <input type="text" id="edit-booth-prefix" class="w-full p-3 rounded-xl border border-rose-200 font-black text-rose-500 text-xs outline-none text-center uppercase bg-rose-50">
-                    </div>
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-slate-500 mb-1 block">Deskripsi Singkat (Masuk ke Struk)</label>
-                    <input type="text" id="edit-booth-desc" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-semibold outline-none focus:border-rose-400 bg-slate-50">
-                </div>
-            </div>
-            
-            <div class="flex gap-2 mt-6">
-                <button onclick="closeEditBoothModal()" class="w-1/3 py-3 bg-slate-200 text-slate-500 font-bold rounded-xl text-[10px] uppercase tracking-widest">Batal</button>
-                <button id="btn-save-booth" onclick="saveBoothSettings()" class="w-2/3 py-3 bg-indigo-500 text-white font-black rounded-xl shadow-md text-[10px] uppercase tracking-widest active:scale-95 transition-transform">Simpan & Terapkan</button>
-            </div>
-        </div>
-    </div>
-
     <div class="max-w-4xl mx-auto">
         <div class="flex justify-between items-center py-6">
             <div class="flex items-center gap-2">
@@ -146,46 +111,52 @@
                 </div>
 
                 <div class="glass p-5 rounded-3xl border border-white shadow-sm bg-slate-50/50">
-                    <p class="text-[11px] font-black uppercase tracking-widest text-slate-800 border-b border-slate-200 pb-2 mb-4">⚙️ PENGATURAN SISTEM & CETAK</p>
+                    <p class="text-[11px] font-black uppercase tracking-widest text-slate-800 border-b border-slate-200 pb-2 mb-4">⚙️ PENGATURAN SISTEM & BOOTH</p>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">No WA Admin (Awalan 62)</label>
-                            <input type="text" id="admin-wa-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none bg-white">
-                        </div>
-                        <div>
-                            <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Status Booking Online</label>
-                            <select id="admin-status-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none bg-white">
-                                <option value="true">🟢 DIBUKA (Normal)</option>
-                                <option value="false">🔴 DITUTUP (Sementara / Full)</option>
-                            </select>
-                        </div>
+                    <div class="mb-4">
+                        <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Nomor WA Admin (Awalan 62)</label>
+                        <input type="text" id="admin-wa-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none bg-white focus:border-rose-400">
                     </div>
                     
                     <div class="grid grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Jam Buka Online</label>
-                            <input type="time" id="admin-open-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none bg-white">
+                            <input type="time" id="admin-open-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none bg-white focus:border-rose-400">
                         </div>
                         <div>
                             <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Jam Tutup Online</label>
-                            <input type="time" id="admin-close-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none bg-white">
+                            <input type="time" id="admin-close-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none bg-white focus:border-rose-400">
                         </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Status Booking Online Saat Ini</label>
+                        <select id="admin-status-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none bg-white focus:border-rose-400">
+                            <option value="true">🟢 DIBUKA (Normal)</option>
+                            <option value="false">🔴 DITUTUP (Sementara / Full)</option>
+                        </select>
                     </div>
 
                     <div class="border-t border-slate-200 pt-4 mt-2">
-                        <label class="text-[10px] font-black uppercase text-slate-800 mb-2 block">🖨️ Format Struk Printer Thermal</label>
-                        <div class="space-y-3">
-                            <select id="print-size" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none bg-white">
-                                <option value="58">Ukuran Kertas: 58mm</option>
-                                <option value="80">Ukuran Kertas: 80mm</option>
-                            </select>
-                            <input type="text" id="print-company" placeholder="Nama Perusahaan (Header)" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none bg-white">
-                            <textarea id="print-footer" placeholder="Pesan Footer Bawah" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none bg-white" rows="2"></textarea>
+                        <label class="text-[10px] font-black uppercase text-slate-800 mb-3 block flex items-center gap-2"><span class="text-rose-500 text-lg">🎨</span> MANAJEMEN IDENTITAS BOOTH</label>
+                        <div id="admin-booth-settings" class="space-y-4">
+                            <p class="text-xs text-slate-400">Memuat pengaturan booth...</p>
                         </div>
                     </div>
 
-                    <button id="btn-save-main" onclick="saveMainSettings()" class="w-full bg-slate-900 text-white py-3 rounded-xl text-xs font-bold shadow-md hover:bg-slate-800 transition tracking-widest uppercase mt-4">SIMPAN PENGATURAN</button>
+                    <div class="border-t border-slate-200 pt-6 mt-6">
+                        <label class="text-[10px] font-black uppercase text-slate-800 mb-3 block flex items-center gap-2"><span class="text-indigo-500 text-lg">🖨️</span> PENGATURAN CETAK STRUK OFFLINE</label>
+                        <div class="space-y-3 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
+                            <select id="print-size" class="w-full p-3 rounded-xl border border-white shadow-sm text-xs font-bold outline-none bg-white focus:border-indigo-400">
+                                <option value="58">Ukuran Kertas: Thermal 58mm</option>
+                                <option value="80">Ukuran Kertas: Thermal 80mm</option>
+                            </select>
+                            <input type="text" id="print-company" placeholder="Nama Perusahaan (Header)" class="w-full p-3 rounded-xl border border-white shadow-sm text-xs font-bold outline-none bg-white focus:border-indigo-400">
+                            <textarea id="print-footer" placeholder="Pesan Footer Bawah" class="w-full p-3 rounded-xl border border-white shadow-sm text-xs font-bold outline-none bg-white focus:border-indigo-400" rows="2"></textarea>
+                        </div>
+                    </div>
+
+                    <button id="btn-save-main" onclick="saveMainSettings()" class="w-full bg-slate-900 text-white py-4 rounded-xl text-xs font-black shadow-md hover:bg-slate-800 transition tracking-widest uppercase mt-6">SIMPAN PENGATURAN PABRIK</button>
                 </div>
 
                 <div id="admin-booths" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
@@ -201,7 +172,7 @@
                         <div class="flex gap-2">
                             <select id="filter-bulan" class="p-1.5 text-[10px] rounded-lg border border-slate-200 outline-none font-bold bg-white">
                                 <option value="1">Jan</option><option value="2">Feb</option>
-                                <option value="3">Mar</option><option value="4" selected>Apr</option>
+                                <option value="3">Mar</option><option value="4">Apr</option>
                                 <option value="5">Mei</option><option value="6" selected>Jun</option>
                                 <option value="7">Jul</option><option value="8">Agu</option>
                                 <option value="9">Sep</option><option value="10">Okt</option>
@@ -243,7 +214,9 @@
         let currentBooth = "";
         let lastActiveTrack = {};
         let selectedOnlineSlot = "";
-        let currentEditingBoothKey = "";
+        
+        // Flag agar input admin tidak tertimpa/terestart saat admin sedang mengetik
+        let isInputsPopulated = false; 
 
         window.onload = () => {
             const savedTicket = localStorage.getItem('klikka_my_ticket');
@@ -278,51 +251,25 @@
             }
         }
 
-        // FUNGSI POP-UP EDIT BOOTH (Agar ketikan tidak hilang direfresh)
-        function openEditBoothModal(key) {
-            currentEditingBoothKey = key;
-            const b = GLOBAL_BOOTHS[key];
-            document.getElementById('edit-booth-id').innerText = key;
-            document.getElementById('edit-booth-name').value = b.name;
-            document.getElementById('edit-booth-icon').value = b.icon;
-            document.getElementById('edit-booth-prefix').value = b.prefix;
-            document.getElementById('edit-booth-desc').value = b.desc;
-            document.getElementById('edit-booth-modal').classList.remove('hidden');
-        }
-
-        function closeEditBoothModal() {
-            document.getElementById('edit-booth-modal').classList.add('hidden');
-        }
-
-        async function saveBoothSettings() {
-            const btn = document.getElementById('btn-save-booth');
-            btn.innerText = "MENYIMPAN..."; btn.disabled = true;
-            
-            GLOBAL_BOOTHS[currentEditingBoothKey] = {
-                name: document.getElementById('edit-booth-name').value || currentEditingBoothKey,
-                icon: document.getElementById('edit-booth-icon').value || '📸',
-                prefix: document.getElementById('edit-booth-prefix').value.toUpperCase() || 'Q',
-                desc: document.getElementById('edit-booth-desc').value || 'Photobooth'
-            };
-
-            await sendConfigToServer();
-            closeEditBoothModal();
-            btn.innerText = "SIMPAN & TERAPKAN"; btn.disabled = false;
-        }
-
         async function saveMainSettings() {
             const btn = document.getElementById('btn-save-main');
             btn.innerText = "MENYIMPAN..."; btn.disabled = true;
-            await sendConfigToServer();
-            alert("Pengaturan Berhasil Disimpan!");
-            btn.innerText = "SIMPAN PENGATURAN"; btn.disabled = false;
-        }
 
-        async function sendConfigToServer() {
             const wa = document.getElementById('admin-wa-input').value.trim();
             const open = document.getElementById('admin-open-input').value;
             const close = document.getElementById('admin-close-input').value;
             const status = document.getElementById('admin-status-input').value === 'true';
+
+            // Tarik data booth dari kolom input yang diedit
+            const updatedBooths = {};
+            for (const key of Object.keys(GLOBAL_BOOTHS)) {
+                updatedBooths[key] = {
+                    name: document.getElementById(`booth-name-${key}`).value || key,
+                    icon: document.getElementById(`booth-icon-${key}`).value || '📸',
+                    prefix: document.getElementById(`booth-prefix-${key}`).value.toUpperCase() || 'Q',
+                    desc: document.getElementById(`booth-desc-${key}`).value || 'Photobooth'
+                };
+            }
 
             const updatedPrint = {
                 size: document.getElementById('print-size').value,
@@ -336,11 +283,18 @@
                     body: JSON.stringify({ 
                         action: 'update_settings', 
                         admin_wa: wa, book_open: open, book_close: close, book_status: status,
-                        booths: GLOBAL_BOOTHS, print: updatedPrint
+                        booths: updatedBooths, print: updatedPrint
                     }) 
                 });
+                alert("Pengaturan Berhasil Disimpan!");
+                isInputsPopulated = false; // Trigger re-render agar data kembali sinkron dari server
                 refreshData();
-            } catch(e) { console.error("Gagal menyimpan ke server", e); }
+            } catch(e) { 
+                console.error("Gagal menyimpan ke server", e); 
+                alert("Gagal menyimpan pengaturan.");
+            } finally {
+                btn.innerText = "SIMPAN PENGATURAN PABRIK"; btn.disabled = false;
+            }
         }
 
         function selectBooth(b) {
@@ -432,8 +386,6 @@
             takeQueue('online', selectedOnlineSlot, nama, wa);
         }
 
-        let isInputsPopulated = false;
-
         async function refreshData() {
             try {
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'get_status' })});
@@ -453,7 +405,7 @@
                     GLOBAL_PRINT = data.print_config; 
                 }
 
-                // Isi inputan sistem admin HANYA sekali saat load, agar tidak kerestart saat diketik
+                // ISI INPUTAN ADMIN HANYA SEKALI SAAT LOAD
                 if (!isInputsPopulated && !document.getElementById('view-admin').classList.contains('hidden')) {
                     document.getElementById('admin-wa-input').value = GLOBAL_SETTINGS.admin_wa;
                     document.getElementById('admin-open-input').value = GLOBAL_SETTINGS.book_open;
@@ -464,6 +416,35 @@
                     document.getElementById('print-company').value = GLOBAL_PRINT.company || "CV. DUAPUTRA JAYA BERSAUDARA";
                     document.getElementById('print-footer').value = GLOBAL_PRINT.footer || "Harap menunggu sampai nomor kamu dipanggil.\nTerima kasih!";
                     
+                    // Render list Manajemen Identitas Booth
+                    const boothContainer = document.getElementById('admin-booth-settings');
+                    if(boothContainer) {
+                        boothContainer.innerHTML = '';
+                        for (const [key, b] of Object.entries(GLOBAL_BOOTHS)) {
+                            boothContainer.innerHTML += `
+                            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative">
+                                <div class="absolute top-0 right-0 bg-slate-200 text-slate-500 text-[8px] font-black uppercase px-2 py-1 rounded-bl-xl rounded-tr-2xl">Sistem ID: ${key}</div>
+                                <div class="grid grid-cols-12 gap-3 mb-3 mt-1">
+                                    <div class="col-span-12 md:col-span-6">
+                                        <label class="text-[9px] font-bold text-slate-400 mb-1 block">Nama Booth</label>
+                                        <input type="text" id="booth-name-${key}" value="${b.name}" class="w-full p-2.5 rounded-lg text-xs font-bold border border-slate-200 outline-none focus:border-rose-400 bg-slate-50" onkeyup="document.getElementById('booth-prefix-${key}').value = this.value.charAt(0).toUpperCase()">
+                                    </div>
+                                    <div class="col-span-6 md:col-span-3">
+                                        <label class="text-[9px] font-bold text-slate-400 mb-1 block">Ikon (Emoji)</label>
+                                        <input type="text" id="booth-icon-${key}" value="${b.icon}" class="w-full p-2.5 rounded-lg text-sm border border-slate-200 outline-none text-center bg-slate-50">
+                                    </div>
+                                    <div class="col-span-6 md:col-span-3">
+                                        <label class="text-[9px] font-bold text-slate-400 mb-1 block">Prefix (Kode)</label>
+                                        <input type="text" id="booth-prefix-${key}" value="${b.prefix}" class="w-full p-2.5 rounded-lg font-black text-rose-500 text-xs border border-rose-200 outline-none text-center uppercase bg-rose-50">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-[9px] font-bold text-slate-400 mb-1 block">Deskripsi Pendek (Untuk Cetak Struk)</label>
+                                    <input type="text" id="booth-desc-${key}" value="${b.desc}" class="w-full p-2.5 rounded-lg text-[10px] font-semibold border border-slate-200 outline-none focus:border-rose-400 bg-slate-50">
+                                </div>
+                            </div>`;
+                        }
+                    }
                     isInputsPopulated = true;
                 }
 
@@ -623,7 +604,6 @@
             finally { btn.innerHTML = "🖨️ BUAT & CETAK TIKET OFFLINE"; btn.disabled = false; }
         }
 
-        // TAMPILAN ADMIN BOOTH CARD DENGAN TOMBOL EDIT (⚙️)
         function updateAdminPanel(stats) {
             const container = document.getElementById('admin-booths');
             if (!container) return;
@@ -647,13 +627,10 @@
                     `).join('');
                 }
                 
-                // Card UI dengan Ikon Edit
+                // Card UI 
                 container.innerHTML += `
                     <div class="glass p-5 rounded-[2rem] border-t-4 border-slate-200 bg-white/50 shadow-sm relative">
-                        <button onclick="openEditBoothModal('${name}')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-800 transition" title="Edit Info Booth">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                        </button>
-                        <h4 class="font-black uppercase text-rose-600 text-[10px] tracking-[0.2em] mb-4 text-center mr-6 ml-6">${bConfig.name.toUpperCase()}</h4>
+                        <h4 class="font-black uppercase text-rose-600 text-[10px] tracking-[0.2em] mb-4 text-center">${bConfig.name.toUpperCase()}</h4>
                         
                         <div class="flex justify-between items-center mb-4 px-2">
                             <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Active</p><p class="text-2xl font-black text-slate-800">${s.active_number}</p></div>
@@ -662,7 +639,7 @@
                         
                         <button onclick="callNext('${name}')" class="w-full ${(s.total_waiting_offline || 0) > 0 ? 'bg-slate-900 text-white shadow-md hover:-translate-y-1' : 'bg-slate-200 text-slate-400'} py-3 rounded-xl font-black text-xs transition-all mb-2">CALL NEXT OFFLINE →</button>
                         
-                        <button id="btn-print-${name}" onclick="addAndPrintTicket('${name}')" class="w-full bg-indigo-50 text-indigo-600 shadow-sm border border-indigo-200 hover:bg-indigo-500 hover:text-white py-3 rounded-xl font-black text-[10px] transition-all mb-4">🖨️ BUAT & CETAK TIKET OFFLINE</button>
+                        <button id="btn-print-${name}" onclick="addAndPrintTicket('${name}')" class="w-full bg-slate-800 text-white shadow-md hover:bg-slate-900 py-3 rounded-xl font-black text-[10px] transition-all mb-4">🖨️ BUAT & CETAK TIKET OFFLINE</button>
 
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 mb-4">
                             <p class="text-[9px] text-slate-500 font-black mb-2 uppercase tracking-widest border-b border-slate-200 pb-1">Jadwal Online Hari Ini 🎫</p>
