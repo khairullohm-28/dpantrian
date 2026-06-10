@@ -74,7 +74,9 @@
                         <span id="booking-status-badge" class="bg-emerald-100 text-emerald-600 text-[9px] px-2 py-1 rounded font-black tracking-widest uppercase">BUKA</span>
                     </div>
                     <p class="text-[10px] text-slate-500 mb-4">Slot abu-abu berarti terisi/terblokir antrian offline.</p>
+                    
                     <div id="slot-grid" class="grid grid-cols-4 gap-2 mb-6"></div>
+
                     <div class="bg-amber-50/80 border border-amber-200 p-4 rounded-2xl flex gap-3 items-start">
                         <span class="text-lg">💅</span>
                         <p class="text-[11px] font-semibold text-amber-800 leading-relaxed">
@@ -110,53 +112,53 @@
                     </div>
                 </div>
 
-                <div class="glass p-5 rounded-3xl border border-white shadow-sm bg-slate-50/50">
-                    <p class="text-[11px] font-black uppercase tracking-widest text-slate-800 border-b border-slate-200 pb-2 mb-4">⚙️ PENGATURAN SISTEM & BOOTH</p>
+                <div class="glass p-5 rounded-3xl border border-white shadow-sm space-y-4 bg-slate-50/50">
+                    <p class="text-[11px] font-black uppercase tracking-widest text-slate-800 border-b border-slate-200 pb-2">⚙️ Pengaturan Sistem & Booth</p>
                     
-                    <div class="mb-4">
+                    <div>
                         <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Nomor WA Admin (Awalan 62)</label>
-                        <input type="text" id="admin-wa-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none bg-white focus:border-rose-400">
+                        <input type="text" id="admin-wa-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-rose-400">
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Jam Buka Online</label>
-                            <input type="time" id="admin-open-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none bg-white focus:border-rose-400">
+                            <input type="time" id="admin-open-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-rose-400">
                         </div>
                         <div>
                             <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Jam Tutup Online</label>
-                            <input type="time" id="admin-close-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none bg-white focus:border-rose-400">
+                            <input type="time" id="admin-close-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-rose-400">
                         </div>
                     </div>
                     
-                    <div class="mb-6">
+                    <div>
                         <label class="text-[9px] font-bold uppercase text-slate-500 mb-1 block">Status Booking Online Saat Ini</label>
-                        <select id="admin-status-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none bg-white focus:border-rose-400">
+                        <select id="admin-status-input" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none focus:border-rose-400 bg-white">
                             <option value="true">🟢 DIBUKA (Normal)</option>
                             <option value="false">🔴 DITUTUP (Sementara / Full)</option>
                         </select>
                     </div>
 
-                    <div class="border-t border-slate-200 pt-4 mt-2">
-                        <label class="text-[10px] font-black uppercase text-slate-800 mb-3 block flex items-center gap-2"><span class="text-rose-500 text-lg">🎨</span> MANAJEMEN IDENTITAS BOOTH</label>
-                        <div id="admin-booth-settings" class="space-y-4">
+                    <div class="mt-4 border-t border-slate-200 pt-4">
+                        <label class="text-[10px] font-black uppercase text-slate-800 mb-2 block">🎨 Manajemen Identitas Booth</label>
+                        <div id="admin-booth-settings" class="space-y-3">
                             <p class="text-xs text-slate-400">Memuat pengaturan booth...</p>
                         </div>
                     </div>
 
-                    <div class="border-t border-slate-200 pt-6 mt-6">
-                        <label class="text-[10px] font-black uppercase text-slate-800 mb-3 block flex items-center gap-2"><span class="text-indigo-500 text-lg">🖨️</span> PENGATURAN CETAK STRUK OFFLINE</label>
-                        <div class="space-y-3 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
-                            <select id="print-size" class="w-full p-3 rounded-xl border border-white shadow-sm text-xs font-bold outline-none bg-white focus:border-indigo-400">
-                                <option value="58">Ukuran Kertas: Thermal 58mm</option>
-                                <option value="80">Ukuran Kertas: Thermal 80mm</option>
+                    <div class="mt-4 border-t border-slate-200 pt-4">
+                        <label class="text-[10px] font-black uppercase text-slate-800 mb-2 block">🖨️ Pengaturan Cetak Struk Offline</label>
+                        <div class="space-y-3">
+                            <select id="print-size" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none bg-white">
+                                <option value="58">Ukuran Kertas: 58mm</option>
+                                <option value="80">Ukuran Kertas: 80mm</option>
                             </select>
-                            <input type="text" id="print-company" placeholder="Nama Perusahaan (Header)" class="w-full p-3 rounded-xl border border-white shadow-sm text-xs font-bold outline-none bg-white focus:border-indigo-400">
-                            <textarea id="print-footer" placeholder="Pesan Footer Bawah" class="w-full p-3 rounded-xl border border-white shadow-sm text-xs font-bold outline-none bg-white focus:border-indigo-400" rows="2"></textarea>
+                            <input type="text" id="print-company" placeholder="Nama Perusahaan (Header)" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none">
+                            <textarea id="print-footer" placeholder="Pesan Footer Bawah" class="w-full p-3 rounded-xl border border-slate-200 text-xs font-bold outline-none" rows="2"></textarea>
                         </div>
                     </div>
 
-                    <button id="btn-save-main" onclick="saveMainSettings()" class="w-full bg-slate-900 text-white py-4 rounded-xl text-xs font-black shadow-md hover:bg-slate-800 transition tracking-widest uppercase mt-6">SIMPAN PENGATURAN PABRIK</button>
+                    <button onclick="saveSettings()" class="w-full bg-slate-900 text-white py-3 rounded-xl text-xs font-bold shadow-md hover:bg-slate-800 transition tracking-widest uppercase mt-4">SIMPAN PENGATURAN PABRIK</button>
                 </div>
 
                 <div id="admin-booths" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
@@ -172,7 +174,7 @@
                         <div class="flex gap-2">
                             <select id="filter-bulan" class="p-1.5 text-[10px] rounded-lg border border-slate-200 outline-none font-bold bg-white">
                                 <option value="1">Jan</option><option value="2">Feb</option>
-                                <option value="3">Mar</option><option value="4">Apr</option>
+                                <option value="3">Mar</option><option value="4" selected>Apr</option>
                                 <option value="5">Mei</option><option value="6" selected>Jun</option>
                                 <option value="7">Jul</option><option value="8">Agu</option>
                                 <option value="9">Sep</option><option value="10">Okt</option>
@@ -185,6 +187,7 @@
                             <button onclick="loadRekapanBulanan()" class="bg-indigo-500 text-white text-[10px] px-3 py-1 rounded-lg font-bold hover:bg-indigo-600 transition shadow-sm">TARIK</button>
                         </div>
                     </div>
+                    
                     <div id="rekapan-bulanan-container" class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
                         <div class="col-span-2 md:col-span-4 p-4 text-[10px] text-slate-400 font-bold uppercase tracking-widest">Silakan klik Tarik Data</div>
                     </div>
@@ -214,9 +217,7 @@
         let currentBooth = "";
         let lastActiveTrack = {};
         let selectedOnlineSlot = "";
-        
-        // Flag agar input admin tidak tertimpa/terestart saat admin sedang mengetik
-        let isInputsPopulated = false; 
+        let hasRenderedAdminSettings = false; // Flag agar input admin tidak tertimpa saat ngetik
 
         window.onload = () => {
             const savedTicket = localStorage.getItem('klikka_my_ticket');
@@ -244,57 +245,48 @@
             container.innerHTML = '';
             for (const [key, b] of Object.entries(GLOBAL_BOOTHS)) {
                 container.innerHTML += `
-                <button onclick="selectBooth('${key}')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group flex flex-col justify-center items-center">
-                    <span class="text-5xl drop-shadow-md group-hover:scale-110 transition-transform">${b.icon}</span>
+                <button onclick="selectBooth('${key}')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group">
+                    <span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">${b.icon}</span>
                     <p class="mt-4 font-bold text-slate-800">${b.name}</p>
                 </button>`;
             }
         }
 
-        async function saveMainSettings() {
-            const btn = document.getElementById('btn-save-main');
-            btn.innerText = "MENYIMPAN..."; btn.disabled = true;
-
-            const wa = document.getElementById('admin-wa-input').value.trim();
-            const open = document.getElementById('admin-open-input').value;
-            const close = document.getElementById('admin-close-input').value;
-            const status = document.getElementById('admin-status-input').value === 'true';
-
-            // Tarik data booth dari kolom input yang diedit
-            const updatedBooths = {};
-            for (const key of Object.keys(GLOBAL_BOOTHS)) {
-                updatedBooths[key] = {
-                    name: document.getElementById(`booth-name-${key}`).value || key,
-                    icon: document.getElementById(`booth-icon-${key}`).value || '📸',
-                    prefix: document.getElementById(`booth-prefix-${key}`).value.toUpperCase() || 'Q',
-                    desc: document.getElementById(`booth-desc-${key}`).value || 'Photobooth'
-                };
+        function renderAdminSettingsInputs() {
+            if (hasRenderedAdminSettings) return; // Jangan render ulang kalau admin sedang aktif ngetik
+            
+            // Render Booth Settings
+            const boothContainer = document.getElementById('admin-booth-settings');
+            if(boothContainer) {
+                boothContainer.innerHTML = '';
+                for (const [key, b] of Object.entries(GLOBAL_BOOTHS)) {
+                    boothContainer.innerHTML += `
+                    <div class="bg-slate-100 p-3 rounded-xl border border-slate-200">
+                        <p class="text-[9px] font-black uppercase text-slate-400 mb-2 border-b border-slate-200 pb-1">ID Sistem: ${key}</p>
+                        <div class="grid grid-cols-4 gap-2 mb-2">
+                            <input type="text" id="booth-name-${key}" value="${b.name}" placeholder="Nama Booth" 
+                                onkeyup="document.getElementById('booth-prefix-${key}').value = this.value.charAt(0).toUpperCase()"
+                                class="col-span-2 p-2 rounded-lg text-[10px] font-bold border border-slate-300 outline-none focus:border-rose-400">
+                            <input type="text" id="booth-icon-${key}" value="${b.icon}" placeholder="Ikon" class="p-2 rounded-lg text-[10px] border border-slate-300 outline-none text-center">
+                            <input type="text" id="booth-prefix-${key}" value="${b.prefix}" placeholder="Kode" class="p-2 rounded-lg font-black text-rose-500 text-[10px] border border-slate-300 outline-none text-center uppercase">
+                        </div>
+                        <input type="text" id="booth-desc-${key}" value="${b.desc}" placeholder="Deskripsi Singkat" class="w-full p-2 rounded-lg text-[10px] border border-slate-300 outline-none">
+                    </div>`;
+                }
             }
 
-            const updatedPrint = {
-                size: document.getElementById('print-size').value,
-                company: document.getElementById('print-company').value,
-                footer: document.getElementById('print-footer').value
-            };
+            // Render Print Settings
+            document.getElementById('print-size').value = GLOBAL_PRINT.size || "58";
+            document.getElementById('print-company').value = GLOBAL_PRINT.company || "CV. DUAPUTRA JAYA BERSAUDARA";
+            document.getElementById('print-footer').value = GLOBAL_PRINT.footer || "Harap menunggu sampai nomor kamu dipanggil.\nTerima kasih!";
+            
+            // Render General Settings
+            document.getElementById('admin-wa-input').value = GLOBAL_SETTINGS.admin_wa;
+            document.getElementById('admin-open-input').value = GLOBAL_SETTINGS.book_open;
+            document.getElementById('admin-close-input').value = GLOBAL_SETTINGS.book_close;
+            document.getElementById('admin-status-input').value = GLOBAL_SETTINGS.book_status.toString();
 
-            try {
-                await fetch(API_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ 
-                        action: 'update_settings', 
-                        admin_wa: wa, book_open: open, book_close: close, book_status: status,
-                        booths: updatedBooths, print: updatedPrint
-                    }) 
-                });
-                alert("Pengaturan Berhasil Disimpan!");
-                isInputsPopulated = false; // Trigger re-render agar data kembali sinkron dari server
-                refreshData();
-            } catch(e) { 
-                console.error("Gagal menyimpan ke server", e); 
-                alert("Gagal menyimpan pengaturan.");
-            } finally {
-                btn.innerText = "SIMPAN PENGATURAN PABRIK"; btn.disabled = false;
-            }
+            hasRenderedAdminSettings = true;
         }
 
         function selectBooth(b) {
@@ -315,6 +307,49 @@
             localStorage.removeItem('klikka_my_booth');
             localStorage.removeItem('klikka_my_time');
             location.reload();
+        }
+
+        async function saveSettings() {
+            const wa = document.getElementById('admin-wa-input').value.trim();
+            const open = document.getElementById('admin-open-input').value;
+            const close = document.getElementById('admin-close-input').value;
+            const status = document.getElementById('admin-status-input').value === 'true';
+            
+            if(!wa || !wa.startsWith('62')) return alert("Nomor WA harus valid (awalan 62).");
+            if(!open || !close) return alert("Jam Buka dan Tutup harus diisi!");
+
+            // Ambil data Booth Baru
+            const updatedBooths = {};
+            for (const key of Object.keys(GLOBAL_BOOTHS)) {
+                updatedBooths[key] = {
+                    name: document.getElementById(`booth-name-${key}`).value || key,
+                    icon: document.getElementById(`booth-icon-${key}`).value || '📸',
+                    prefix: document.getElementById(`booth-prefix-${key}`).value.toUpperCase() || 'Q',
+                    desc: document.getElementById(`booth-desc-${key}`).value || 'Photobooth'
+                };
+            }
+
+            // Ambil data Print Baru
+            const updatedPrint = {
+                size: document.getElementById('print-size').value,
+                company: document.getElementById('print-company').value,
+                footer: document.getElementById('print-footer').value
+            };
+
+            try {
+                await fetch(API_URL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        action: 'update_settings', 
+                        admin_wa: wa, book_open: open, book_close: close, book_status: status,
+                        booths: updatedBooths,
+                        print: updatedPrint
+                    }) 
+                });
+                alert("Pengaturan Berhasil Disimpan!");
+                hasRenderedAdminSettings = false; // Reset agar form update dari server
+                refreshData();
+            } catch(e) { alert("Gagal menyimpan."); }
         }
 
         function generateSlots(waitingOfflineCount, bookedSlots) {
@@ -396,56 +431,12 @@
                     renderCustomerBooths();
                 }
 
-                if(data.settings) { 
-                    GLOBAL_SETTINGS = data.settings; 
-                    document.getElementById('call-center-link').href = `https://wa.me/${GLOBAL_SETTINGS.admin_wa}`; 
-                }
-                
-                if(data.print_config) { 
-                    GLOBAL_PRINT = data.print_config; 
-                }
+                if(data.settings) { GLOBAL_SETTINGS = data.settings; document.getElementById('call-center-link').href = `https://wa.me/${GLOBAL_SETTINGS.admin_wa}`; }
+                if(data.print_config) { GLOBAL_PRINT = data.print_config; }
 
-                // ISI INPUTAN ADMIN HANYA SEKALI SAAT LOAD
-                if (!isInputsPopulated && !document.getElementById('view-admin').classList.contains('hidden')) {
-                    document.getElementById('admin-wa-input').value = GLOBAL_SETTINGS.admin_wa;
-                    document.getElementById('admin-open-input').value = GLOBAL_SETTINGS.book_open;
-                    document.getElementById('admin-close-input').value = GLOBAL_SETTINGS.book_close;
-                    document.getElementById('admin-status-input').value = GLOBAL_SETTINGS.book_status.toString();
-                    
-                    document.getElementById('print-size').value = GLOBAL_PRINT.size || "58";
-                    document.getElementById('print-company').value = GLOBAL_PRINT.company || "CV. DUAPUTRA JAYA BERSAUDARA";
-                    document.getElementById('print-footer').value = GLOBAL_PRINT.footer || "Harap menunggu sampai nomor kamu dipanggil.\nTerima kasih!";
-                    
-                    // Render list Manajemen Identitas Booth
-                    const boothContainer = document.getElementById('admin-booth-settings');
-                    if(boothContainer) {
-                        boothContainer.innerHTML = '';
-                        for (const [key, b] of Object.entries(GLOBAL_BOOTHS)) {
-                            boothContainer.innerHTML += `
-                            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative">
-                                <div class="absolute top-0 right-0 bg-slate-200 text-slate-500 text-[8px] font-black uppercase px-2 py-1 rounded-bl-xl rounded-tr-2xl">Sistem ID: ${key}</div>
-                                <div class="grid grid-cols-12 gap-3 mb-3 mt-1">
-                                    <div class="col-span-12 md:col-span-6">
-                                        <label class="text-[9px] font-bold text-slate-400 mb-1 block">Nama Booth</label>
-                                        <input type="text" id="booth-name-${key}" value="${b.name}" class="w-full p-2.5 rounded-lg text-xs font-bold border border-slate-200 outline-none focus:border-rose-400 bg-slate-50" onkeyup="document.getElementById('booth-prefix-${key}').value = this.value.charAt(0).toUpperCase()">
-                                    </div>
-                                    <div class="col-span-6 md:col-span-3">
-                                        <label class="text-[9px] font-bold text-slate-400 mb-1 block">Ikon (Emoji)</label>
-                                        <input type="text" id="booth-icon-${key}" value="${b.icon}" class="w-full p-2.5 rounded-lg text-sm border border-slate-200 outline-none text-center bg-slate-50">
-                                    </div>
-                                    <div class="col-span-6 md:col-span-3">
-                                        <label class="text-[9px] font-bold text-slate-400 mb-1 block">Prefix (Kode)</label>
-                                        <input type="text" id="booth-prefix-${key}" value="${b.prefix}" class="w-full p-2.5 rounded-lg font-black text-rose-500 text-xs border border-rose-200 outline-none text-center uppercase bg-rose-50">
-                                    </div>
-                                </div>
-                                <div>
-                                    <label class="text-[9px] font-bold text-slate-400 mb-1 block">Deskripsi Pendek (Untuk Cetak Struk)</label>
-                                    <input type="text" id="booth-desc-${key}" value="${b.desc}" class="w-full p-2.5 rounded-lg text-[10px] font-semibold border border-slate-200 outline-none focus:border-rose-400 bg-slate-50">
-                                </div>
-                            </div>`;
-                        }
-                    }
-                    isInputsPopulated = true;
+                // Hanya render input admin jika view admin sedang terbuka dan belum dirender (biar nggak nimpa yang lagi diketik)
+                if (!document.getElementById('view-admin').classList.contains('hidden')) {
+                    renderAdminSettingsInputs();
                 }
 
                 if(currentBooth) {
@@ -626,10 +617,8 @@
                         </div>
                     `).join('');
                 }
-                
-                // Card UI 
                 container.innerHTML += `
-                    <div class="glass p-5 rounded-[2rem] border-t-4 border-slate-200 bg-white/50 shadow-sm relative">
+                    <div class="glass p-5 rounded-[2rem] border-t-4 border-slate-200 bg-white/50 shadow-sm">
                         <h4 class="font-black uppercase text-rose-600 text-[10px] tracking-[0.2em] mb-4 text-center">${bConfig.name.toUpperCase()}</h4>
                         
                         <div class="flex justify-between items-center mb-4 px-2">
@@ -637,7 +626,7 @@
                             <div class="text-center"><p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Wait (Offline)</p><p class="text-2xl font-black text-rose-500">${s.total_waiting_offline || 0}</p></div>
                         </div>
                         
-                        <button onclick="callNext('${name}')" class="w-full ${(s.total_waiting_offline || 0) > 0 ? 'bg-slate-900 text-white shadow-md hover:-translate-y-1' : 'bg-slate-200 text-slate-400'} py-3 rounded-xl font-black text-xs transition-all mb-2">CALL NEXT OFFLINE →</button>
+                        <button onclick="callNext('${name}')" class="w-full ${(s.total_waiting_offline || 0) > 0 ? 'red-gradient text-white shadow-md hover:-translate-y-1' : 'bg-slate-200 text-slate-400'} py-3 rounded-xl font-black text-xs transition-all mb-2">CALL NEXT OFFLINE →</button>
                         
                         <button id="btn-print-${name}" onclick="addAndPrintTicket('${name}')" class="w-full bg-slate-800 text-white shadow-md hover:bg-slate-900 py-3 rounded-xl font-black text-[10px] transition-all mb-4">🖨️ BUAT & CETAK TIKET OFFLINE</button>
 
@@ -706,9 +695,9 @@
         async function callNext(booth) { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_next', booth_type: booth })}); await refreshData(); }
         async function callSpecific(ticketId, booth) { if(confirm("Panggil pelanggan online ini sekarang? (Status antrian saat ini akan otomatis jadi Done)")) { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_specific', ticket_id: ticketId, booth_type: booth })}); await refreshData(); } }
         async function resetToko() { if(confirm("TUTUP TOKO: Yakin ingin mereset antrian?")) { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'reset_queue' })}); refreshData(); } }
-        function toggleAdmin() { document.getElementById('view-customer').classList.toggle('hidden'); document.getElementById('view-admin').classList.toggle('hidden'); if(!document.getElementById('view-admin').classList.contains('hidden')) { isInputsPopulated = false; refreshData(); } }
+        function toggleAdmin() { document.getElementById('view-customer').classList.toggle('hidden'); document.getElementById('view-admin').classList.toggle('hidden'); if(!document.getElementById('view-admin').classList.contains('hidden')) { renderAdminSettingsInputs(); } }
         function loginAdmin() { if(document.getElementById('admin-code').value === "1234") { localStorage.setItem('klikka_admin_logged_in', 'true'); showAdminPanel(); } else { alert("Passcode Incorrect!"); } }
-        function showAdminPanel() { document.getElementById('view-customer').classList.add('hidden'); document.getElementById('view-admin').classList.remove('hidden'); document.getElementById('admin-login').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); isInputsPopulated = false; refreshData(); }
+        function showAdminPanel() { document.getElementById('view-customer').classList.add('hidden'); document.getElementById('view-admin').classList.remove('hidden'); document.getElementById('admin-login').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); renderAdminSettingsInputs(); refreshData(); }
         function logoutAdmin() { localStorage.removeItem('klikka_admin_logged_in'); location.reload(); }
 
         setInterval(refreshData, 5000); 
