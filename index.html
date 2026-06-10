@@ -49,7 +49,8 @@
 
         <div id="view-customer">
             <div id="booth-selection" class="grid grid-cols-2 gap-4">
-                </div>
+                <p class="col-span-2 text-center text-sm text-slate-400 font-bold">Memuat data booth...</p>
+            </div>
 
             <div id="customer-dashboard" class="hidden space-y-6">
                 <div class="glass p-8 rounded-[3rem] text-center relative border-2 border-white">
@@ -143,12 +144,12 @@
                     </div>
 
                     <div class="mt-4 border-t border-slate-200 pt-4">
-                        <label class="text-[10px] font-black uppercase text-slate-800 mb-2 block">🎨 Manajemen Identitas Booth</label>
-                        <div id="admin-booth-settings" class="space-y-3">
+                        <label class="text-[10px] font-black uppercase text-slate-800 mb-4 block flex items-center gap-2"><span class="text-rose-500 text-base">🎨</span> MANAJEMEN IDENTITAS BOOTH</label>
+                        <div id="admin-booth-settings" class="space-y-4">
                             </div>
                     </div>
 
-                    <button onclick="saveSettings()" class="w-full bg-slate-900 text-white py-3 rounded-xl text-xs font-bold shadow-md hover:bg-slate-800 transition tracking-widest uppercase mt-4">SIMPAN PENGATURAN PABRIK</button>
+                    <button onclick="saveSettings()" class="w-full bg-slate-900 text-white py-4 rounded-xl text-xs font-black shadow-md hover:bg-slate-800 transition tracking-widest uppercase mt-4">SIMPAN PENGATURAN PABRIK</button>
                 </div>
 
                 <div id="admin-booths" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
@@ -164,8 +165,8 @@
                         <div class="flex gap-2">
                             <select id="filter-bulan" class="p-1.5 text-[10px] rounded-lg border border-slate-200 outline-none font-bold bg-white">
                                 <option value="1">Jan</option><option value="2">Feb</option>
-                                <option value="3">Mar</option><option value="4" selected>Apr</option>
-                                <option value="5">Mei</option><option value="6">Jun</option>
+                                <option value="3">Mar</option><option value="4">Apr</option>
+                                <option value="5">Mei</option><option value="6" selected>Jun</option>
                                 <option value="7">Jul</option><option value="8">Agu</option>
                                 <option value="9">Sep</option><option value="10">Okt</option>
                                 <option value="11">Nov</option><option value="12">Des</option>
@@ -177,7 +178,6 @@
                             <button onclick="loadRekapanBulanan()" class="bg-indigo-500 text-white text-[10px] px-3 py-1 rounded-lg font-bold hover:bg-indigo-600 transition shadow-sm">TARIK</button>
                         </div>
                     </div>
-                    
                     <div id="rekapan-bulanan-container" class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
                         <div class="col-span-2 md:col-span-4 p-4 text-[10px] text-slate-400 font-bold uppercase tracking-widest">Silakan klik Tarik Data</div>
                     </div>
@@ -193,7 +193,7 @@
 
     <script>
         // MASUKKAN URL API KAMU DI SINI
-        const API_URL = "https://script.google.com/macros/s/AKfycbwBRjvjRb4fHeJYcq4h1o1x-qnVAfiHi2antvDp3_lR0Yas_LsPRMbJgRVA3DDhMYAyhw/exec"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycbwkELzGstEL40jZp7uAlZAYZA3v-rZmZOZe5tcnjrbYzcvV_0y0cQJ37WQ3-N7O_5v2eQ/exec"; 
         
         let GLOBAL_SETTINGS = { admin_wa: "6281234567890", book_open: "10:00", book_close: "21:00", book_status: true };
         let GLOBAL_BOOTHS = {
@@ -206,6 +206,9 @@
         let currentBooth = "";
         let lastActiveTrack = {};
         let selectedOnlineSlot = "";
+        
+        // Pengunci agar form Admin tidak ter-reset otomatis setiap 5 detik
+        let isAdminRendered = false; 
 
         window.onload = () => {
             const savedTicket = localStorage.getItem('klikka_my_ticket');
@@ -222,7 +225,7 @@
                 document.getElementById('ticket-result').classList.remove('hidden');
                 document.getElementById('btn-ambil').classList.add('hidden');
                 if(document.getElementById('booking-slot-section')) document.getElementById('booking-slot-section').classList.add('hidden');
-                selectBoothUI(savedBooth); // Only UI shift
+                selectBoothUI(savedBooth); 
             }
             if (localStorage.getItem('klikka_admin_logged_in') === 'true') { showAdminPanel(); }
             refreshData();
@@ -234,27 +237,40 @@
             container.innerHTML = '';
             for (const [key, b] of Object.entries(GLOBAL_BOOTHS)) {
                 container.innerHTML += `
-                <button onclick="selectBooth('${key}')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group">
+                <button onclick="selectBooth('${key}')" class="glass p-8 rounded-[2rem] text-center hover:-translate-y-1 transition-all group flex flex-col justify-center items-center">
                     <span class="text-5xl drop-shadow-md group-hover:scale-110 inline-block transition-transform">${b.icon}</span>
                     <p class="mt-4 font-bold text-slate-800">${b.name}</p>
                 </button>`;
             }
         }
 
+        // FUNGSI KHUSUS MERENDER FORM EDIT BOOTH DENGAN TAMPILAN RAPI
         function renderAdminBoothSettings() {
             const container = document.getElementById('admin-booth-settings');
             if(!container) return;
             container.innerHTML = '';
             for (const [key, b] of Object.entries(GLOBAL_BOOTHS)) {
                 container.innerHTML += `
-                <div class="bg-slate-100 p-3 rounded-xl border border-slate-200">
-                    <p class="text-[10px] font-black uppercase text-slate-600 mb-2">${key.replace('_',' ')}</p>
-                    <div class="grid grid-cols-4 gap-2 mb-2">
-                        <input type="text" id="booth-name-${key}" value="${b.name}" placeholder="Nama" class="col-span-2 p-2 rounded-lg text-[10px] border border-slate-300 outline-none">
-                        <input type="text" id="booth-icon-${key}" value="${b.icon}" placeholder="Ikon" class="p-2 rounded-lg text-[10px] border border-slate-300 outline-none text-center">
-                        <input type="text" id="booth-prefix-${key}" value="${b.prefix}" placeholder="Prefix" class="p-2 rounded-lg text-[10px] border border-slate-300 outline-none text-center uppercase">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative">
+                    <div class="absolute top-0 right-0 bg-slate-200 text-slate-500 text-[8px] font-black uppercase px-2 py-1 rounded-bl-xl rounded-tr-2xl">ID Sistem: ${key}</div>
+                    <div class="grid grid-cols-12 gap-3 mb-3 mt-2">
+                        <div class="col-span-12 md:col-span-6">
+                            <label class="text-[9px] font-bold text-slate-400 mb-1 block">Nama Booth</label>
+                            <input type="text" id="booth-name-${key}" value="${b.name}" class="w-full p-2.5 rounded-lg text-xs font-bold border border-slate-200 outline-none focus:border-rose-400 bg-slate-50" onkeyup="document.getElementById('booth-prefix-${key}').value = this.value.charAt(0).toUpperCase()">
+                        </div>
+                        <div class="col-span-6 md:col-span-3">
+                            <label class="text-[9px] font-bold text-slate-400 mb-1 block">Ikon (Emoji)</label>
+                            <input type="text" id="booth-icon-${key}" value="${b.icon}" class="w-full p-2.5 rounded-lg text-sm border border-slate-200 outline-none text-center bg-slate-50">
+                        </div>
+                        <div class="col-span-6 md:col-span-3">
+                            <label class="text-[9px] font-bold text-slate-400 mb-1 block">Prefix (Kode)</label>
+                            <input type="text" id="booth-prefix-${key}" value="${b.prefix}" class="w-full p-2.5 rounded-lg font-black text-rose-500 text-xs border border-rose-200 outline-none text-center uppercase bg-rose-50">
+                        </div>
                     </div>
-                    <input type="text" id="booth-desc-${key}" value="${b.desc}" placeholder="Deskripsi Singkat" class="w-full p-2 rounded-lg text-[10px] border border-slate-300 outline-none">
+                    <div>
+                        <label class="text-[9px] font-bold text-slate-400 mb-1 block">Deskripsi Pendek (Untuk Cetak Struk)</label>
+                        <input type="text" id="booth-desc-${key}" value="${b.desc}" class="w-full p-2.5 rounded-lg text-[10px] font-semibold border border-slate-200 outline-none focus:border-rose-400 bg-slate-50">
+                    </div>
                 </div>`;
             }
         }
@@ -283,15 +299,19 @@
         }
 
         async function saveSettings() {
+            const btn = document.querySelector('button[onclick="saveSettings()"]');
+            const originalText = btn.innerText;
+            btn.innerText = "MENYIMPAN..."; btn.disabled = true;
+
             const wa = document.getElementById('admin-wa-input').value.trim();
             const open = document.getElementById('admin-open-input').value;
             const close = document.getElementById('admin-close-input').value;
             const status = document.getElementById('admin-status-input').value === 'true';
             
-            if(!wa || !wa.startsWith('62')) return alert("Nomor WA harus valid (awalan 62).");
-            if(!open || !close) return alert("Jam Buka dan Tutup harus diisi!");
+            if(!wa || !wa.startsWith('62')) { alert("Nomor WA harus valid (awalan 62)."); btn.innerText = originalText; btn.disabled = false; return; }
+            if(!open || !close) { alert("Jam Buka dan Tutup harus diisi!"); btn.innerText = originalText; btn.disabled = false; return; }
 
-            // Grab updated booths
+            // Menarik data identitas booth dari input admin
             const updatedBooths = {};
             for (const key of Object.keys(GLOBAL_BOOTHS)) {
                 updatedBooths[key] = {
@@ -312,8 +332,18 @@
                     }) 
                 });
                 alert("Pengaturan & Detail Booth Berhasil Disimpan!");
-                refreshData();
-            } catch(e) { alert("Gagal menyimpan."); }
+                
+                // Update ke antarmuka pengguna secara real-time
+                GLOBAL_BOOTHS = updatedBooths;
+                renderCustomerBooths(); 
+                if (currentBooth) selectBoothUI(currentBooth);
+                
+                refreshData(); 
+            } catch(e) { 
+                alert("Gagal menyimpan."); 
+            } finally {
+                btn.innerText = originalText; btn.disabled = false;
+            }
         }
 
         function generateSlots(waitingOfflineCount, bookedSlots) {
@@ -390,23 +420,19 @@
                 const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'get_status' })});
                 const data = await res.json();
                 
+                // Update Booth Data
                 if(data.booths_config) {
                     GLOBAL_BOOTHS = data.booths_config;
-                    renderCustomerBooths();
-                    if(document.getElementById('admin-booth-settings') && document.getElementById('admin-booth-settings').innerHTML === '') {
-                        renderAdminBoothSettings();
+                    // Hanya merender ulang UI Customer jika menu admin sedang disembunyikan
+                    if(document.getElementById('view-admin').classList.contains('hidden')){
+                        renderCustomerBooths();
                     }
                 }
 
+                // Update Setting Data
                 if(data.settings) {
                     GLOBAL_SETTINGS = data.settings;
                     document.getElementById('call-center-link').href = `https://wa.me/${GLOBAL_SETTINGS.admin_wa}`;
-                    if(document.getElementById('admin-wa-input') && document.getElementById('admin-wa-input').value === "") {
-                        document.getElementById('admin-wa-input').value = GLOBAL_SETTINGS.admin_wa;
-                        document.getElementById('admin-open-input').value = GLOBAL_SETTINGS.book_open;
-                        document.getElementById('admin-close-input').value = GLOBAL_SETTINGS.book_close;
-                        document.getElementById('admin-status-input').value = GLOBAL_SETTINGS.book_status.toString();
-                    }
                 }
 
                 if(currentBooth) {
@@ -431,7 +457,8 @@
                     generateSlots(s.total_waiting_offline || 0, s.booked_slots || []); 
                 }
 
-                if (document.getElementById('admin-total-done')) {
+                // Render bagian statistik & aktivitas di Panel Admin
+                if (document.getElementById('admin-total-done') && !document.getElementById('view-admin').classList.contains('hidden')) {
                     document.getElementById('admin-total-done').innerText = data.total_done;
                     updateAdminPanel(data.stats);
                     updateAdminRecapLog(data.recap);
@@ -529,7 +556,7 @@
                         setTimeout(function(){
                             window.print();
                             window.close();
-                        }, 500); // Jeda sejenak agar QR termuat
+                        }, 500); 
                     }
                 <\/script>
             </body>
@@ -562,7 +589,9 @@
             if (!container) return;
             container.innerHTML = "";
             for (const [name, s] of Object.entries(stats)) {
-                const bConfig = GLOBAL_BOOTHS[name] || { name: name };
+                // Menarik label nama dinamis yang sudah ter-update
+                const bConfig = GLOBAL_BOOTHS[name] || { name: name.replace('_',' ') };
+                
                 let onlineListHTML = '<p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest text-center mt-2 mb-1">Tidak ada booking online</p>';
                 if(s.online_bookings && s.online_bookings.length > 0) {
                     onlineListHTML = s.online_bookings.map(ob => `
@@ -616,6 +645,7 @@
                 return;
             }
             container.innerHTML = recapList.map(r => {
+                // Menarik label nama yang sudah ter-update untuk daftar recent activity
                 const bConfig = GLOBAL_BOOTHS[r.booth_type] || {name: r.booth_type.replace('_',' ')};
                 return `
                 <div class="flex justify-between items-center bg-white/70 p-2.5 rounded-xl border border-slate-100">
@@ -639,11 +669,14 @@
                 if(result.success) {
                     const c = document.getElementById('rekapan-bulanan-container');
                     const d = result.data;
+                    // Menarik label nama dinamis
+                    const getName = (key) => GLOBAL_BOOTHS[key] ? GLOBAL_BOOTHS[key].name : key;
+                    
                     c.innerHTML = `
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">Elevator</p><p class="text-xl font-black text-slate-700">${d.elevator || 0}</p></div>
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">MRT</p><p class="text-xl font-black text-slate-700">${d.mrt || 0}</p></div>
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">Elv. Vintage</p><p class="text-xl font-black text-slate-700">${d.elevator_vintage || 0}</p></div>
-                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1">Tirai Vintage</p><p class="text-xl font-black text-slate-700">${d.tirai_vintage || 0}</p></div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1 truncate">${getName('elevator')}</p><p class="text-xl font-black text-slate-700">${d.elevator || 0}</p></div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1 truncate">${getName('mrt')}</p><p class="text-xl font-black text-slate-700">${d.mrt || 0}</p></div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1 truncate">${getName('elevator_vintage')}</p><p class="text-xl font-black text-slate-700">${d.elevator_vintage || 0}</p></div>
+                        <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm"><p class="text-[9px] text-slate-400 uppercase font-bold tracking-widest mb-1 truncate">${getName('tirai_vintage')}</p><p class="text-xl font-black text-slate-700">${d.tirai_vintage || 0}</p></div>
                         <div class="col-span-2 md:col-span-4 bg-indigo-50 p-4 rounded-xl border border-indigo-200 flex justify-between items-center px-6">
                             <p class="text-[11px] text-indigo-500 uppercase font-black tracking-widest">Total Selesai Bulan Ini</p>
                             <p class="text-3xl font-black text-indigo-600">${d.total || 0}</p>
@@ -656,9 +689,40 @@
         async function callNext(booth) { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_next', booth_type: booth })}); await refreshData(); }
         async function callSpecific(ticketId, booth) { if(confirm("Panggil pelanggan online ini sekarang? (Status antrian saat ini akan otomatis jadi Done)")) { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'call_specific', ticket_id: ticketId, booth_type: booth })}); await refreshData(); } }
         async function resetToko() { if(confirm("TUTUP TOKO: Yakin ingin mereset antrian?")) { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'reset_queue' })}); refreshData(); } }
-        function toggleAdmin() { document.getElementById('view-customer').classList.toggle('hidden'); document.getElementById('view-admin').classList.toggle('hidden'); }
+        
+        function toggleAdmin() { 
+            document.getElementById('view-customer').classList.toggle('hidden'); 
+            document.getElementById('view-admin').classList.toggle('hidden'); 
+            if (!document.getElementById('view-admin').classList.contains('hidden') && !isAdminRendered) {
+                // Sengaja mengisi form HANYA saat dibuka pertama kali untuk mencegah reset akibat refresh 5 detik
+                document.getElementById('admin-wa-input').value = GLOBAL_SETTINGS.admin_wa;
+                document.getElementById('admin-open-input').value = GLOBAL_SETTINGS.book_open;
+                document.getElementById('admin-close-input').value = GLOBAL_SETTINGS.book_close;
+                document.getElementById('admin-status-input').value = GLOBAL_SETTINGS.book_status.toString();
+                renderAdminBoothSettings();
+                isAdminRendered = true;
+            }
+        }
+
         function loginAdmin() { if(document.getElementById('admin-code').value === "1234") { localStorage.setItem('klikka_admin_logged_in', 'true'); showAdminPanel(); } else { alert("Passcode Incorrect!"); } }
-        function showAdminPanel() { document.getElementById('view-customer').classList.add('hidden'); document.getElementById('view-admin').classList.remove('hidden'); document.getElementById('admin-login').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); refreshData(); }
+        
+        function showAdminPanel() { 
+            document.getElementById('view-customer').classList.add('hidden'); 
+            document.getElementById('view-admin').classList.remove('hidden'); 
+            document.getElementById('admin-login').classList.add('hidden'); 
+            document.getElementById('admin-panel').classList.remove('hidden'); 
+            
+            if (!isAdminRendered) {
+                document.getElementById('admin-wa-input').value = GLOBAL_SETTINGS.admin_wa;
+                document.getElementById('admin-open-input').value = GLOBAL_SETTINGS.book_open;
+                document.getElementById('admin-close-input').value = GLOBAL_SETTINGS.book_close;
+                document.getElementById('admin-status-input').value = GLOBAL_SETTINGS.book_status.toString();
+                renderAdminBoothSettings();
+                isAdminRendered = true;
+            }
+            refreshData(); 
+        }
+
         function logoutAdmin() { localStorage.removeItem('klikka_admin_logged_in'); location.reload(); }
 
         setInterval(refreshData, 5000); 
